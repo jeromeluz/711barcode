@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>7-11 長期POP與隔板省力工具系統</title>
+  <title>7-11 門市輔導訂貨與自用品條碼系統</title>
   <!-- CSV 解析與條碼繪製套件 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -22,6 +22,7 @@
       padding: 12px;
     }
 
+    /* 頂部固定控制區 */
     .header-panel {
       background: #ffffff;
       padding: 14px 18px;
@@ -33,15 +34,21 @@
       z-index: 100;
     }
 
+    /* 三大頁籤導航 */
     .nav-tabs {
       display: flex;
-      gap: 10px;
+      gap: 6px;
       border-bottom: 2px solid #e2e8f0;
       margin-bottom: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .tab-btn {
-      padding: 8px 16px;
+      padding: 8px 14px;
       border: none;
       background: none;
       font-size: 15px;
@@ -50,6 +57,7 @@
       cursor: pointer;
       border-bottom: 3px solid transparent;
       margin-bottom: -2px;
+      white-space: nowrap;
       transition: all 0.2s;
     }
 
@@ -92,6 +100,7 @@
       box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
     }
 
+    /* 綠色大標分類快速滑動列 */
     .category-scroll {
       display: flex;
       gap: 8px;
@@ -119,7 +128,7 @@
       border-color: #008062;
     }
 
-    /* 標準表格樣式區塊 */
+    /* 隔板標準量圖表面板 */
     .standard-panel {
       background: #ffffff;
       border-radius: 8px;
@@ -186,6 +195,7 @@
       font-weight: 800;
     }
 
+    /* 卡片格線與本體 */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -277,26 +287,28 @@
 <body>
 
   <div class="header-panel">
+    <!-- 三大分頁切換 -->
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
-      <button class="tab-btn" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
+      <button class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
+      <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品 (622項)</button>
+      <button class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
     </div>
 
     <div class="status-bar">
-      <div>目前總數：<b id="total-count" class="badge">0</b> 筆</div>
-      <div>符合條件：<b id="filtered-count">0</b> 筆</div>
+      <div>目前頁面總數：<b id="total-count" class="badge">0</b> 筆</div>
+      <div>符合條件筆數：<b id="filtered-count">0</b> 筆</div>
     </div>
 
     <div>
-      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（如 304670）或名稱關鍵字搜尋...">
+      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（如 003171）或品名關鍵字（如 咖啡機、抹布、提袋）搜尋...">
     </div>
 
+    <!-- 大標題分類按鈕列 -->
     <div class="category-scroll" id="category-scroll"></div>
   </div>
 
-  <!-- 隔板與省力工具專屬：兩張標準量對照表 -->
+  <!-- 隔板與省力工具專屬：標準量對照表 -->
   <div id="board-standard-section" style="display: none;">
-    <!-- 表二：貨架數主配與建議訂購量對照表 -->
     <div class="standard-panel">
       <div class="panel-title">隔板標準量（依門市貨架數對照）</div>
       
@@ -353,7 +365,6 @@
       </div>
     </div>
 
-    <!-- 表一：春季檯帳＆輔導訂貨資料表 (各類別估算明細) -->
     <div class="standard-panel">
       <div class="panel-title">春季檯帳＆輔導訂貨資料表（各類別細項估算）</div>
       <div class="table-container">
@@ -442,6 +453,7 @@
     </div>
   </div>
 
+  <!-- 卡片清單區塊 -->
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
@@ -486,7 +498,7 @@
           filterAndRender();
         },
         error: function(err) {
-          gridContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">請確認同目錄已放置 ${CSV_PATH}</div>`;
+          gridContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">請確認同目錄下放置了 ${CSV_PATH}</div>`;
         }
       });
     }
@@ -495,10 +507,9 @@
       currentPage = pageName;
       currentCategory = 'ALL';
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(pageName));
+        btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
       });
 
-      // 判斷是否顯示隔板標準量圖表
       if (currentPage === '隔板與省力工具') {
         boardStandardSection.style.display = 'block';
       } else {
