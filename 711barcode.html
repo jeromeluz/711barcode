@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品目錄與條碼查詢清單</title>
+  <!-- 引入 CSV 解析庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- 引入條碼生成庫 JsBarcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f8;
+      color: #333;
+      padding: 16px;
+    }
+
+    /* 頂部搜尋列固定 */
+    .header-panel {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+    }
+
+    .status-bar {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
+
+    /* 卡片格線 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    /* 卡片外框 */
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e1e4e8;
+    }
+
+    /* 商品標題 */
+    .card-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    /* 底部區塊：左側條碼，右側單價 */
+    .card-bottom-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px dashed #e8e8e8;
+      padding-top: 8px;
+      gap: 10px;
+    }
+
+    /* 左側條碼區域 */
+    .barcode-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      overflow: hidden;
+    }
+
+    .barcode-svg {
+      max-width: 100%;
+      height: 55px; /* 適合手持掃描槍與座充機刷讀高度 */
+    }
+
+    /* 右側單價區域 */
+    .card-price-area {
+      text-align: right;
+      min-width: 80px;
+    }
+
+    .price-label {
+      font-size: 11px;
+      color: #888;
+      display: block;
+    }
+
+    .price-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: #d9383a;
+    }
+
+    .message {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-panel">
+    <div class="status-bar">
+      <div>資料總數：<b id="total-count">載入中...</b></div>
+      <div>符合筆數：<b id="filtered-count">0</b> 筆 (目前呈現 <span id="rendered-count">0</span> 筆)</div>
+    </div>
+    <div>
+      <input type="text" id="search-input" class="search-input" placeholder="輸入商品名稱或代碼搜尋..." disabled>
+    </div>
+  </div>
+
+  <div class="grid-container" id="grid-container">
+    <div class="message" id="status-msg">正在載入商品資料，請稍候...</div>
+  </div>
+
+  <!-- 滾動觸發器 -->
+  <div id="loading-trigger" style="height: 20px;"></div>
+
+  <script>
+    const CSV_FILE_PATH = 'data.csv';
+    const BATCH_SIZE = 40; // 批次載入數量
+
+    let allData = [];
+    let currentFiltered = [];
+    let currentRenderIndex = 0;
+
+    const searchInput = document.getElementById('search-input');
+    const gridContainer = document.getElementById('grid-container');
+    const totalCountEl = document.getElementById('total-count');
+    const filteredCountEl = document.getElementById('filtered-count');
+    const renderedCountEl = document.getElementById('rendered-count');
+    const statusMsg = document.getElementById('status-msg');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCsvData();
+      setupInfiniteScroll();
+    });
+
+    function loadCsvData() {
+      Papa.parse(CSV_FILE_PATH, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          allData = results.data;
+          totalCountEl.textContent = allData.length;
+          searchInput.disabled = false;
+          searchInput.focus();
+          filterAndReset();
+        },
+        error: function(err) {
+          statusMsg.textContent = 'CSV 讀取失敗，請確認同目錄下是否有 ' + CSV_FILE_PATH;
+        }
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      filterAndReset();
+    });
+
+    // 解析欄位
+    function extractFields(item) {
+      const codeKey = Object.keys(item).find(k => /條碼|編號|代碼|id|code/i.test(k));
+      const nameKey = Object.keys(item).find(k => /名稱|品名|name|title/i.test(k)) || Object.keys(item)[1] || Object.keys(item)[0];
+      const priceKey = Object.keys(item).find(k => /單價|價格|售價|金額|price/i.test(k));
+
+      const code = (codeKey && item[codeKey]) ? String(item[codeKey]).trim() : '';
+      const name = (nameKey && item[nameKey]) ? String(item[nameKey]).trim() : '';
+      const price = (priceKey && item[priceKey] !== undefined) ? String(item[priceKey]).trim() : '0';
+
+      const title = (code ? code + ' ' : '') + name;
+      return { code, title, price };
+    }
+
+    function filterAndReset() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      currentFiltered = allData.filter(item => {
+        if (!keyword) return true;
+        return Object.values(item).some(val => String(val).toLowerCase().includes(keyword));
+      });
+
+      filteredCountEl.textContent = currentFiltered.length;
+      gridContainer.innerHTML = '';
+      currentRenderIndex = 0;
+
+      if (currentFiltered.length === 0) {
+        gridContainer.innerHTML = '<div class="message">查無符合條件的商品</div>';
+        renderedCountEl.textContent = 0;
+        return;
+      }
+
+      loadMoreCards();
+    }
+
+    function loadMoreCards() {
+      if (currentRenderIndex >= currentFiltered.length) return;
+
+      const nextIndex = Math.min(currentRenderIndex + BATCH_SIZE, currentFiltered.length);
+      const chunk = currentFiltered.slice(currentRenderIndex, nextIndex);
+
+      const fragment = document.createDocumentFragment();
+      const barcodesToRender = [];
+
+      chunk.forEach((item, idx) => {
+        const { code, title, price } = extractFields(item);
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const svgId = `barcode-${currentRenderIndex + idx}`;
+
+        card.innerHTML = `
+          <div class="card-header">${escapeHtml(title)}</div>
+          <div class="card-bottom-area">
+            <div class="barcode-wrapper">
+              ${code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無條碼</span>'}
+            </div>
+            <div class="card-price-area">
+              <span class="price-label">單價</span>
+              <span class="price-val">$${escapeHtml(price)}</span>
+            </div>
+          </div>
+        `;
+
+        fragment.appendChild(card);
+
+        if (code) {
+          barcodesToRender.push({ id: svgId, code: code });
+        }
+      });
+
+      gridContainer.appendChild(fragment);
+
+      // 繪製條碼 (使用 CODE128，具備高相容性，7-11 紅外線/雷射槍皆可刷讀)
+      barcodesToRender.forEach(item => {
+        try {
+          JsBarcode(`#${item.id}`, item.code, {
+            format: "CODE128",
+            width: 1.5,         // 條碼線條寬度
+            height: 40,         // 條碼高度
+            displayValue: true, // 條碼下方顯示文字數字
+            fontSize: 12,
+            margin: 0
+          });
+        } catch (e) {
+          console.warn(`條碼 ${item.code} 產生失敗:`, e);
+        }
+      });
+
+      currentRenderIndex = nextIndex;
+      renderedCountEl.textContent = currentRenderIndex;
+    }
+
+    function setupInfiniteScroll() {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreCards();
+        }
+      }, { rootMargin: '250px' });
+
+      observer.observe(document.getElementById('loading-trigger'));
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
