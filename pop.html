@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>7-11 長期POP與隔板工具條碼系統</title>
-  <!-- CSV 解析與條碼繪製庫 -->
+  <title>7-11 長期POP與隔板省力工具系統</title>
+  <!-- CSV 解析與條碼繪製套件 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
@@ -22,7 +22,6 @@
       padding: 12px;
     }
 
-    /* 頂部固定面板 */
     .header-panel {
       background: #ffffff;
       padding: 14px 18px;
@@ -34,7 +33,6 @@
       z-index: 100;
     }
 
-    /* 頁面切換 Tabs */
     .nav-tabs {
       display: flex;
       gap: 10px;
@@ -56,7 +54,7 @@
     }
 
     .tab-btn.active {
-      color: #008062; /* 7-11 經典綠色大標 */
+      color: #008062;
       border-bottom-color: #008062;
     }
 
@@ -94,7 +92,6 @@
       box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
     }
 
-    /* 綠色分類標籤橫向滑動區 */
     .category-scroll {
       display: flex;
       gap: 8px;
@@ -122,14 +119,79 @@
       border-color: #008062;
     }
 
-    /* 卡片格線 */
+    /* 標準表格樣式區塊 */
+    .standard-panel {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .panel-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: #008062;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    table.data-table th, table.data-table td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 6px;
+    }
+
+    table.data-table th {
+      background-color: #008062;
+      color: white;
+      font-weight: 700;
+    }
+
+    table.data-table tr.bg-sub {
+      background-color: #f8fafc;
+      font-weight: 600;
+    }
+
+    table.data-table tr.highlight {
+      background-color: #fef08a;
+      font-weight: 700;
+    }
+
+    table.data-table tr.summary-row {
+      background-color: #f0fdf4;
+      font-weight: 800;
+    }
+
     .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
       gap: 12px;
     }
 
-    /* 商品與 POP 卡片 */
     .card {
       background: #ffffff;
       border-radius: 8px;
@@ -176,7 +238,6 @@
       word-break: break-all;
     }
 
-    /* 條碼呈現區塊 */
     .card-barcode-box {
       background: #ffffff;
       padding: 4px 0 0 0;
@@ -191,45 +252,201 @@
       height: 55px;
     }
 
-    .empty-msg {
-      grid-column: 1 / -1;
+    .calc-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .calc-box input {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
       text-align: center;
-      padding: 50px 20px;
-      color: #64748b;
-      font-size: 15px;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
 
   <div class="header-panel">
-    <!-- 頁面選單 -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
       <button class="tab-btn" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
     </div>
 
-    <!-- 狀態資訊 -->
     <div class="status-bar">
-      <div>目前頁面總數：<b id="total-count" class="badge">0</b> 筆</div>
+      <div>目前總數：<b id="total-count" class="badge">0</b> 筆</div>
       <div>符合條件：<b id="filtered-count">0</b> 筆</div>
     </div>
 
-    <!-- 搜尋框 -->
     <div>
-      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（例如 324333）或名稱關鍵字搜尋...">
+      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（如 304670）或名稱關鍵字搜尋...">
     </div>
 
-    <!-- 綠色大標題分類篩選 -->
     <div class="category-scroll" id="category-scroll"></div>
   </div>
 
-  <!-- 卡片清單與滾動加載觸發點 -->
+  <!-- 隔板與省力工具專屬：兩張標準量對照表 -->
+  <div id="board-standard-section" style="display: none;">
+    <!-- 表二：貨架數主配與建議訂購量對照表 -->
+    <div class="standard-panel">
+      <div class="panel-title">隔板標準量（依門市貨架數對照）</div>
+      
+      <div class="calc-box">
+        <span>輸入門市貨架數：</span>
+        <input type="number" id="shelf-input" placeholder="例: 36" min="1" oninput="calcShelfStandard()">
+        <span id="shelf-result-hint" style="font-weight: 700; color: #008062;"></span>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="shelf-standard-table">
+          <thead>
+            <tr>
+              <th>貨架數</th>
+              <th>T 型 (個)</th>
+              <th>左型 (個)</th>
+              <th>右型 (個)</th>
+              <th>主配標準品號 / 數量</th>
+              <th>建議訂貨包數</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="row-range-1">
+              <td style="font-weight: 700;">30↓ - 34</td>
+              <td>320</td>
+              <td>65</td>
+              <td>65</td>
+              <td rowspan="3" style="text-align: left; padding-left: 12px; vertical-align: top;">
+                • T隔 304670：<b>320 個</b><br>
+                • 右隔 315288：<b>65 個</b><br>
+                • 左隔 315285：<b>65 個</b><br>
+                • 易倒輔助 376574：<b>10 個</b> (訂1來10)
+              </td>
+              <td rowspan="3" style="text-align: left; padding-left: 12px; vertical-align: top; color: #c2410c; font-weight: 700;">
+                • T隔 (訂1來10)：<b>70 包</b><br>
+                • 右隔 (訂1來5)：<b>20 包</b><br>
+                • 左隔 (訂1來5)：<b>20 包</b>
+              </td>
+            </tr>
+            <tr id="row-range-2">
+              <td style="font-weight: 700;">35 - 40</td>
+              <td>380</td>
+              <td>85</td>
+              <td>85</td>
+            </tr>
+            <tr id="row-range-3">
+              <td style="font-weight: 700;">41↑</td>
+              <td>450</td>
+              <td>100</td>
+              <td>100</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 表一：春季檯帳＆輔導訂貨資料表 (各類別估算明細) -->
+    <div class="standard-panel">
+      <div class="panel-title">春季檯帳＆輔導訂貨資料表（各類別細項估算）</div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr style="background: #e07a5f;">
+              <th style="background: #d96d27;">備註</th>
+              <th style="background: #d96d27;">類別</th>
+              <th style="background: #d96d27;">檯數</th>
+              <th style="background: #d96d27;">估算T型隔板</th>
+              <th style="background: #d96d27;">估計左隔板</th>
+              <th style="background: #d96d27;">估計右隔板</th>
+              <th style="background: #d96d27;">估易倒輔助版</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td></td><td>零食</td><td>7</td><td>252</td><td>42</td><td>42</td><td>200</td></tr>
+            <tr><td></td><td>麵食</td><td>3</td><td>108</td><td>18</td><td>18</td><td>-</td></tr>
+            <tr><td></td><td>食調</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>烈酒</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>量販</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>國際用品</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>國際食品</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>糖果</td><td>3</td><td>216</td><td>18</td><td>18</td><td>-</td></tr>
+            <tr><td></td><td>專案</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>用品</td><td>5</td><td>360</td><td>30</td><td>30</td><td>-</td></tr>
+            <tr><td></td><td>寵物</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>區域</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>架前架</td><td>5層</td><td>30</td><td>5</td><td>5</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>健美</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="summary-row">
+              <td colspan="2">總數量 (個)</td>
+              <td>-</td>
+              <td>1,362</td>
+              <td>167</td>
+              <td>167</td>
+              <td>200</td>
+            </tr>
+            <tr class="bg-sub">
+              <td colspan="2">公司主配 (個)</td>
+              <td>-</td>
+              <td>320</td>
+              <td>65</td>
+              <td>65</td>
+              <td>0</td>
+            </tr>
+            <tr style="background:#ffedd5; font-weight:700;">
+              <td colspan="2">包裝入數</td>
+              <td>-</td>
+              <td>訂1來10</td>
+              <td>訂1來5</td>
+              <td>訂1來5</td>
+              <td>訂1來10</td>
+            </tr>
+            <tr style="background:#bbf7d0; font-weight:800; color:#166534;">
+              <td colspan="2">建議上傳 (包)</td>
+              <td>-</td>
+              <td>104 包</td>
+              <td>20 包</td>
+              <td>20 包</td>
+              <td>20 包</td>
+            </tr>
+            <tr>
+              <td colspan="2">成本單價 (元)</td>
+              <td>-</td>
+              <td>$12</td>
+              <td>$12</td>
+              <td>$12</td>
+              <td>$18</td>
+            </tr>
+            <tr style="font-weight: 700;">
+              <td colspan="2">成本小計</td>
+              <td>-</td>
+              <td>$12,504</td>
+              <td>$1,224</td>
+              <td>$1,224</td>
+              <td>$3,600</td>
+            </tr>
+            <tr style="background: #f1f5f9; font-size: 14px; font-weight: 800;">
+              <td colspan="2">總成本估算</td>
+              <td colspan="5" style="text-align: left; padding-left: 14px; color: #b91c1c;">$18,552 元</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
   <script>
-    const CSV_PATH = 'pop.csv';
+    const CSV_PATH = 'data.csv';
     const BATCH_SIZE = 40;
 
     let allData = [];
@@ -243,13 +460,13 @@
     const gridContainer = document.getElementById('grid-container');
     const totalCountEl = document.getElementById('total-count');
     const filteredCountEl = document.getElementById('filtered-count');
+    const boardStandardSection = document.getElementById('board-standard-section');
 
     window.addEventListener('DOMContentLoaded', () => {
       loadCSV();
       setupInfiniteScroll();
     });
 
-    // 讀取同目錄下的 data.csv
     function loadCSV() {
       Papa.parse(CSV_PATH, {
         download: true,
@@ -269,23 +486,57 @@
           filterAndRender();
         },
         error: function(err) {
-          gridContainer.innerHTML = `<div class="empty-msg">無法載入 ${CSV_PATH}，請確認檔案已放置同目錄。</div>`;
+          gridContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">請確認同目錄已放置 ${CSV_PATH}</div>`;
         }
       });
     }
 
-    // 切換頁面 (POP vs 隔板工具)
     function switchPage(pageName) {
       currentPage = pageName;
       currentCategory = 'ALL';
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.textContent.includes(pageName));
       });
+
+      // 判斷是否顯示隔板標準量圖表
+      if (currentPage === '隔板與省力工具') {
+        boardStandardSection.style.display = 'block';
+      } else {
+        boardStandardSection.style.display = 'none';
+      }
+
       updateCategoryTabs();
       filterAndRender();
     }
 
-    // 更新大標題分類標籤
+    function calcShelfStandard() {
+      const val = parseInt(document.getElementById('shelf-input').value, 10);
+      const hint = document.getElementById('shelf-result-hint');
+      const r1 = document.getElementById('row-range-1');
+      const r2 = document.getElementById('row-range-2');
+      const r3 = document.getElementById('row-range-3');
+
+      r1.style.background = '';
+      r2.style.background = '';
+      r3.style.background = '';
+
+      if (isNaN(val) || val <= 0) {
+        hint.textContent = '';
+        return;
+      }
+
+      if (val <= 34) {
+        r1.style.background = '#fef08a';
+        hint.textContent = ` 符合【30↓ - 34 檯】標準：T 隔 320 / 左 65 / 右 65`;
+      } else if (val <= 40) {
+        r2.style.background = '#fef08a';
+        hint.textContent = ` 符合【35 - 40 檯】標準：T 隔 380 / 左 85 / 右 85`;
+      } else {
+        r3.style.background = '#fef08a';
+        hint.textContent = ` 符合【41↑ 檯】標準：T 隔 450 / 左 100 / 右 100`;
+      }
+    }
+
     function updateCategoryTabs() {
       categoryScroll.innerHTML = '';
       const pageItems = allData.filter(d => d.page === currentPage);
@@ -307,12 +558,10 @@
       });
     }
 
-    // 搜尋監聽
     searchInput.addEventListener('input', () => {
       filterAndRender();
     });
 
-    // 篩選並渲染
     function filterAndRender() {
       const keyword = searchInput.value.trim().toLowerCase();
 
@@ -332,7 +581,7 @@
       currentRenderIndex = 0;
 
       if (currentFiltered.length === 0) {
-        gridContainer.innerHTML = '<div class="empty-msg">查無符合條件的項目</div>';
+        gridContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">查無符合項目</div>';
         return;
       }
 
@@ -356,12 +605,12 @@
           <div>
             <div class="card-meta">
               <span class="meta-cat">${escapeHtml(item.category)}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ''}</span>
-              <span class="meta-qty">${item.qty ? `規格: ${escapeHtml(item.qty)}` : ''}</span>
+              <span class="meta-qty">${item.qty ? `${escapeHtml(item.qty)}` : ''}</span>
             </div>
             <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
           </div>
           <div class="card-barcode-box">
-            ${item.code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無品號條碼</span>'}
+            ${item.code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無條碼</span>'}
           </div>
         `;
         fragment.appendChild(card);
@@ -373,7 +622,6 @@
 
       gridContainer.appendChild(fragment);
 
-      // 繪製條碼 (CODE128 格式，相容 POS 掃描槍)
       barcodesToDraw.forEach(b => {
         try {
           JsBarcode(`#${b.id}`, b.code, {
@@ -394,7 +642,6 @@
       currentRenderIndex = nextIndex;
     }
 
-    // 滾動加載更多
     function setupInfiniteScroll() {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
