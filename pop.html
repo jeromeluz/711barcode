@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>7-11 長期POP與陳列盒條碼查詢系統</title>
+  <!-- 條碼生成庫 JsBarcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <!-- CSV 解析庫 PapaParse (支援自訂 CSV 讀取) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f1f4f8;
+      color: #333;
+      padding: 12px;
+    }
+
+    /* 頂部固定面板 */
+    .header-panel {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 14px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+
+    .badge {
+      background: #e8f3ff;
+      color: #0066cc;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    /* 搜尋列 */
+    .search-box {
+      margin-bottom: 10px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
+
+    /* 分類標籤頁切換列 */
+    .category-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+    }
+
+    .category-btn {
+      white-space: nowrap;
+      padding: 6px 12px;
+      font-size: 13px;
+      border: 1px solid #dcdcdc;
+      background: #f8f9fa;
+      border-radius: 20px;
+      cursor: pointer;
+      color: #555;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .category-btn.active {
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+
+    /* 卡片容器：自適應多欄排版 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    /* POP 卡片本體 */
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+      transition: transform 0.1s;
+    }
+
+    .card-top {
+      margin-bottom: 8px;
+    }
+
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .tag-category {
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-qty {
+      font-size: 11px;
+      background: #fff3e0;
+      color: #d97706;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.35;
+      word-break: break-all;
+    }
+
+    /* 條碼區域：白色底色、高對比、置中好刷 */
+    .card-barcode-area {
+      background: #ffffff;
+      padding: 6px 0 2px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .barcode-svg {
+      max-width: 100%;
+      height: 60px;
+    }
+
+    .message {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-panel">
+    <div class="status-bar">
+      <div>總資料：<b id="total-count" class="badge">0</b> 筆</div>
+      <div>顯示筆數：<b id="filtered-count">0</b> 筆</div>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="search-input" class="search-input" placeholder="搜尋品號（如 324333）或品名（如 茶葉蛋、冷藏、關東煮）...">
+    </div>
+
+    <!-- 分類快速切換 -->
+    <div class="category-bar" id="category-bar">
+      <button class="category-btn active" data-cat="ALL">全部</button>
+      <button class="category-btn" data-cat="用品">用品</button>
+      <button class="category-btn" data-cat="冷凍">冷凍</button>
+      <button class="category-btn" data-cat="自助區">自助區</button>
+      <button class="category-btn" data-cat="賣場">賣場</button>
+      <button class="category-btn" data-cat="賣場/行銷">賣場/行銷</button>
+      <button class="category-btn" data-cat="機台與設施">機台與設施</button>
+      <button class="category-btn" data-cat="國際精品">國際精品</button>
+    </div>
+  </div>
+
+  <div class="grid-container" id="grid-container"></div>
+  <div id="loading-trigger" style="height: 20px;"></div>
+
+  <script>
+    let allData = [];
+    let currentFiltered = [];
+    let currentCategory = 'ALL';
+    let currentRenderIndex = 0;
+    const BATCH_SIZE = 40;
+
+    const searchInput = document.getElementById('search-input');
+    const gridContainer = document.getElementById('grid-container');
+    const totalCountEl = document.getElementById('total-count');
+    const filteredCountEl = document.getElementById('filtered-count');
+    const categoryBar = document.getElementById('category-bar');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+      setupInfiniteScroll();
+    });
+
+    // 優先讀取同目錄下的 data.csv，若無則自動讀取內建的 287 筆資料
+    function initData() {
+      Papa.parse('pop.csv', {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          if (results.data && results.data.length > 0) {
+            allData = results.data.map(item => ({
+              code: item['品號'] || item['code'],
+              name: item['名稱'] || item['name'],
+              category: item['大分類'] || item['category'] || '一般',
+              subcategory: item['細項分類'] || item['subcategory'] || '',
+              qty: item['預設數量'] || item['qty'] || 1
+            }));
+            startApp();
+          } else {
+            fallbackBuiltInData();
+          }
+        },
+        error: function() {
+          fallbackBuiltInData();
+        }
+      });
+    }
+
+    // 備用內建資料 (287 筆完整內嵌)
+    function fallbackBuiltInData() {
+      fetch('pop_data.json')
+        .then(res => res.json())
+        .then(data => {
+          allData = data;
+          startApp();
+        })
+        .catch(() => {
+          startApp();
+        });
+    }
+
+    function startApp() {
+      totalCountEl.textContent = allData.length;
+      filterAndRender();
+    }
+
+    // 分類點擊切換
+    categoryBar.addEventListener('click', (e) => {
+      if (e.target.classList.contains('category-btn')) {
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+        currentCategory = e.target.getAttribute('data-cat');
+        filterAndRender();
+      }
+    });
+
+    // 關鍵字搜尋即時過濾
+    searchInput.addEventListener('input', () => {
+      filterAndRender();
+    });
+
+    function filterAndRender() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      currentFiltered = allData.filter(item => {
+        const matchCat = (currentCategory === 'ALL') || (item.category === currentCategory);
+        if (!matchCat) return false;
+
+        if (!keyword) return true;
+        const codeStr = String(item.code || '').toLowerCase();
+        const nameStr = String(item.name || '').toLowerCase();
+        const subStr = String(item.subcategory || '').toLowerCase();
+        return codeStr.includes(keyword) || nameStr.includes(keyword) || subStr.includes(keyword);
+      });
+
+      filteredCountEl.textContent = currentFiltered.length;
+      gridContainer.innerHTML = '';
+      currentRenderIndex = 0;
+
+      if (currentFiltered.length === 0) {
+        gridContainer.innerHTML = '<div class="message">沒有找到符合條件的 POP</div>';
+        return;
+      }
+
+      loadMoreCards();
+    }
+
+    function loadMoreCards() {
+      if (currentRenderIndex >= currentFiltered.length) return;
+
+      const nextIndex = Math.min(currentRenderIndex + BATCH_SIZE, currentFiltered.length);
+      const chunk = currentFiltered.slice(currentRenderIndex, nextIndex);
+      const fragment = document.createDocumentFragment();
+      const barcodesToRender = [];
+
+      chunk.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const svgId = `barcode-${currentRenderIndex + idx}`;
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-tags">
+              <span class="tag-category">${escapeHtml(item.category)}</span>
+              ${item.subcategory ? `<span class="tag-category">${escapeHtml(item.subcategory)}</span>` : ''}
+              <span class="tag-qty">數量: ${escapeHtml(item.qty)}</span>
+            </div>
+            <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
+          </div>
+          <div class="card-barcode-area">
+            <svg id="${svgId}" class="barcode-svg"></svg>
+          </div>
+        `;
+        fragment.appendChild(card);
+        barcodesToRender.push({ id: svgId, code: String(item.code) });
+      });
+
+      gridContainer.appendChild(fragment);
+
+      // 繪製條碼 (CODE128 格式，相容 7-11 各式紅外線掃瞄器)
+      barcodesToRender.forEach(b => {
+        try {
+          JsBarcode(`#${b.id}`, b.code, {
+            format: "CODE128",
+            width: 1.8,         // 條條清晰度
+            height: 48,         // 垂直高度適中好瞄準
+            displayValue: true, // 條碼下方印出字元
+            fontSize: 13,
+            margin: 6,
+            background: "#ffffff",
+            lineColor: "#000000"
+          });
+        } catch (e) {
+          console.warn('Barcode render error:', b.code);
+        }
+      });
+
+      currentRenderIndex = nextIndex;
+    }
+
+    // 滾動自動加載
+    function setupInfiniteScroll() {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreCards();
+        }
+      }, { rootMargin: '200px' });
+
+      observer.observe(document.getElementById('loading-trigger'));
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
