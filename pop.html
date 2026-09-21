@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>7-11 長期POP與陳列盒條碼查詢系統</title>
-  <!-- 條碼生成庫 JsBarcode -->
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-  <!-- CSV 解析庫 PapaParse (支援自訂 CSV 讀取) -->
+  <title>7-11 長期POP與隔板工具條碼系統</title>
+  <!-- CSV 解析與條碼繪製庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
     }
 
     body {
@@ -29,10 +28,36 @@
       padding: 14px 18px;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       position: sticky;
       top: 10px;
       z-index: 100;
+    }
+
+    /* 頁面切換 Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      border: none;
+      background: none;
+      font-size: 15px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: #008062; /* 7-11 經典綠色大標 */
+      border-bottom-color: #008062;
     }
 
     .status-bar {
@@ -47,16 +72,11 @@
     }
 
     .badge {
-      background: #e8f3ff;
-      color: #0066cc;
+      background: #e6f4ea;
+      color: #008062;
       padding: 2px 8px;
       border-radius: 4px;
-      font-weight: 600;
-    }
-
-    /* 搜尋列 */
-    .search-box {
-      margin-bottom: 10px;
+      font-weight: 700;
     }
 
     .search-input {
@@ -70,99 +90,96 @@
     }
 
     .search-input:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      border-color: #008062;
+      box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
     }
 
-    /* 分類標籤頁切換列 */
-    .category-bar {
+    /* 綠色分類標籤橫向滑動區 */
+    .category-scroll {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding: 10px 0 4px 0;
       scrollbar-width: thin;
     }
 
-    .category-btn {
+    .category-tag {
       white-space: nowrap;
-      padding: 6px 12px;
+      padding: 5px 12px;
       font-size: 13px;
       border: 1px solid #dcdcdc;
-      background: #f8f9fa;
-      border-radius: 20px;
+      background: #ffffff;
+      border-radius: 16px;
       cursor: pointer;
-      color: #555;
+      color: #475569;
       font-weight: 600;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
 
-    .category-btn.active {
-      background: #007bff;
-      color: #fff;
-      border-color: #007bff;
+    .category-tag.active {
+      background: #008062;
+      color: #ffffff;
+      border-color: #008062;
     }
 
-    /* 卡片容器：自適應多欄排版 */
+    /* 卡片格線 */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
       gap: 12px;
     }
 
-    /* POP 卡片本體 */
+    /* 商品與 POP 卡片 */
     .card {
       background: #ffffff;
       border-radius: 8px;
       padding: 12px 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border: 1px solid #e2e8f0;
-      transition: transform 0.1s;
     }
 
-    .card-top {
-      margin-bottom: 8px;
-    }
-
-    .card-tags {
+    .card-meta {
       display: flex;
-      gap: 6px;
+      justify-content: space-between;
       align-items: center;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
-    .tag-category {
+    .meta-cat {
       font-size: 11px;
-      background: #f1f5f9;
-      color: #475569;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: 600;
     }
 
-    .tag-qty {
+    .meta-qty {
       font-size: 11px;
-      background: #fff3e0;
-      color: #d97706;
+      background: #fff7ed;
+      color: #c2410c;
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: 600;
     }
 
     .card-title {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
       color: #0f172a;
       line-height: 1.35;
+      margin-bottom: 8px;
       word-break: break-all;
     }
 
-    /* 條碼區域：白色底色、高對比、置中好刷 */
-    .card-barcode-area {
+    /* 條碼呈現區塊 */
+    .card-barcode-box {
       background: #ffffff;
-      padding: 6px 0 2px 0;
+      padding: 4px 0 0 0;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -171,13 +188,13 @@
 
     .barcode-svg {
       max-width: 100%;
-      height: 60px;
+      height: 55px;
     }
 
-    .message {
+    .empty-msg {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 40px;
+      padding: 50px 20px;
       color: #64748b;
       font-size: 15px;
     }
@@ -186,120 +203,128 @@
 <body>
 
   <div class="header-panel">
+    <!-- 頁面選單 -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
+      <button class="tab-btn" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
+    </div>
+
+    <!-- 狀態資訊 -->
     <div class="status-bar">
-      <div>總資料：<b id="total-count" class="badge">0</b> 筆</div>
-      <div>顯示筆數：<b id="filtered-count">0</b> 筆</div>
+      <div>目前頁面總數：<b id="total-count" class="badge">0</b> 筆</div>
+      <div>符合條件：<b id="filtered-count">0</b> 筆</div>
     </div>
 
-    <div class="search-box">
-      <input type="text" id="search-input" class="search-input" placeholder="搜尋品號（如 324333）或品名（如 茶葉蛋、冷藏、關東煮）...">
+    <!-- 搜尋框 -->
+    <div>
+      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（例如 324333）或名稱關鍵字搜尋...">
     </div>
 
-    <!-- 分類快速切換 -->
-    <div class="category-bar" id="category-bar">
-      <button class="category-btn active" data-cat="ALL">全部</button>
-      <button class="category-btn" data-cat="用品">用品</button>
-      <button class="category-btn" data-cat="冷凍">冷凍</button>
-      <button class="category-btn" data-cat="自助區">自助區</button>
-      <button class="category-btn" data-cat="賣場">賣場</button>
-      <button class="category-btn" data-cat="賣場/行銷">賣場/行銷</button>
-      <button class="category-btn" data-cat="機台與設施">機台與設施</button>
-      <button class="category-btn" data-cat="國際精品">國際精品</button>
-    </div>
+    <!-- 綠色大標題分類篩選 -->
+    <div class="category-scroll" id="category-scroll"></div>
   </div>
 
+  <!-- 卡片清單與滾動加載觸發點 -->
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
   <script>
-    let allData = [];
-    let currentFiltered = [];
-    let currentCategory = 'ALL';
-    let currentRenderIndex = 0;
+    const CSV_PATH = 'pop.csv';
     const BATCH_SIZE = 40;
 
+    let allData = [];
+    let currentPage = '長期POP與陳列盒';
+    let currentCategory = 'ALL';
+    let currentFiltered = [];
+    let currentRenderIndex = 0;
+
     const searchInput = document.getElementById('search-input');
+    const categoryScroll = document.getElementById('category-scroll');
     const gridContainer = document.getElementById('grid-container');
     const totalCountEl = document.getElementById('total-count');
     const filteredCountEl = document.getElementById('filtered-count');
-    const categoryBar = document.getElementById('category-bar');
 
     window.addEventListener('DOMContentLoaded', () => {
-      initData();
+      loadCSV();
       setupInfiniteScroll();
     });
 
-    // 優先讀取同目錄下的 data.csv，若無則自動讀取內建的 287 筆資料
-    function initData() {
-      Papa.parse('pop.csv', {
+    // 讀取同目錄下的 data.csv
+    function loadCSV() {
+      Papa.parse(CSV_PATH, {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function(results) {
-          if (results.data && results.data.length > 0) {
-            allData = results.data.map(item => ({
-              code: item['品號'] || item['code'],
-              name: item['名稱'] || item['name'],
-              category: item['大分類'] || item['category'] || '一般',
-              subcategory: item['細項分類'] || item['subcategory'] || '',
-              qty: item['預設數量'] || item['qty'] || 1
-            }));
-            startApp();
-          } else {
-            fallbackBuiltInData();
-          }
+        complete: function(res) {
+          allData = res.data.map(d => ({
+            page: (d['頁面'] || '').trim(),
+            category: (d['大分類'] || '').trim(),
+            subcategory: (d['細項分類'] || '').trim(),
+            code: (d['品號'] || '').trim(),
+            name: (d['名稱'] || '').trim(),
+            qty: (d['預設數量/規格'] || '').trim(),
+            note: (d['備註'] || '').trim()
+          }));
+          updateCategoryTabs();
+          filterAndRender();
         },
-        error: function() {
-          fallbackBuiltInData();
+        error: function(err) {
+          gridContainer.innerHTML = `<div class="empty-msg">無法載入 ${CSV_PATH}，請確認檔案已放置同目錄。</div>`;
         }
       });
     }
 
-    // 備用內建資料 (287 筆完整內嵌)
-    function fallbackBuiltInData() {
-      fetch('pop_data.json')
-        .then(res => res.json())
-        .then(data => {
-          allData = data;
-          startApp();
-        })
-        .catch(() => {
-          startApp();
-        });
-    }
-
-    function startApp() {
-      totalCountEl.textContent = allData.length;
+    // 切換頁面 (POP vs 隔板工具)
+    function switchPage(pageName) {
+      currentPage = pageName;
+      currentCategory = 'ALL';
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(pageName));
+      });
+      updateCategoryTabs();
       filterAndRender();
     }
 
-    // 分類點擊切換
-    categoryBar.addEventListener('click', (e) => {
-      if (e.target.classList.contains('category-btn')) {
-        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-        currentCategory = e.target.getAttribute('data-cat');
-        filterAndRender();
-      }
-    });
+    // 更新大標題分類標籤
+    function updateCategoryTabs() {
+      categoryScroll.innerHTML = '';
+      const pageItems = allData.filter(d => d.page === currentPage);
+      totalCountEl.textContent = pageItems.length;
 
-    // 關鍵字搜尋即時過濾
+      const categories = ['ALL', ...new Set(pageItems.map(d => d.category).filter(Boolean))];
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `category-tag ${cat === currentCategory ? 'active' : ''}`;
+        btn.textContent = cat === 'ALL' ? '全部類別' : cat;
+        btn.addEventListener('click', () => {
+          currentCategory = cat;
+          document.querySelectorAll('.category-tag').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterAndRender();
+        });
+        categoryScroll.appendChild(btn);
+      });
+    }
+
+    // 搜尋監聽
     searchInput.addEventListener('input', () => {
       filterAndRender();
     });
 
+    // 篩選並渲染
     function filterAndRender() {
       const keyword = searchInput.value.trim().toLowerCase();
 
-      currentFiltered = allData.filter(item => {
-        const matchCat = (currentCategory === 'ALL') || (item.category === currentCategory);
-        if (!matchCat) return false;
+      currentFiltered = allData.filter(d => {
+        if (d.page !== currentPage) return false;
+        if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
 
         if (!keyword) return true;
-        const codeStr = String(item.code || '').toLowerCase();
-        const nameStr = String(item.name || '').toLowerCase();
-        const subStr = String(item.subcategory || '').toLowerCase();
-        return codeStr.includes(keyword) || nameStr.includes(keyword) || subStr.includes(keyword);
+        return d.code.toLowerCase().includes(keyword) ||
+               d.name.toLowerCase().includes(keyword) ||
+               d.subcategory.toLowerCase().includes(keyword) ||
+               d.note.toLowerCase().includes(keyword);
       });
 
       filteredCountEl.textContent = currentFiltered.length;
@@ -307,20 +332,20 @@
       currentRenderIndex = 0;
 
       if (currentFiltered.length === 0) {
-        gridContainer.innerHTML = '<div class="message">沒有找到符合條件的 POP</div>';
+        gridContainer.innerHTML = '<div class="empty-msg">查無符合條件的項目</div>';
         return;
       }
 
-      loadMoreCards();
+      loadMore();
     }
 
-    function loadMoreCards() {
+    function loadMore() {
       if (currentRenderIndex >= currentFiltered.length) return;
 
       const nextIndex = Math.min(currentRenderIndex + BATCH_SIZE, currentFiltered.length);
       const chunk = currentFiltered.slice(currentRenderIndex, nextIndex);
       const fragment = document.createDocumentFragment();
-      const barcodesToRender = [];
+      const barcodesToDraw = [];
 
       chunk.forEach((item, idx) => {
         const card = document.createElement('div');
@@ -328,52 +353,54 @@
         const svgId = `barcode-${currentRenderIndex + idx}`;
 
         card.innerHTML = `
-          <div class="card-top">
-            <div class="card-tags">
-              <span class="tag-category">${escapeHtml(item.category)}</span>
-              ${item.subcategory ? `<span class="tag-category">${escapeHtml(item.subcategory)}</span>` : ''}
-              <span class="tag-qty">數量: ${escapeHtml(item.qty)}</span>
+          <div>
+            <div class="card-meta">
+              <span class="meta-cat">${escapeHtml(item.category)}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ''}</span>
+              <span class="meta-qty">${item.qty ? `規格: ${escapeHtml(item.qty)}` : ''}</span>
             </div>
             <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
           </div>
-          <div class="card-barcode-area">
-            <svg id="${svgId}" class="barcode-svg"></svg>
+          <div class="card-barcode-box">
+            ${item.code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無品號條碼</span>'}
           </div>
         `;
         fragment.appendChild(card);
-        barcodesToRender.push({ id: svgId, code: String(item.code) });
+
+        if (item.code) {
+          barcodesToDraw.push({ id: svgId, code: item.code });
+        }
       });
 
       gridContainer.appendChild(fragment);
 
-      // 繪製條碼 (CODE128 格式，相容 7-11 各式紅外線掃瞄器)
-      barcodesToRender.forEach(b => {
+      // 繪製條碼 (CODE128 格式，相容 POS 掃描槍)
+      barcodesToDraw.forEach(b => {
         try {
           JsBarcode(`#${b.id}`, b.code, {
             format: "CODE128",
-            width: 1.8,         // 條條清晰度
-            height: 48,         // 垂直高度適中好瞄準
-            displayValue: true, // 條碼下方印出字元
+            width: 1.8,
+            height: 44,
+            displayValue: true,
             fontSize: 13,
             margin: 6,
             background: "#ffffff",
             lineColor: "#000000"
           });
-        } catch (e) {
-          console.warn('Barcode render error:', b.code);
+        } catch (err) {
+          console.warn('Barcode error for code:', b.code);
         }
       });
 
       currentRenderIndex = nextIndex;
     }
 
-    // 滾動自動加載
+    // 滾動加載更多
     function setupInfiniteScroll() {
       const observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          loadMoreCards();
+          loadMore();
         }
-      }, { rootMargin: '200px' });
+      }, { rootMargin: '250px' });
 
       observer.observe(document.getElementById('loading-trigger'));
     }
