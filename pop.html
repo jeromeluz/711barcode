@@ -267,20 +267,21 @@
       flex-shrink: 0;
     }
 
-    .pop-img {
-      width: 58px;
-      height: 58px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
-      background-color: #f8fafc;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
+.pop-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;     /* 改為 contain：完整顯示整張圖片，絕不切邊 */
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff; /* 留白處顯示乾淨白色底 */
+  padding: 2px;            /* 內縮留白，避免圖貼邊 */
+  cursor: pointer;
+  transition: transform 0.2s;
+}
 
-    .pop-img:hover {
-      transform: scale(1.1);
-    }
+.pop-img:hover {
+  transform: scale(1.15);  /* 滑鼠移過去稍微放大預覽 */
+}
 
     /* 條碼顯示區塊 */
     .card-barcode-box {
