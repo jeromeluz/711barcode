@@ -213,11 +213,26 @@
       border: 1px solid #e2e8f0;
     }
 
+    /* 卡片主體排版：左文字、右小圖片 */
+    .card-main-content {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .card-text-side {
+      flex: 1;
+      min-width: 0;
+    }
+
     .card-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 4px;
+      flex-wrap: wrap;
     }
 
     .meta-cat {
@@ -244,10 +259,30 @@
       font-weight: 700;
       color: #0f172a;
       line-height: 1.35;
-      margin-bottom: 8px;
       word-break: break-all;
     }
 
+    /* 小圖片樣式 */
+    .card-thumb-side {
+      flex-shrink: 0;
+    }
+
+    .pop-img {
+      width: 58px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background-color: #f8fafc;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .pop-img:hover {
+      transform: scale(1.1);
+    }
+
+    /* 條碼顯示區塊 */
     .card-barcode-box {
       background: #ffffff;
       padding: 4px 0 0 0;
@@ -259,7 +294,7 @@
 
     .barcode-svg {
       max-width: 100%;
-      height: 55px;
+      height: 52px;
     }
 
     .calc-box {
@@ -290,7 +325,7 @@
     <!-- 三大分頁切換 -->
     <div class="nav-tabs">
       <button class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
-      <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品 (622項)</button>
+      <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品</button>
       <button class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
     </div>
 
@@ -300,10 +335,9 @@
     </div>
 
     <div>
-      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（如 003171）或品名關鍵字（如 咖啡機、抹布、提袋）搜尋...">
+      <input type="text" id="search-input" class="search-input" placeholder="輸入品號（如 324333）或品名關鍵字搜尋...">
     </div>
 
-    <!-- 大標題分類按鈕列 -->
     <div class="category-scroll" id="category-scroll"></div>
   </div>
 
@@ -611,14 +645,29 @@
         const card = document.createElement('div');
         card.className = 'card';
         const svgId = `barcode-${currentRenderIndex + idx}`;
+        const imgSrc = `pop/${item.code}.jpg`;
 
         card.innerHTML = `
-          <div>
-            <div class="card-meta">
-              <span class="meta-cat">${escapeHtml(item.category)}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ''}</span>
-              <span class="meta-qty">${item.qty ? `${escapeHtml(item.qty)}` : ''}</span>
+          <div class="card-main-content">
+            <div class="card-text-side">
+              <div class="card-meta">
+                <span class="meta-cat">${escapeHtml(item.category)}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ''}</span>
+                <span class="meta-qty">${item.qty ? `${escapeHtml(item.qty)}` : ''}</span>
+              </div>
+              <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
             </div>
-            <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
+            <!-- 右側小縮圖：無圖片時自動隱藏 -->
+            <div class="card-thumb-side">
+              <img 
+                src="${imgSrc}" 
+                alt="${escapeHtml(item.name)}" 
+                class="pop-img" 
+                loading="lazy"
+                onerror="this.parentElement.style.display='none'"
+                onclick="window.open(this.src, '_blank')"
+                title="點擊可看大圖"
+              >
+            </div>
           </div>
           <div class="card-barcode-box">
             ${item.code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無條碼</span>'}
@@ -638,7 +687,7 @@
           JsBarcode(`#${b.id}`, b.code, {
             format: "CODE128",
             width: 1.8,
-            height: 44,
+            height: 42,
             displayValue: true,
             fontSize: 13,
             margin: 6,
