@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>7-11 門市輔導訂貨與自用品條碼系統</title>
+  <!-- CSV 解析與條碼繪製套件 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+    }
+
+    body {
+      background-color: #f1f4f8;
+      color: #333;
+      padding: 12px;
+    }
+
+    /* 頂部固定控制區 */
+    .header-panel {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 12px;
+      position: sticky;
+      top: 10px;
+      z-index: 100;
+    }
+
+    /* 頁籤導航列 */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      border: none;
+      background: none;
+      font-size: 15px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .tab-btn.active {
+      color: #008062;
+      border-bottom-color: #008062;
+    }
+
+    .tab-btn.link-tab {
+      color: #0284c7;
+    }
+    .tab-btn.link-tab:hover {
+      color: #0369a1;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+      gap: 6px;
+    }
+
+    .badge {
+      background: #e6f4ea;
+      color: #008062;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #d0d7de;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #008062;
+      box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
+    }
+
+    /* 綠色大標分類快速滑動列 */
+    .category-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0 4px 0;
+      scrollbar-width: thin;
+    }
+
+    .category-tag {
+      white-space: nowrap;
+      padding: 5px 12px;
+      font-size: 13px;
+      border: 1px solid #dcdcdc;
+      background: #ffffff;
+      border-radius: 16px;
+      cursor: pointer;
+      color: #475569;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .category-tag.active {
+      background: #008062;
+      color: #ffffff;
+      border-color: #008062;
+    }
+
+    /* 卡片格線 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 12px;
+    }
+
+    /* POP與自用品卡片 */
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+    }
+
+    .card-main-content {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .card-text-side {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .meta-cat {
+      font-size: 11px;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .meta-qty {
+      font-size: 11px;
+      background: #fff7ed;
+      color: #c2410c;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .card-thumb-side {
+      flex-shrink: 0;
+    }
+
+    .pop-img {
+      width: 70px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background-color: #ffffff;
+      padding: 2px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .card-barcode-box {
+      background: #ffffff;
+      padding: 4px 0 0 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .barcode-svg {
+      max-width: 100%;
+      height: 52px;
+    }
+
+    /* ST常用電話專用卡片樣式 */
+    .phone-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+      min-height: 140px;
+    }
+
+    .phone-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .phone-tag {
+      font-size: 11px;
+      background: #e6f4ea;
+      color: #008062;
+      border: 1px solid #bbf7d0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .phone-dept {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .phone-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+
+    .phone-contact {
+      font-size: 13px;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .phone-note {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+
+    .phone-action {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .phone-number {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f766e;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .call-btn {
+      background: #008062;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .call-btn:hover {
+      background: #00664e;
+    }
+
+    /* 隔板標準量圖表面板 */
+    .standard-panel {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .panel-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      background: #008062;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: center;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #e2e8f0;
+      padding: 8px 6px;
+    }
+    table.data-table th {
+      background-color: #008062;
+      color: white;
+      font-weight: 700;
+    }
+    table.data-table tr.bg-sub { background-color: #f8fafc; font-weight: 600; }
+    table.data-table tr.highlight { background-color: #fef08a; font-weight: 700; }
+    table.data-table tr.summary-row { background-color: #f0fdf4; font-weight: 800; }
+
+    .calc-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .calc-box input {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-panel">
+    <!-- 導航分頁 -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
+      <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品</button>
+      <button class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
+      <button class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')">📞 ST 常用電話 (109筆)</button>
+      <a href="product.html" class="tab-btn link-tab">📦 門市所有商品查詢 ↗</a>
+    </div>
+
+    <div class="status-bar">
+      <div>目前總數：<b id="total-count" class="badge">0</b> 筆</div>
+      <div>符合條件：<b id="filtered-count">0</b> 筆</div>
+    </div>
+
+    <div>
+      <input type="text" id="search-input" class="search-input" placeholder="輸入關鍵字或電話號碼搜尋...">
+    </div>
+
+    <div class="category-scroll" id="category-scroll"></div>
+  </div>
+
+  <!-- 隔板與省力工具專屬面板 -->
+  <div id="board-standard-section" style="display: none;">
+    <div class="standard-panel">
+      <div class="panel-title">隔板標準量（依門市貨架數對照）</div>
+      <div class="calc-box">
+        <span>輸入門市貨架數：</span>
+        <input type="number" id="shelf-input" placeholder="例: 36" min="1" oninput="calcShelfStandard()">
+        <span id="shelf-result-hint" style="font-weight: 700; color: #008062;"></span>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="shelf-standard-table">
+          <thead>
+            <tr>
+              <th>貨架數</th>
+              <th>T 型 (個)</th>
+              <th>左型 (個)</th>
+              <th>右型 (個)</th>
+              <th>主配標準品號 / 數量</th>
+              <th>建議訂貨包數</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="row-range-1">
+              <td style="font-weight: 700;">30↓ - 34</td>
+              <td>320</td>
+              <td>65</td>
+              <td>65</td>
+              <td rowspan="3" style="text-align: left; padding-left: 12px; vertical-align: top;">
+                • T隔 304670：<b>320 個</b><br>
+                • 右隔 315288：<b>65 個</b><br>
+                • 左隔 315285：<b>65 個</b><br>
+                • 易倒輔助 376574：<b>10 個</b> (訂1來10)
+              </td>
+              <td rowspan="3" style="text-align: left; padding-left: 12px; vertical-align: top; color: #c2410c; font-weight: 700;">
+                • T隔 (訂1來10)：<b>70 包</b><br>
+                • 右隔 (訂1來5)：<b>20 包</b><br>
+                • 左隔 (訂1來5)：<b>20 包</b>
+              </td>
+            </tr>
+            <tr id="row-range-2">
+              <td style="font-weight: 700;">35 - 40</td>
+              <td>380</td>
+              <td>85</td>
+              <td>85</td>
+            </tr>
+            <tr id="row-range-3">
+              <td style="font-weight: 700;">41↑</td>
+              <td>450</td>
+              <td>100</td>
+              <td>100</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="standard-panel">
+      <div class="panel-title">春季檯帳＆輔導訂貨資料表（各類別細項估算）</div>
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr style="background: #e07a5f;">
+              <th style="background: #d96d27;">備註</th>
+              <th style="background: #d96d27;">類別</th>
+              <th style="background: #d96d27;">檯數</th>
+              <th style="background: #d96d27;">估算T型隔板</th>
+              <th style="background: #d96d27;">估計左隔板</th>
+              <th style="background: #d96d27;">估計右隔板</th>
+              <th style="background: #d96d27;">估易倒輔助版</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td></td><td>零食</td><td>7</td><td>252</td><td>42</td><td>42</td><td>200</td></tr>
+            <tr><td></td><td>麵食</td><td>3</td><td>108</td><td>18</td><td>18</td><td>-</td></tr>
+            <tr><td></td><td>食調</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>烈酒</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>量販</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>國際用品</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>國際食品</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>糖果</td><td>3</td><td>216</td><td>18</td><td>18</td><td>-</td></tr>
+            <tr><td></td><td>專案</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>用品</td><td>5</td><td>360</td><td>30</td><td>30</td><td>-</td></tr>
+            <tr><td></td><td>寵物</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>區域</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr><td></td><td>架前架</td><td>5層</td><td>30</td><td>5</td><td>5</td><td>-</td></tr>
+            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>健美</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
+            <tr class="summary-row">
+              <td colspan="2">總數量 (個)</td>
+              <td>-</td>
+              <td>1,362</td>
+              <td>167</td>
+              <td>167</td>
+              <td>200</td>
+            </tr>
+            <tr class="bg-sub">
+              <td colspan="2">公司主配 (個)</td>
+              <td>-</td>
+              <td>320</td>
+              <td>65</td>
+              <td>65</td>
+              <td>0</td>
+            </tr>
+            <tr style="background:#ffedd5; font-weight:700;">
+              <td colspan="2">包裝入數</td>
+              <td>-</td>
+              <td>訂1來10</td>
+              <td>訂1來5</td>
+              <td>訂1來5</td>
+              <td>訂1來10</td>
+            </tr>
+            <tr style="background:#bbf7d0; font-weight:800; color:#166534;">
+              <td colspan="2">建議上傳 (包)</td>
+              <td>-</td>
+              <td>104 包</td>
+              <td>20 包</td>
+              <td>20 包</td>
+              <td>20 包</td>
+            </tr>
+            <tr>
+              <td colspan="2">成本單價 (元)</td>
+              <td>-</td>
+              <td>$12</td>
+              <td>$12</td>
+              <td>$12</td>
+              <td>$18</td>
+            </tr>
+            <tr style="font-weight: 700;">
+              <td colspan="2">成本小計</td>
+              <td>-</td>
+              <td>$12,504</td>
+              <td>$1,224</td>
+              <td>$1,224</td>
+              <td>$3,600</td>
+            </tr>
+            <tr style="background: #f1f5f9; font-size: 14px; font-weight: 800;">
+              <td colspan="2">總成本估算</td>
+              <td colspan="5" style="text-align: left; padding-left: 14px; color: #b91c1c;">$18,552 元</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 卡片清單區塊 -->
+  <div class="grid-container" id="grid-container"></div>
+  <div id="loading-trigger" style="height: 20px;"></div>
+
+  <script>
+    const CSV_PATH = 'data.csv';
+    const CALL_CSV_PATH = 'call.csv';
+    const BATCH_SIZE = 40;
+
+    let allData = [];
+    let callData = [];
+    let currentPage = '長期POP與陳列盒';
+    let currentCategory = 'ALL';
+    let currentFiltered = [];
+    let currentRenderIndex = 0;
+
+    const searchInput = document.getElementById('search-input');
+    const categoryScroll = document.getElementById('category-scroll');
+    const gridContainer = document.getElementById('grid-container');
+    const totalCountEl = document.getElementById('total-count');
+    const filteredCountEl = document.getElementById('filtered-count');
+    const boardStandardSection = document.getElementById('board-standard-section');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadMainCSV();
+      loadCallCSV();
+      setupInfiniteScroll();
+    });
+
+    function loadMainCSV() {
+      Papa.parse(CSV_PATH, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          allData = res.data.map(d => ({
+            page: (d['頁面'] || '').trim(),
+            category: (d['大分類'] || '').trim(),
+            subcategory: (d['細項分類'] || '').trim(),
+            code: (d['品號'] || '').trim(),
+            name: (d['名稱'] || '').trim(),
+            qty: (d['預設數量/規格'] || '').trim(),
+            note: (d['備註'] || '').trim()
+          }));
+          if (currentPage !== 'ST常用電話') {
+            updateCategoryTabs();
+            filterAndRender();
+          }
+        },
+        error: function(err) {
+          console.warn('載入 data.csv 失敗');
+        }
+      });
+    }
+
+    function loadCallCSV() {
+      Papa.parse(CALL_CSV_PATH, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          callData = res.data.map(d => ({
+            category: (d['分類'] || '其他').trim(),
+            name: (d['項目'] || '').trim(),
+            dept: (d['負責單位'] || '').trim(),
+            contact: (d['聯絡窗口'] || '').trim(),
+            phone: (d['電話'] || '').trim(),
+            note: (d['備註'] || '').trim()
+          })).filter(item => item.name || item.phone || item.contact);
+
+          if (currentPage === 'ST常用電話') {
+            updateCategoryTabs();
+            filterAndRender();
+          }
+        },
+        error: function(err) {
+          console.warn('未找到 call.csv 檔案');
+        }
+      });
+    }
+
+    function switchPage(pageName) {
+      currentPage = pageName;
+      currentCategory = 'ALL';
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
+      });
+
+      if (currentPage === '隔板與省力工具') {
+        boardStandardSection.style.display = 'block';
+      } else {
+        boardStandardSection.style.display = 'none';
+      }
+
+      if (currentPage === 'ST常用電話') {
+        searchInput.placeholder = "輸入項目（如 Google地圖、CMS、保修、速達、統昶）、窗口或電話號碼搜尋...";
+      } else {
+        searchInput.placeholder = "輸入品號（如 324333）或品名關鍵字搜尋...";
+      }
+
+      updateCategoryTabs();
+      filterAndRender();
+    }
+
+    function calcShelfStandard() {
+      const val = parseInt(document.getElementById('shelf-input').value, 10);
+      const hint = document.getElementById('shelf-result-hint');
+      const r1 = document.getElementById('row-range-1');
+      const r2 = document.getElementById('row-range-2');
+      const r3 = document.getElementById('row-range-3');
+
+      r1.style.background = '';
+      r2.style.background = '';
+      r3.style.background = '';
+
+      if (isNaN(val) || val <= 0) {
+        hint.textContent = '';
+        return;
+      }
+
+      if (val <= 34) {
+        r1.style.background = '#fef08a';
+        hint.textContent = ` 符合【30↓ - 34 檯】標準：T 隔 320 / 左 65 / 右 65`;
+      } else if (val <= 40) {
+        r2.style.background = '#fef08a';
+        hint.textContent = ` 符合【35 - 40 檯】標準：T 隔 380 / 左 85 / 右 85`;
+      } else {
+        r3.style.background = '#fef08a';
+        hint.textContent = ` 符合【41↑ 檯】標準：T 隔 450 / 左 100 / 右 100`;
+      }
+    }
+
+    function updateCategoryTabs() {
+      categoryScroll.innerHTML = '';
+      let targetList = (currentPage === 'ST常用電話') ? callData : allData.filter(d => d.page === currentPage);
+      totalCountEl.textContent = targetList.length;
+
+      const categories = ['ALL', ...new Set(targetList.map(d => d.category).filter(Boolean))];
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `category-tag ${cat === currentCategory ? 'active' : ''}`;
+        btn.textContent = cat === 'ALL' ? '全部類別' : cat;
+        btn.addEventListener('click', () => {
+          currentCategory = cat;
+          document.querySelectorAll('.category-tag').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterAndRender();
+        });
+        categoryScroll.appendChild(btn);
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      filterAndRender();
+    });
+
+    // 擷取撥號用號碼 (過濾非數字分機等)
+    function extractDialNumber(str) {
+      if (!str) return '';
+      // 優先取第一組主要電話
+      const matched = str.match(/([0-9]{2,4}-[0-9]{6,8}|0800-?[0-9]{3,6}|09[0-9]{8}|[0-9]{8,10})/);
+      return matched ? matched[0].replace(/[^0-9]/g, '') : '';
+    }
+
+    function filterAndRender() {
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      if (currentPage === 'ST常用電話') {
+        currentFiltered = callData.filter(d => {
+          if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+          if (!keyword) return true;
+          return d.name.toLowerCase().includes(keyword) ||
+                 d.dept.toLowerCase().includes(keyword) ||
+                 d.contact.toLowerCase().includes(keyword) ||
+                 d.phone.toLowerCase().includes(keyword) ||
+                 d.note.toLowerCase().includes(keyword);
+        });
+      } else {
+        currentFiltered = allData.filter(d => {
+          if (d.page !== currentPage) return false;
+          if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+          if (!keyword) return true;
+          return d.code.toLowerCase().includes(keyword) ||
+                 d.name.toLowerCase().includes(keyword) ||
+                 d.subcategory.toLowerCase().includes(keyword) ||
+                 d.note.toLowerCase().includes(keyword);
+        });
+      }
+
+      filteredCountEl.textContent = currentFiltered.length;
+      gridContainer.innerHTML = '';
+      currentRenderIndex = 0;
+
+      if (currentFiltered.length === 0) {
+        gridContainer.innerHTML = (currentPage === 'ST常用電話' && callData.length === 0)
+          ? '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">尚未載入 call.csv 或查無資料</div>'
+          : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">查無符合項目</div>';
+        return;
+      }
+
+      loadMore();
+    }
+
+    function loadMore() {
+      if (currentRenderIndex >= currentFiltered.length) return;
+
+      const nextIndex = Math.min(currentRenderIndex + BATCH_SIZE, currentFiltered.length);
+      const chunk = currentFiltered.slice(currentRenderIndex, nextIndex);
+      const fragment = document.createDocumentFragment();
+
+      if (currentPage === 'ST常用電話') {
+        chunk.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'phone-card';
+          const dialNum = extractDialNumber(item.phone);
+
+          card.innerHTML = `
+            <div>
+              <div class="phone-header-row">
+                <span class="phone-tag">${escapeHtml(item.category)}</span>
+                ${item.dept ? `<span class="phone-dept">${escapeHtml(item.dept)}</span>` : ''}
+              </div>
+              <div class="phone-title">${escapeHtml(item.name)}</div>
+              ${item.contact ? `<div class="phone-contact">👤 聯絡窗口：<b>${escapeHtml(item.contact)}</b></div>` : ''}
+              ${item.note ? `<div class="phone-note">${escapeHtml(item.note)}</div>` : ''}
+            </div>
+            <div class="phone-action">
+              <span class="phone-number">${item.phone ? escapeHtml(item.phone) : '<span style="color:#aaa;font-weight:normal;">無電話</span>'}</span>
+              ${dialNum ? `
+                <a href="tel:${dialNum}" class="call-btn">
+                  📞 撥打
+                </a>
+              ` : ''}
+            </div>
+          `;
+          fragment.appendChild(card);
+        });
+        gridContainer.appendChild(fragment);
+      } else {
+        const barcodesToDraw = [];
+
+        chunk.forEach((item, idx) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const svgId = `barcode-${currentRenderIndex + idx}`;
+          const imgSrc = `pop/${item.code}.jpg`;
+
+          card.innerHTML = `
+            <div class="card-main-content">
+              <div class="card-text-side">
+                <div class="card-meta">
+                  <span class="meta-cat">${escapeHtml(item.category)}${item.subcategory ? ` · ${escapeHtml(item.subcategory)}` : ''}</span>
+                  <span class="meta-qty">${item.qty ? `${escapeHtml(item.qty)}` : ''}</span>
+                </div>
+                <div class="card-title">${escapeHtml(item.code)} ${escapeHtml(item.name)}</div>
+              </div>
+              <div class="card-thumb-side">
+                <img 
+                  src="${imgSrc}" 
+                  alt="${escapeHtml(item.name)}" 
+                  class="pop-img" 
+                  loading="lazy"
+                  onerror="this.parentElement.style.display='none'"
+                  onclick="window.open(this.src, '_blank')"
+                  title="點擊可檢視原圖"
+                >
+              </div>
+            </div>
+            <div class="card-barcode-box">
+              ${item.code ? `<svg id="${svgId}" class="barcode-svg"></svg>` : '<span style="color:#aaa;font-size:12px;">無條碼</span>'}
+            </div>
+          `;
+          fragment.appendChild(card);
+
+          if (item.code) {
+            barcodesToDraw.push({ id: svgId, code: item.code });
+          }
+        });
+
+        gridContainer.appendChild(fragment);
+
+        barcodesToDraw.forEach(b => {
+          try {
+            JsBarcode(`#${b.id}`, b.code, {
+              format: "CODE128",
+              width: 1.8,
+              height: 42,
+              displayValue: true,
+              fontSize: 13,
+              margin: 6,
+              background: "#ffffff",
+              lineColor: "#000000"
+            });
+          } catch (err) {
+            console.warn('條碼繪製失敗:', b.code);
+          }
+        });
+      }
+
+      currentRenderIndex = nextIndex;
+    }
+
+    function setupInfiniteScroll() {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      }, { rootMargin: '250px' });
+
+      observer.observe(document.getElementById('loading-trigger'));
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
