@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>7-11 門市輔導訂貨與自用品條碼系統</title>
+  <title>中二區ST資源整合平台</title>
   <!-- CSV 解析與條碼繪製套件 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -593,7 +593,7 @@
     <!-- 管理員按鈕列 -->
     <div id="admin-bar" class="admin-bar" style="display: none;">
       <div style="display: flex; gap: 8px; align-items: center;">
-        <button id="admin-toggle-btn" class="admin-btn btn-admin-toggle" onclick="toggleAdminMode()">⚙️ 管理員模式：關閉</button>
+        <button id="admin-toggle-btn" class="admin-btn btn-admin-toggle" onclick="toggleAdminMode()">🔒 登入管理員模式</button>
         <span id="sync-status" style="font-size: 12px; color: #64748b;"></span>
       </div>
       <div id="admin-controls" style="display: none; gap: 8px;">
@@ -754,6 +754,21 @@
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
+  <!-- 管理員密碼驗證 Modal -->
+  <div id="pwd-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 380px;">
+      <div class="modal-title">🔐 管理員權限驗證</div>
+      <div class="form-group">
+        <label>請輸入管理員密碼：</label>
+        <input type="password" id="input-admin-password" placeholder="輸入密碼..." onkeydown="if(event.key==='Enter') verifyAdminPassword()">
+      </div>
+      <div class="modal-actions">
+        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closePwdModal()">取消</button>
+        <button class="admin-btn btn-admin-add" onclick="verifyAdminPassword()">確定登入</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 編輯/新增 Modal -->
   <div id="edit-modal" class="modal-backdrop">
     <div class="modal-card">
@@ -836,6 +851,9 @@
   </div>
 
   <script>
+    // 管理員密碼 (預設為 711，可在此自行修改)
+    const ADMIN_PASSWORD = "711";
+
     const CSV_PATH = 'pop.csv';
     const CALL_CSV_PATH = 'call.csv';
     const FORM_CSV_PATH = 'form.csv';
@@ -862,6 +880,7 @@
     const syncStatusEl = document.getElementById('sync-status');
     const editModal = document.getElementById('edit-modal');
     const ghModal = document.getElementById('gh-modal');
+    const pwdModal = document.getElementById('pwd-modal');
 
     window.addEventListener('DOMContentLoaded', () => {
       loadMainCSV();
@@ -975,16 +994,44 @@
       filterAndRender();
     }
 
+    // 管理員登入與驗證
     function toggleAdminMode() {
-      isAdminMode = !isAdminMode;
-      document.body.classList.toggle('is-admin', isAdminMode);
-      adminToggleBtn.classList.toggle('active', isAdminMode);
-      adminToggleBtn.textContent = isAdminMode ? '⚙️ 管理員模式：開啟中' : '⚙️ 管理員模式：關閉';
-      adminControls.style.display = isAdminMode ? 'flex' : 'none';
-      filterAndRender();
+      if (!isAdminMode) {
+        document.getElementById('input-admin-password').value = '';
+        pwdModal.classList.add('active');
+        setTimeout(() => document.getElementById('input-admin-password').focus(), 100);
+      } else {
+        isAdminMode = false;
+        document.body.classList.remove('is-admin');
+        adminToggleBtn.classList.remove('active');
+        adminToggleBtn.textContent = '🔒 登入管理員模式';
+        adminControls.style.display = 'none';
+        filterAndRender();
+      }
+    }
+
+    function closePwdModal() {
+      pwdModal.classList.remove('active');
+    }
+
+    function verifyAdminPassword() {
+      const inputPwd = document.getElementById('input-admin-password').value;
+      if (inputPwd === ADMIN_PASSWORD) {
+        isAdminMode = true;
+        document.body.classList.add('is-admin');
+        adminToggleBtn.classList.add('active');
+        adminToggleBtn.textContent = '🔓 管理員模式：已登入';
+        adminControls.style.display = 'flex';
+        closePwdModal();
+        filterAndRender();
+      } else {
+        alert('密碼錯誤！請重新輸入。');
+        document.getElementById('input-admin-password').value = '';
+      }
     }
 
     function openAddModal() {
+      if (!isAdminMode) return;
       document.getElementById('edit-index').value = '-1';
       document.getElementById('form-category').value = currentCategory === 'ALL' ? (currentPage === '常用表單' ? '常用表單' : '電話窗口') : currentCategory;
       document.getElementById('form-name').value = '';
@@ -1010,6 +1057,7 @@
     }
 
     function openEditModal(index) {
+      if (!isAdminMode) return;
       document.getElementById('edit-index').value = index;
 
       if (currentPage === '常用表單') {
@@ -1046,6 +1094,7 @@
     function closeModal() { editModal.classList.remove('active'); }
 
     function openGithubConfigModal() {
+      if (!isAdminMode) return;
       document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
       document.getElementById('gh-repo').value = localStorage.getItem('gh_repo') || '';
       document.getElementById('gh-branch').value = localStorage.getItem('gh_branch') || 'main';
@@ -1071,7 +1120,7 @@
       if (token && repo) {
         syncStatusEl.innerHTML = `<span style="color:#16a34a; font-weight:700;">● GitHub API 已連線 (${repo})</span>`;
       } else {
-        syncStatusEl.innerHTML = `<span style="color:#64748b;">(未綁定 GitHub，目前為本機編輯)</span>`;
+        syncStatusEl.innerHTML = `<span style="color:#64748b;">(未綁定 GitHub)</span>`;
       }
     }
 
@@ -1109,6 +1158,7 @@
     }
 
     async function deleteItemData(index) {
+      if (!isAdminMode) return;
       const targetList = currentPage === '常用表單' ? formData : callData;
       if (!confirm(`確定要刪除「${targetList[index].name}」嗎？`)) return;
 
@@ -1130,7 +1180,7 @@
       const targetDataList = currentPage === '常用表單' ? formData : callData;
 
       if (!owner || !repo || !token) {
-        alert('已成功在網頁上記錄修改！\n\n提示：若需自動將內容覆蓋上傳 GitHub，請點擊「🔗 設定 GitHub 同步」綁定 Token。');
+        alert('已在網頁上記錄修改！\n\n提示：若需自動同步至 GitHub，請點擊「🔗 設定 GitHub 同步」填寫 Token。');
         return;
       }
 
