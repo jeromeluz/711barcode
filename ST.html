@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>7-11 中二區ST資源整合平台</title>
+  <title>7-11 門市輔導訂貨與自用品條碼系統</title>
   <!-- CSV 解析與條碼繪製套件 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -107,6 +107,63 @@
     .search-input:focus {
       border-color: #008062;
       box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
+    }
+
+    /* 管理員工具列 */
+    .admin-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border: 1px dashed #cbd5e1;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .admin-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .btn-admin-toggle {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-admin-toggle.active {
+      background: #ea580c;
+      color: #ffffff;
+    }
+
+    .btn-admin-add {
+      background: #008062;
+      color: #ffffff;
+    }
+    .btn-admin-add:hover {
+      background: #00664e;
+    }
+
+    .btn-admin-gh {
+      background: #334155;
+      color: #ffffff;
+    }
+    .btn-admin-gh:hover {
+      background: #1e293b;
+    }
+
+    .btn-admin-export {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .btn-admin-export:hover {
+      background: #0369a1;
     }
 
     /* 綠色大標分類快速滑動列 */
@@ -235,7 +292,7 @@
       height: 52px;
     }
 
-    /* ST常用電話專用卡片樣式 */
+    /* 電話/表單 通用卡片樣式 */
     .phone-card {
       background: #ffffff;
       border-radius: 8px;
@@ -246,6 +303,7 @@
       justify-content: space-between;
       border: 1px solid #e2e8f0;
       min-height: 140px;
+      position: relative;
     }
 
     .phone-header-row {
@@ -253,6 +311,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 6px;
     }
 
     .phone-tag {
@@ -329,6 +388,53 @@
       background: #00664e;
     }
 
+    .form-btn {
+      background: #0284c7;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .form-btn:hover {
+      background: #0369a1;
+    }
+
+    /* 管理員專用按鈕 */
+    .admin-card-actions {
+      display: none;
+      gap: 6px;
+    }
+    body.is-admin .admin-card-actions {
+      display: flex;
+    }
+
+    .action-icon-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .action-icon-btn:hover {
+      background: #e2e8f0;
+    }
+    .action-icon-btn.delete {
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+    .action-icon-btn.delete:hover {
+      background: #fee2e2;
+    }
+
     /* 隔板標準量圖表面板 */
     .standard-panel {
       background: #ffffff;
@@ -400,6 +506,66 @@
       text-align: center;
       font-weight: 700;
     }
+
+    /* 彈窗 Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 12px;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: #0f172a;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: #008062;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
   </style>
 </head>
 <body>
@@ -410,7 +576,8 @@
       <button class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
       <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品</button>
       <button class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
-      <button class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')">📞 ST 常用電話 (109筆)</button>
+      <button class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')">📞 ST 常用電話</button>
+      <button class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')">📄 常用表單</button>
       <a href="product.html" class="tab-btn link-tab">📦 門市所有商品查詢 ↗</a>
     </div>
 
@@ -420,7 +587,20 @@
     </div>
 
     <div>
-      <input type="text" id="search-input" class="search-input" placeholder="輸入關鍵字或電話號碼搜尋...">
+      <input type="text" id="search-input" class="search-input" placeholder="輸入關鍵字搜尋...">
+    </div>
+
+    <!-- 管理員按鈕列 -->
+    <div id="admin-bar" class="admin-bar" style="display: none;">
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button id="admin-toggle-btn" class="admin-btn btn-admin-toggle" onclick="toggleAdminMode()">⚙️ 管理員模式：關閉</button>
+        <span id="sync-status" style="font-size: 12px; color: #64748b;"></span>
+      </div>
+      <div id="admin-controls" style="display: none; gap: 8px;">
+        <button id="btn-add-item" class="admin-btn btn-admin-add" onclick="openAddModal()">＋ 新增資料</button>
+        <button class="admin-btn btn-admin-gh" onclick="openGithubConfigModal()">🔗 設定 GitHub 同步</button>
+        <button id="btn-export-csv" class="admin-btn btn-admin-export" onclick="exportCurrentCSV()">⬇️ 匯出 CSV</button>
+      </div>
     </div>
 
     <div class="category-scroll" id="category-scroll"></div>
@@ -574,17 +754,101 @@
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
+  <!-- 編輯/新增 Modal -->
+  <div id="edit-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div id="modal-title" class="modal-title">新增/編輯資料</div>
+      <input type="hidden" id="edit-index" value="-1">
+
+      <div class="form-group">
+        <label>大分類</label>
+        <input type="text" id="form-category" placeholder="例: 營運表單、系統、設備">
+      </div>
+      <div class="form-group">
+        <label id="lbl-form-name">項目 / 名稱</label>
+        <input type="text" id="form-name" placeholder="請輸入名稱">
+      </div>
+      
+      <!-- 電話專用欄位 -->
+      <div id="phone-only-fields">
+        <div class="form-group">
+          <label>負責單位 (選填)</label>
+          <input type="text" id="form-dept" placeholder="例: 基磐管理Team">
+        </div>
+        <div class="form-group">
+          <label>聯絡窗口 (選填)</label>
+          <input type="text" id="form-contact" placeholder="例: 叫修中心、陳玉秀">
+        </div>
+        <div class="form-group">
+          <label>電話號碼</label>
+          <input type="text" id="form-phone" placeholder="例: 02-2747-8711#2478">
+        </div>
+      </div>
+
+      <!-- 表單專用欄位 -->
+      <div id="form-only-fields" style="display: none;">
+        <div class="form-group">
+          <label>表單網址 (URL)</label>
+          <input type="text" id="form-url" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>說明 / 備註 (選填)</label>
+        <textarea id="form-note" rows="2" placeholder="詳細說明與備註"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closeModal()">取消</button>
+        <button class="admin-btn btn-admin-add" onclick="saveItemData()">儲存並同步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub 同步設定 Modal -->
+  <div id="gh-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-title">🔗 GitHub 自動同步設定</div>
+      <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.5;">
+        設定後，在網頁上進行的修改將透過 GitHub API 自動 Commit 覆蓋 <code>call.csv</code> 或 <code>form.csv</code>。
+      </div>
+      <div class="form-group">
+        <label>GitHub 帳號 (Owner)</label>
+        <input type="text" id="gh-owner" placeholder="例如: jonny00520">
+      </div>
+      <div class="form-group">
+        <label>倉庫名稱 (Repository)</label>
+        <input type="text" id="gh-repo" placeholder="例如: 711barcode">
+      </div>
+      <div class="form-group">
+        <label>分支名稱 (Branch)</label>
+        <input type="text" id="gh-branch" value="main">
+      </div>
+      <div class="form-group">
+        <label>Personal Access Token (classic, 需勾選 repo)</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+      </div>
+      <div class="modal-actions">
+        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closeGhModal()">關閉</button>
+        <button class="admin-btn btn-admin-gh" onclick="saveGithubConfig()">儲存設定</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const CSV_PATH = 'pop.csv';
     const CALL_CSV_PATH = 'call.csv';
+    const FORM_CSV_PATH = 'form.csv';
     const BATCH_SIZE = 40;
 
     let allData = [];
     let callData = [];
+    let formData = [];
     let currentPage = '長期POP與陳列盒';
     let currentCategory = 'ALL';
     let currentFiltered = [];
     let currentRenderIndex = 0;
+    let isAdminMode = false;
 
     const searchInput = document.getElementById('search-input');
     const categoryScroll = document.getElementById('category-scroll');
@@ -592,11 +856,19 @@
     const totalCountEl = document.getElementById('total-count');
     const filteredCountEl = document.getElementById('filtered-count');
     const boardStandardSection = document.getElementById('board-standard-section');
+    const adminBar = document.getElementById('admin-bar');
+    const adminControls = document.getElementById('admin-controls');
+    const adminToggleBtn = document.getElementById('admin-toggle-btn');
+    const syncStatusEl = document.getElementById('sync-status');
+    const editModal = document.getElementById('edit-modal');
+    const ghModal = document.getElementById('gh-modal');
 
     window.addEventListener('DOMContentLoaded', () => {
       loadMainCSV();
-      loadCallCSV();
+      loadCallData();
+      loadFormData();
       setupInfiniteScroll();
+      updateSyncStatusText();
     });
 
     function loadMainCSV() {
@@ -614,24 +886,23 @@
             qty: (d['預設數量/規格'] || '').trim(),
             note: (d['備註'] || '').trim()
           }));
-          if (currentPage !== 'ST常用電話') {
+          if (currentPage !== 'ST常用電話' && currentPage !== '常用表單') {
             updateCategoryTabs();
             filterAndRender();
           }
         },
-        error: function(err) {
-          console.warn('載入 data.csv 失敗');
-        }
+        error: function() { console.warn('載入 data.csv 失敗'); }
       });
     }
 
-    function loadCallCSV() {
-      Papa.parse(CALL_CSV_PATH, {
+    function loadCallData() {
+      Papa.parse(CALL_CSV_PATH + '?t=' + Date.now(), {
         download: true,
         header: true,
         skipEmptyLines: true,
         complete: function(res) {
-          callData = res.data.map(d => ({
+          callData = res.data.map((d, index) => ({
+            id: index,
             category: (d['分類'] || '其他').trim(),
             name: (d['項目'] || '').trim(),
             dept: (d['負責單位'] || '').trim(),
@@ -645,9 +916,30 @@
             filterAndRender();
           }
         },
-        error: function(err) {
-          console.warn('未找到 call.csv 檔案');
-        }
+        error: function() { console.warn('未找到 call.csv 檔案'); }
+      });
+    }
+
+    function loadFormData() {
+      Papa.parse(FORM_CSV_PATH + '?t=' + Date.now(), {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          formData = res.data.map((d, index) => ({
+            id: index,
+            category: (d['分類'] || '一般表單').trim(),
+            name: (d['表單名稱'] || d['項目'] || '').trim(),
+            note: (d['說明備註'] || d['備註'] || '').trim(),
+            url: (d['表單連結'] || d['網址'] || '').trim()
+          })).filter(item => item.name || item.url);
+
+          if (currentPage === '常用表單') {
+            updateCategoryTabs();
+            filterAndRender();
+          }
+        },
+        error: function() { console.warn('未找到 form.csv 檔案'); }
       });
     }
 
@@ -664,14 +956,257 @@
         boardStandardSection.style.display = 'none';
       }
 
-      if (currentPage === 'ST常用電話') {
-        searchInput.placeholder = "輸入項目（如 CMS、保修、速達、統昶）、窗口或電話號碼搜尋...";
+      if (currentPage === 'ST常用電話' || currentPage === '常用表單') {
+        adminBar.style.display = 'flex';
+        document.getElementById('btn-add-item').textContent = currentPage === 'ST常用電話' ? '＋ 新增電話' : '＋ 新增表單';
+        document.getElementById('btn-export-csv').textContent = currentPage === 'ST常用電話' ? '⬇️ 匯出 call.csv' : '⬇️ 匯出 form.csv';
+        
+        if (currentPage === 'ST常用電話') {
+          searchInput.placeholder = "輸入項目（如 地圖、CMS、速達、統昶）、窗口或電話號碼搜尋...";
+        } else {
+          searchInput.placeholder = "輸入表單名稱、分類或說明搜尋...";
+        }
       } else {
+        adminBar.style.display = 'none';
         searchInput.placeholder = "輸入品號（如 324333）或品名關鍵字搜尋...";
       }
 
       updateCategoryTabs();
       filterAndRender();
+    }
+
+    function toggleAdminMode() {
+      isAdminMode = !isAdminMode;
+      document.body.classList.toggle('is-admin', isAdminMode);
+      adminToggleBtn.classList.toggle('active', isAdminMode);
+      adminToggleBtn.textContent = isAdminMode ? '⚙️ 管理員模式：開啟中' : '⚙️ 管理員模式：關閉';
+      adminControls.style.display = isAdminMode ? 'flex' : 'none';
+      filterAndRender();
+    }
+
+    function openAddModal() {
+      document.getElementById('edit-index').value = '-1';
+      document.getElementById('form-category').value = currentCategory === 'ALL' ? (currentPage === '常用表單' ? '常用表單' : '電話窗口') : currentCategory;
+      document.getElementById('form-name').value = '';
+      document.getElementById('form-note').value = '';
+
+      if (currentPage === '常用表單') {
+        document.getElementById('modal-title').textContent = '新增表單';
+        document.getElementById('lbl-form-name').textContent = '表單名稱';
+        document.getElementById('phone-only-fields').style.display = 'none';
+        document.getElementById('form-only-fields').style.display = 'block';
+        document.getElementById('form-url').value = '';
+      } else {
+        document.getElementById('modal-title').textContent = '新增電話聯絡人';
+        document.getElementById('lbl-form-name').textContent = '項目 / 單位名稱';
+        document.getElementById('phone-only-fields').style.display = 'block';
+        document.getElementById('form-only-fields').style.display = 'none';
+        document.getElementById('form-dept').value = '';
+        document.getElementById('form-contact').value = '';
+        document.getElementById('form-phone').value = '';
+      }
+
+      editModal.classList.add('active');
+    }
+
+    function openEditModal(index) {
+      document.getElementById('edit-index').value = index;
+
+      if (currentPage === '常用表單') {
+        const item = formData[index];
+        if (!item) return;
+        document.getElementById('modal-title').textContent = '編輯表單';
+        document.getElementById('lbl-form-name').textContent = '表單名稱';
+        document.getElementById('phone-only-fields').style.display = 'none';
+        document.getElementById('form-only-fields').style.display = 'block';
+
+        document.getElementById('form-category').value = item.category;
+        document.getElementById('form-name').value = item.name;
+        document.getElementById('form-url').value = item.url;
+        document.getElementById('form-note').value = item.note;
+      } else {
+        const item = callData[index];
+        if (!item) return;
+        document.getElementById('modal-title').textContent = '編輯電話聯絡人';
+        document.getElementById('lbl-form-name').textContent = '項目 / 單位名稱';
+        document.getElementById('phone-only-fields').style.display = 'block';
+        document.getElementById('form-only-fields').style.display = 'none';
+
+        document.getElementById('form-category').value = item.category;
+        document.getElementById('form-name').value = item.name;
+        document.getElementById('form-dept').value = item.dept;
+        document.getElementById('form-contact').value = item.contact;
+        document.getElementById('form-phone').value = item.phone;
+        document.getElementById('form-note').value = item.note;
+      }
+
+      editModal.classList.add('active');
+    }
+
+    function closeModal() { editModal.classList.remove('active'); }
+
+    function openGithubConfigModal() {
+      document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
+      document.getElementById('gh-repo').value = localStorage.getItem('gh_repo') || '';
+      document.getElementById('gh-branch').value = localStorage.getItem('gh_branch') || 'main';
+      document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
+      ghModal.classList.add('active');
+    }
+
+    function closeGhModal() { ghModal.classList.remove('active'); }
+
+    function saveGithubConfig() {
+      localStorage.setItem('gh_owner', document.getElementById('gh-owner').value.trim());
+      localStorage.setItem('gh_repo', document.getElementById('gh-repo').value.trim());
+      localStorage.setItem('gh_branch', document.getElementById('gh-branch').value.trim() || 'main');
+      localStorage.setItem('gh_token', document.getElementById('gh-token').value.trim());
+      closeGhModal();
+      updateSyncStatusText();
+      alert('GitHub 同步設定已儲存！');
+    }
+
+    function updateSyncStatusText() {
+      const token = localStorage.getItem('gh_token');
+      const repo = localStorage.getItem('gh_repo');
+      if (token && repo) {
+        syncStatusEl.innerHTML = `<span style="color:#16a34a; font-weight:700;">● GitHub API 已連線 (${repo})</span>`;
+      } else {
+        syncStatusEl.innerHTML = `<span style="color:#64748b;">(未綁定 GitHub，目前為本機編輯)</span>`;
+      }
+    }
+
+    async function saveItemData() {
+      const idx = parseInt(document.getElementById('edit-index').value, 10);
+      const category = document.getElementById('form-category').value.trim() || '其他';
+      const name = document.getElementById('form-name').value.trim();
+      const note = document.getElementById('form-note').value.trim();
+
+      if (!name) { alert('請輸入名稱！'); return; }
+
+      if (currentPage === '常用表單') {
+        const url = document.getElementById('form-url').value.trim();
+        if (idx === -1) {
+          formData.unshift({ id: Date.now(), category, name, url, note });
+        } else {
+          formData[idx] = { ...formData[idx], category, name, url, note };
+        }
+      } else {
+        const dept = document.getElementById('form-dept').value.trim();
+        const contact = document.getElementById('form-contact').value.trim();
+        const phone = document.getElementById('form-phone').value.trim();
+        if (idx === -1) {
+          callData.unshift({ id: Date.now(), category, name, dept, contact, phone, note });
+        } else {
+          callData[idx] = { ...callData[idx], category, name, dept, contact, phone, note };
+        }
+      }
+
+      closeModal();
+      updateCategoryTabs();
+      filterAndRender();
+
+      await syncToGitHub();
+    }
+
+    async function deleteItemData(index) {
+      const targetList = currentPage === '常用表單' ? formData : callData;
+      if (!confirm(`確定要刪除「${targetList[index].name}」嗎？`)) return;
+
+      targetList.splice(index, 1);
+      updateCategoryTabs();
+      filterAndRender();
+
+      await syncToGitHub();
+    }
+
+    // 自動同步寫入 GitHub
+    async function syncToGitHub() {
+      const owner = localStorage.getItem('gh_owner');
+      const repo = localStorage.getItem('gh_repo');
+      const branch = localStorage.getItem('gh_branch') || 'main';
+      const token = localStorage.getItem('gh_token');
+
+      const targetFileName = currentPage === '常用表單' ? 'form.csv' : 'call.csv';
+      const targetDataList = currentPage === '常用表單' ? formData : callData;
+
+      if (!owner || !repo || !token) {
+        alert('已成功在網頁上記錄修改！\n\n提示：若需自動將內容覆蓋上傳 GitHub，請點擊「🔗 設定 GitHub 同步」綁定 Token。');
+        return;
+      }
+
+      syncStatusEl.innerHTML = `<span style="color:#ea580c; font-weight:700;">⏳ 正在推送到 GitHub (${targetFileName})...</span>`;
+
+      try {
+        const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${targetFileName}?ref=${branch}`;
+        const getRes = await fetch(getUrl, {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        let fileSha = null;
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          fileSha = fileInfo.sha;
+        }
+
+        let csvData = [];
+        if (currentPage === '常用表單') {
+          csvData = targetDataList.map(d => ({ '分類': d.category, '表單名稱': d.name, '說明備註': d.note, '表單連結': d.url }));
+        } else {
+          csvData = targetDataList.map(d => ({ '分類': d.category, '項目': d.name, '負責單位': d.dept, '聯絡窗口': d.contact, '電話': d.phone, '備註': d.note }));
+        }
+
+        const csvContent = Papa.unparse(csvData);
+        const encodedContent = btoa(unescape(encodeURIComponent("\uFEFF" + csvContent)));
+
+        const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${targetFileName}`;
+        const putRes = await fetch(putUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Update ${targetFileName} via Web Admin (${new Date().toLocaleString()})`,
+            content: encodedContent,
+            sha: fileSha,
+            branch: branch
+          })
+        });
+
+        if (putRes.ok) {
+          syncStatusEl.innerHTML = `<span style="color:#16a34a; font-weight:700;">✅ 已成功同步 ${targetFileName} 至 GitHub！</span>`;
+          setTimeout(updateSyncStatusText, 4000);
+        } else {
+          const err = await putRes.json();
+          throw new Error(err.message || 'API 更新失敗');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('同步至 GitHub 失敗：' + err.message);
+        syncStatusEl.innerHTML = `<span style="color:#dc2626; font-weight:700;">❌ 同步失敗</span>`;
+      }
+    }
+
+    function exportCurrentCSV() {
+      const targetFileName = currentPage === '常用表單' ? 'form.csv' : 'call.csv';
+      let csvData = [];
+
+      if (currentPage === '常用表單') {
+        csvData = formData.map(d => ({ '分類': d.category, '表單名稱': d.name, '說明備註': d.note, '表單連結': d.url }));
+      } else {
+        csvData = callData.map(d => ({ '分類': d.category, '項目': d.name, '負責單位': d.dept, '聯絡窗口': d.contact, '電話': d.phone, '備註': d.note }));
+      }
+
+      const csvString = Papa.unparse(csvData);
+      const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", targetFileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function calcShelfStandard() {
@@ -685,10 +1220,7 @@
       r2.style.background = '';
       r3.style.background = '';
 
-      if (isNaN(val) || val <= 0) {
-        hint.textContent = '';
-        return;
-      }
+      if (isNaN(val) || val <= 0) { hint.textContent = ''; return; }
 
       if (val <= 34) {
         r1.style.background = '#fef08a';
@@ -704,7 +1236,11 @@
 
     function updateCategoryTabs() {
       categoryScroll.innerHTML = '';
-      let targetList = (currentPage === 'ST常用電話') ? callData : allData.filter(d => d.page === currentPage);
+      let targetList = [];
+      if (currentPage === 'ST常用電話') targetList = callData;
+      else if (currentPage === '常用表單') targetList = formData;
+      else targetList = allData.filter(d => d.page === currentPage);
+
       totalCountEl.textContent = targetList.length;
 
       const categories = ['ALL', ...new Set(targetList.map(d => d.category).filter(Boolean))];
@@ -723,14 +1259,10 @@
       });
     }
 
-    searchInput.addEventListener('input', () => {
-      filterAndRender();
-    });
+    searchInput.addEventListener('input', () => { filterAndRender(); });
 
-    // 擷取撥號用號碼 (過濾非數字分機等)
     function extractDialNumber(str) {
       if (!str) return '';
-      // 優先取第一組主要電話
       const matched = str.match(/([0-9]{2,4}-[0-9]{6,8}|0800-?[0-9]{3,6}|09[0-9]{8}|[0-9]{8,10})/);
       return matched ? matched[0].replace(/[^0-9]/g, '') : '';
     }
@@ -738,16 +1270,26 @@
     function filterAndRender() {
       const keyword = searchInput.value.trim().toLowerCase();
 
-      if (currentPage === 'ST常用電話') {
-        currentFiltered = callData.filter(d => {
-          if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
-          if (!keyword) return true;
-          return d.name.toLowerCase().includes(keyword) ||
-                 d.dept.toLowerCase().includes(keyword) ||
-                 d.contact.toLowerCase().includes(keyword) ||
-                 d.phone.toLowerCase().includes(keyword) ||
-                 d.note.toLowerCase().includes(keyword);
-        });
+      if (currentPage === '常用表單') {
+        currentFiltered = formData.map((item, originalIndex) => ({ ...item, originalIndex }))
+          .filter(d => {
+            if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+            if (!keyword) return true;
+            return d.name.toLowerCase().includes(keyword) ||
+                   d.note.toLowerCase().includes(keyword) ||
+                   d.url.toLowerCase().includes(keyword);
+          });
+      } else if (currentPage === 'ST常用電話') {
+        currentFiltered = callData.map((item, originalIndex) => ({ ...item, originalIndex }))
+          .filter(d => {
+            if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+            if (!keyword) return true;
+            return d.name.toLowerCase().includes(keyword) ||
+                   d.dept.toLowerCase().includes(keyword) ||
+                   d.contact.toLowerCase().includes(keyword) ||
+                   d.phone.toLowerCase().includes(keyword) ||
+                   d.note.toLowerCase().includes(keyword);
+          });
       } else {
         currentFiltered = allData.filter(d => {
           if (d.page !== currentPage) return false;
@@ -765,9 +1307,7 @@
       currentRenderIndex = 0;
 
       if (currentFiltered.length === 0) {
-        gridContainer.innerHTML = (currentPage === 'ST常用電話' && callData.length === 0)
-          ? '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">尚未載入 call.csv 或查無資料</div>'
-          : '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">查無符合項目</div>';
+        gridContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">查無符合項目</div>';
         return;
       }
 
@@ -781,7 +1321,38 @@
       const chunk = currentFiltered.slice(currentRenderIndex, nextIndex);
       const fragment = document.createDocumentFragment();
 
-      if (currentPage === 'ST常用電話') {
+      if (currentPage === '常用表單') {
+        chunk.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'phone-card';
+
+          card.innerHTML = `
+            <div>
+              <div class="phone-header-row">
+                <span class="phone-tag">${escapeHtml(item.category)}</span>
+                <div class="admin-card-actions">
+                  <button class="action-icon-btn" onclick="openEditModal(${item.originalIndex})">✏️ 編輯</button>
+                  <button class="action-icon-btn delete" onclick="deleteItemData(${item.originalIndex})">🗑️</button>
+                </div>
+              </div>
+              <div class="phone-title">${escapeHtml(item.name)}</div>
+              ${item.note ? `<div class="phone-note">${escapeHtml(item.note)}</div>` : ''}
+            </div>
+            <div class="phone-action">
+              <span class="phone-number" style="font-size:12px; color:#64748b; font-weight:normal;">
+                ${item.url ? escapeHtml(item.url) : '無連結'}
+              </span>
+              ${item.url ? `
+                <a href="${escapeHtml(item.url)}" target="_blank" class="form-btn">
+                  🔗 開啟表單
+                </a>
+              ` : ''}
+            </div>
+          `;
+          fragment.appendChild(card);
+        });
+        gridContainer.appendChild(fragment);
+      } else if (currentPage === 'ST常用電話') {
         chunk.forEach(item => {
           const card = document.createElement('div');
           card.className = 'phone-card';
@@ -791,7 +1362,13 @@
             <div>
               <div class="phone-header-row">
                 <span class="phone-tag">${escapeHtml(item.category)}</span>
-                ${item.dept ? `<span class="phone-dept">${escapeHtml(item.dept)}</span>` : ''}
+                <div style="display:flex; align-items:center; gap:6px;">
+                  ${item.dept ? `<span class="phone-dept">${escapeHtml(item.dept)}</span>` : ''}
+                  <div class="admin-card-actions">
+                    <button class="action-icon-btn" onclick="openEditModal(${item.originalIndex})">✏️ 編輯</button>
+                    <button class="action-icon-btn delete" onclick="deleteItemData(${item.originalIndex})">🗑️</button>
+                  </div>
+                </div>
               </div>
               <div class="phone-title">${escapeHtml(item.name)}</div>
               ${item.contact ? `<div class="phone-contact">👤 聯絡窗口：<b>${escapeHtml(item.contact)}</b></div>` : ''}
