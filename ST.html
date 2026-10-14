@@ -109,63 +109,6 @@
       box-shadow: 0 0 0 3px rgba(0, 128, 98, 0.15);
     }
 
-    /* 管理員工具列 */
-    .admin-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding: 8px 12px;
-      background: #f8fafc;
-      border-radius: 6px;
-      border: 1px dashed #cbd5e1;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .admin-btn {
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .btn-admin-toggle {
-      background: #e2e8f0;
-      color: #334155;
-    }
-    .btn-admin-toggle.active {
-      background: #ea580c;
-      color: #ffffff;
-    }
-
-    .btn-admin-add {
-      background: #008062;
-      color: #ffffff;
-    }
-    .btn-admin-add:hover {
-      background: #00664e;
-    }
-
-    .btn-admin-gh {
-      background: #334155;
-      color: #ffffff;
-    }
-    .btn-admin-gh:hover {
-      background: #1e293b;
-    }
-
-    .btn-admin-export {
-      background: #0284c7;
-      color: #ffffff;
-    }
-    .btn-admin-export:hover {
-      background: #0369a1;
-    }
-
     /* 綠色大標分類快速滑動列 */
     .category-scroll {
       display: flex;
@@ -406,35 +349,6 @@
       background: #0369a1;
     }
 
-    /* 管理員專用按鈕 */
-    .admin-card-actions {
-      display: none;
-      gap: 6px;
-    }
-    body.is-admin .admin-card-actions {
-      display: flex;
-    }
-
-    .action-icon-btn {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .action-icon-btn:hover {
-      background: #e2e8f0;
-    }
-    .action-icon-btn.delete {
-      color: #dc2626;
-      border-color: #fca5a5;
-    }
-    .action-icon-btn.delete:hover {
-      background: #fee2e2;
-    }
-
     /* 隔板標準量圖表面板 */
     .standard-panel {
       background: #ffffff;
@@ -506,66 +420,6 @@
       text-align: center;
       font-weight: 700;
     }
-
-    /* 彈窗 Modal */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-    .modal-backdrop.active {
-      display: flex;
-    }
-
-    .modal-card {
-      background: #ffffff;
-      border-radius: 12px;
-      max-width: 480px;
-      width: 100%;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-    .modal-title {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 16px;
-      color: #0f172a;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #475569;
-      margin-bottom: 4px;
-    }
-    .form-group input, .form-group textarea {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 14px;
-      outline: none;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: #008062;
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 18px;
-    }
   </style>
 </head>
 <body>
@@ -588,19 +442,6 @@
 
     <div>
       <input type="text" id="search-input" class="search-input" placeholder="輸入關鍵字搜尋...">
-    </div>
-
-    <!-- 管理員按鈕列 -->
-    <div id="admin-bar" class="admin-bar" style="display: none;">
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <button id="admin-toggle-btn" class="admin-btn btn-admin-toggle" onclick="toggleAdminMode()">🔒 登入管理員模式</button>
-        <span id="sync-status" style="font-size: 12px; color: #64748b;"></span>
-      </div>
-      <div id="admin-controls" style="display: none; gap: 8px;">
-        <button id="btn-add-item" class="admin-btn btn-admin-add" onclick="openAddModal()">＋ 新增資料</button>
-        <button class="admin-btn btn-admin-gh" onclick="openGithubConfigModal()">🔗 設定 GitHub 同步</button>
-        <button id="btn-export-csv" class="admin-btn btn-admin-export" onclick="exportCurrentCSV()">⬇️ 匯出 CSV</button>
-      </div>
     </div>
 
     <div class="category-scroll" id="category-scroll"></div>
@@ -754,107 +595,8 @@
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
 
-  <!-- 管理員密碼驗證 Modal -->
-  <div id="pwd-modal" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 380px;">
-      <div class="modal-title">🔐 管理員權限驗證</div>
-      <div class="form-group">
-        <label>請輸入管理員密碼：</label>
-        <input type="password" id="input-admin-password" placeholder="輸入密碼..." onkeydown="if(event.key==='Enter') verifyAdminPassword()">
-      </div>
-      <div class="modal-actions">
-        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closePwdModal()">取消</button>
-        <button class="admin-btn btn-admin-add" onclick="verifyAdminPassword()">確定登入</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 編輯/新增 Modal -->
-  <div id="edit-modal" class="modal-backdrop">
-    <div class="modal-card">
-      <div id="modal-title" class="modal-title">新增/編輯資料</div>
-      <input type="hidden" id="edit-index" value="-1">
-
-      <div class="form-group">
-        <label>大分類</label>
-        <input type="text" id="form-category" placeholder="例: 營運表單、系統、設備">
-      </div>
-      <div class="form-group">
-        <label id="lbl-form-name">項目 / 名稱</label>
-        <input type="text" id="form-name" placeholder="請輸入名稱">
-      </div>
-      
-      <!-- 電話專用欄位 -->
-      <div id="phone-only-fields">
-        <div class="form-group">
-          <label>負責單位 (選填)</label>
-          <input type="text" id="form-dept" placeholder="例: 基磐管理Team">
-        </div>
-        <div class="form-group">
-          <label>聯絡窗口 (選填)</label>
-          <input type="text" id="form-contact" placeholder="例: 叫修中心、陳玉秀">
-        </div>
-        <div class="form-group">
-          <label>電話號碼</label>
-          <input type="text" id="form-phone" placeholder="例: 02-2747-8711#2478">
-        </div>
-      </div>
-
-      <!-- 表單專用欄位 -->
-      <div id="form-only-fields" style="display: none;">
-        <div class="form-group">
-          <label>表單網址 (URL)</label>
-          <input type="text" id="form-url" placeholder="https://...">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>說明 / 備註 (選填)</label>
-        <textarea id="form-note" rows="2" placeholder="詳細說明與備註"></textarea>
-      </div>
-
-      <div class="modal-actions">
-        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closeModal()">取消</button>
-        <button class="admin-btn btn-admin-add" onclick="saveItemData()">儲存並同步</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- GitHub 同步設定 Modal -->
-  <div id="gh-modal" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-title">🔗 GitHub 自動同步設定</div>
-      <div style="font-size: 13px; color: #64748b; margin-bottom: 12px; line-height: 1.5;">
-        設定後，在網頁上進行的修改將透過 GitHub API 自動 Commit 覆蓋 <code>call.csv</code> 或 <code>form.csv</code>。
-      </div>
-      <div class="form-group">
-        <label>GitHub 帳號 (Owner)</label>
-        <input type="text" id="gh-owner" placeholder="例如: jonny00520">
-      </div>
-      <div class="form-group">
-        <label>倉庫名稱 (Repository)</label>
-        <input type="text" id="gh-repo" placeholder="例如: 711barcode">
-      </div>
-      <div class="form-group">
-        <label>分支名稱 (Branch)</label>
-        <input type="text" id="gh-branch" value="main">
-      </div>
-      <div class="form-group">
-        <label>Personal Access Token (classic, 需勾選 repo)</label>
-        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
-      </div>
-      <div class="modal-actions">
-        <button class="admin-btn" style="background:#e2e8f0; color:#475569;" onclick="closeGhModal()">關閉</button>
-        <button class="admin-btn btn-admin-gh" onclick="saveGithubConfig()">儲存設定</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // 管理員密碼 (預設為 711，可在此自行修改)
-    const ADMIN_PASSWORD = "711";
-
-    const CSV_PATH = 'pop.csv';
+    const POP_CSV_PATH = 'pop.csv';
     const CALL_CSV_PATH = 'call.csv';
     const FORM_CSV_PATH = 'form.csv';
     const BATCH_SIZE = 40;
@@ -866,7 +608,6 @@
     let currentCategory = 'ALL';
     let currentFiltered = [];
     let currentRenderIndex = 0;
-    let isAdminMode = false;
 
     const searchInput = document.getElementById('search-input');
     const categoryScroll = document.getElementById('category-scroll');
@@ -874,24 +615,16 @@
     const totalCountEl = document.getElementById('total-count');
     const filteredCountEl = document.getElementById('filtered-count');
     const boardStandardSection = document.getElementById('board-standard-section');
-    const adminBar = document.getElementById('admin-bar');
-    const adminControls = document.getElementById('admin-controls');
-    const adminToggleBtn = document.getElementById('admin-toggle-btn');
-    const syncStatusEl = document.getElementById('sync-status');
-    const editModal = document.getElementById('edit-modal');
-    const ghModal = document.getElementById('gh-modal');
-    const pwdModal = document.getElementById('pwd-modal');
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadMainCSV();
+      loadPopCSV();
       loadCallData();
       loadFormData();
       setupInfiniteScroll();
-      updateSyncStatusText();
     });
 
-    function loadMainCSV() {
-      Papa.parse(CSV_PATH, {
+    function loadPopCSV() {
+      Papa.parse(POP_CSV_PATH + '?t=' + Date.now(), {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -910,7 +643,7 @@
             filterAndRender();
           }
         },
-        error: function() { console.warn('載入 data.csv 失敗'); }
+        error: function() { console.warn('載入 pop.csv 失敗'); }
       });
     }
 
@@ -975,288 +708,16 @@
         boardStandardSection.style.display = 'none';
       }
 
-      if (currentPage === 'ST常用電話' || currentPage === '常用表單') {
-        adminBar.style.display = 'flex';
-        document.getElementById('btn-add-item').textContent = currentPage === 'ST常用電話' ? '＋ 新增電話' : '＋ 新增表單';
-        document.getElementById('btn-export-csv').textContent = currentPage === 'ST常用電話' ? '⬇️ 匯出 call.csv' : '⬇️ 匯出 form.csv';
-        
-        if (currentPage === 'ST常用電話') {
-          searchInput.placeholder = "輸入項目（如 地圖、CMS、速達、統昶）、窗口或電話號碼搜尋...";
-        } else {
-          searchInput.placeholder = "輸入表單名稱、分類或說明搜尋...";
-        }
+      if (currentPage === 'ST常用電話') {
+        searchInput.placeholder = "輸入項目（如 地圖、CMS、速達、統昶）、窗口或電話號碼搜尋...";
+      } else if (currentPage === '常用表單') {
+        searchInput.placeholder = "輸入表單名稱、分類或說明搜尋...";
       } else {
-        adminBar.style.display = 'none';
         searchInput.placeholder = "輸入品號（如 324333）或品名關鍵字搜尋...";
       }
 
       updateCategoryTabs();
       filterAndRender();
-    }
-
-    // 管理員登入與驗證
-    function toggleAdminMode() {
-      if (!isAdminMode) {
-        document.getElementById('input-admin-password').value = '';
-        pwdModal.classList.add('active');
-        setTimeout(() => document.getElementById('input-admin-password').focus(), 100);
-      } else {
-        isAdminMode = false;
-        document.body.classList.remove('is-admin');
-        adminToggleBtn.classList.remove('active');
-        adminToggleBtn.textContent = '🔒 登入管理員模式';
-        adminControls.style.display = 'none';
-        filterAndRender();
-      }
-    }
-
-    function closePwdModal() {
-      pwdModal.classList.remove('active');
-    }
-
-    function verifyAdminPassword() {
-      const inputPwd = document.getElementById('input-admin-password').value;
-      if (inputPwd === ADMIN_PASSWORD) {
-        isAdminMode = true;
-        document.body.classList.add('is-admin');
-        adminToggleBtn.classList.add('active');
-        adminToggleBtn.textContent = '🔓 管理員模式：已登入';
-        adminControls.style.display = 'flex';
-        closePwdModal();
-        filterAndRender();
-      } else {
-        alert('密碼錯誤！請重新輸入。');
-        document.getElementById('input-admin-password').value = '';
-      }
-    }
-
-    function openAddModal() {
-      if (!isAdminMode) return;
-      document.getElementById('edit-index').value = '-1';
-      document.getElementById('form-category').value = currentCategory === 'ALL' ? (currentPage === '常用表單' ? '常用表單' : '電話窗口') : currentCategory;
-      document.getElementById('form-name').value = '';
-      document.getElementById('form-note').value = '';
-
-      if (currentPage === '常用表單') {
-        document.getElementById('modal-title').textContent = '新增表單';
-        document.getElementById('lbl-form-name').textContent = '表單名稱';
-        document.getElementById('phone-only-fields').style.display = 'none';
-        document.getElementById('form-only-fields').style.display = 'block';
-        document.getElementById('form-url').value = '';
-      } else {
-        document.getElementById('modal-title').textContent = '新增電話聯絡人';
-        document.getElementById('lbl-form-name').textContent = '項目 / 單位名稱';
-        document.getElementById('phone-only-fields').style.display = 'block';
-        document.getElementById('form-only-fields').style.display = 'none';
-        document.getElementById('form-dept').value = '';
-        document.getElementById('form-contact').value = '';
-        document.getElementById('form-phone').value = '';
-      }
-
-      editModal.classList.add('active');
-    }
-
-    function openEditModal(index) {
-      if (!isAdminMode) return;
-      document.getElementById('edit-index').value = index;
-
-      if (currentPage === '常用表單') {
-        const item = formData[index];
-        if (!item) return;
-        document.getElementById('modal-title').textContent = '編輯表單';
-        document.getElementById('lbl-form-name').textContent = '表單名稱';
-        document.getElementById('phone-only-fields').style.display = 'none';
-        document.getElementById('form-only-fields').style.display = 'block';
-
-        document.getElementById('form-category').value = item.category;
-        document.getElementById('form-name').value = item.name;
-        document.getElementById('form-url').value = item.url;
-        document.getElementById('form-note').value = item.note;
-      } else {
-        const item = callData[index];
-        if (!item) return;
-        document.getElementById('modal-title').textContent = '編輯電話聯絡人';
-        document.getElementById('lbl-form-name').textContent = '項目 / 單位名稱';
-        document.getElementById('phone-only-fields').style.display = 'block';
-        document.getElementById('form-only-fields').style.display = 'none';
-
-        document.getElementById('form-category').value = item.category;
-        document.getElementById('form-name').value = item.name;
-        document.getElementById('form-dept').value = item.dept;
-        document.getElementById('form-contact').value = item.contact;
-        document.getElementById('form-phone').value = item.phone;
-        document.getElementById('form-note').value = item.note;
-      }
-
-      editModal.classList.add('active');
-    }
-
-    function closeModal() { editModal.classList.remove('active'); }
-
-    function openGithubConfigModal() {
-      if (!isAdminMode) return;
-      document.getElementById('gh-owner').value = localStorage.getItem('gh_owner') || '';
-      document.getElementById('gh-repo').value = localStorage.getItem('gh_repo') || '';
-      document.getElementById('gh-branch').value = localStorage.getItem('gh_branch') || 'main';
-      document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
-      ghModal.classList.add('active');
-    }
-
-    function closeGhModal() { ghModal.classList.remove('active'); }
-
-    function saveGithubConfig() {
-      localStorage.setItem('gh_owner', document.getElementById('gh-owner').value.trim());
-      localStorage.setItem('gh_repo', document.getElementById('gh-repo').value.trim());
-      localStorage.setItem('gh_branch', document.getElementById('gh-branch').value.trim() || 'main');
-      localStorage.setItem('gh_token', document.getElementById('gh-token').value.trim());
-      closeGhModal();
-      updateSyncStatusText();
-      alert('GitHub 同步設定已儲存！');
-    }
-
-    function updateSyncStatusText() {
-      const token = localStorage.getItem('gh_token');
-      const repo = localStorage.getItem('gh_repo');
-      if (token && repo) {
-        syncStatusEl.innerHTML = `<span style="color:#16a34a; font-weight:700;">● GitHub API 已連線 (${repo})</span>`;
-      } else {
-        syncStatusEl.innerHTML = `<span style="color:#64748b;">(未綁定 GitHub)</span>`;
-      }
-    }
-
-    async function saveItemData() {
-      const idx = parseInt(document.getElementById('edit-index').value, 10);
-      const category = document.getElementById('form-category').value.trim() || '其他';
-      const name = document.getElementById('form-name').value.trim();
-      const note = document.getElementById('form-note').value.trim();
-
-      if (!name) { alert('請輸入名稱！'); return; }
-
-      if (currentPage === '常用表單') {
-        const url = document.getElementById('form-url').value.trim();
-        if (idx === -1) {
-          formData.unshift({ id: Date.now(), category, name, url, note });
-        } else {
-          formData[idx] = { ...formData[idx], category, name, url, note };
-        }
-      } else {
-        const dept = document.getElementById('form-dept').value.trim();
-        const contact = document.getElementById('form-contact').value.trim();
-        const phone = document.getElementById('form-phone').value.trim();
-        if (idx === -1) {
-          callData.unshift({ id: Date.now(), category, name, dept, contact, phone, note });
-        } else {
-          callData[idx] = { ...callData[idx], category, name, dept, contact, phone, note };
-        }
-      }
-
-      closeModal();
-      updateCategoryTabs();
-      filterAndRender();
-
-      await syncToGitHub();
-    }
-
-    async function deleteItemData(index) {
-      if (!isAdminMode) return;
-      const targetList = currentPage === '常用表單' ? formData : callData;
-      if (!confirm(`確定要刪除「${targetList[index].name}」嗎？`)) return;
-
-      targetList.splice(index, 1);
-      updateCategoryTabs();
-      filterAndRender();
-
-      await syncToGitHub();
-    }
-
-    // 自動同步寫入 GitHub
-    async function syncToGitHub() {
-      const owner = localStorage.getItem('gh_owner');
-      const repo = localStorage.getItem('gh_repo');
-      const branch = localStorage.getItem('gh_branch') || 'main';
-      const token = localStorage.getItem('gh_token');
-
-      const targetFileName = currentPage === '常用表單' ? 'form.csv' : 'call.csv';
-      const targetDataList = currentPage === '常用表單' ? formData : callData;
-
-      if (!owner || !repo || !token) {
-        alert('已在網頁上記錄修改！\n\n提示：若需自動同步至 GitHub，請點擊「🔗 設定 GitHub 同步」填寫 Token。');
-        return;
-      }
-
-      syncStatusEl.innerHTML = `<span style="color:#ea580c; font-weight:700;">⏳ 正在推送到 GitHub (${targetFileName})...</span>`;
-
-      try {
-        const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${targetFileName}?ref=${branch}`;
-        const getRes = await fetch(getUrl, {
-          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-        });
-
-        let fileSha = null;
-        if (getRes.ok) {
-          const fileInfo = await getRes.json();
-          fileSha = fileInfo.sha;
-        }
-
-        let csvData = [];
-        if (currentPage === '常用表單') {
-          csvData = targetDataList.map(d => ({ '分類': d.category, '表單名稱': d.name, '說明備註': d.note, '表單連結': d.url }));
-        } else {
-          csvData = targetDataList.map(d => ({ '分類': d.category, '項目': d.name, '負責單位': d.dept, '聯絡窗口': d.contact, '電話': d.phone, '備註': d.note }));
-        }
-
-        const csvContent = Papa.unparse(csvData);
-        const encodedContent = btoa(unescape(encodeURIComponent("\uFEFF" + csvContent)));
-
-        const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${targetFileName}`;
-        const putRes = await fetch(putUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: `Update ${targetFileName} via Web Admin (${new Date().toLocaleString()})`,
-            content: encodedContent,
-            sha: fileSha,
-            branch: branch
-          })
-        });
-
-        if (putRes.ok) {
-          syncStatusEl.innerHTML = `<span style="color:#16a34a; font-weight:700;">✅ 已成功同步 ${targetFileName} 至 GitHub！</span>`;
-          setTimeout(updateSyncStatusText, 4000);
-        } else {
-          const err = await putRes.json();
-          throw new Error(err.message || 'API 更新失敗');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('同步至 GitHub 失敗：' + err.message);
-        syncStatusEl.innerHTML = `<span style="color:#dc2626; font-weight:700;">❌ 同步失敗</span>`;
-      }
-    }
-
-    function exportCurrentCSV() {
-      const targetFileName = currentPage === '常用表單' ? 'form.csv' : 'call.csv';
-      let csvData = [];
-
-      if (currentPage === '常用表單') {
-        csvData = formData.map(d => ({ '分類': d.category, '表單名稱': d.name, '說明備註': d.note, '表單連結': d.url }));
-      } else {
-        csvData = callData.map(d => ({ '分類': d.category, '項目': d.name, '負責單位': d.dept, '聯絡窗口': d.contact, '電話': d.phone, '備註': d.note }));
-      }
-
-      const csvString = Papa.unparse(csvData);
-      const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", targetFileName);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
 
     function calcShelfStandard() {
@@ -1321,25 +782,23 @@
       const keyword = searchInput.value.trim().toLowerCase();
 
       if (currentPage === '常用表單') {
-        currentFiltered = formData.map((item, originalIndex) => ({ ...item, originalIndex }))
-          .filter(d => {
-            if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
-            if (!keyword) return true;
-            return d.name.toLowerCase().includes(keyword) ||
-                   d.note.toLowerCase().includes(keyword) ||
-                   d.url.toLowerCase().includes(keyword);
-          });
+        currentFiltered = formData.filter(d => {
+          if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+          if (!keyword) return true;
+          return d.name.toLowerCase().includes(keyword) ||
+                 d.note.toLowerCase().includes(keyword) ||
+                 d.url.toLowerCase().includes(keyword);
+        });
       } else if (currentPage === 'ST常用電話') {
-        currentFiltered = callData.map((item, originalIndex) => ({ ...item, originalIndex }))
-          .filter(d => {
-            if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
-            if (!keyword) return true;
-            return d.name.toLowerCase().includes(keyword) ||
-                   d.dept.toLowerCase().includes(keyword) ||
-                   d.contact.toLowerCase().includes(keyword) ||
-                   d.phone.toLowerCase().includes(keyword) ||
-                   d.note.toLowerCase().includes(keyword);
-          });
+        currentFiltered = callData.filter(d => {
+          if (currentCategory !== 'ALL' && d.category !== currentCategory) return false;
+          if (!keyword) return true;
+          return d.name.toLowerCase().includes(keyword) ||
+                 d.dept.toLowerCase().includes(keyword) ||
+                 d.contact.toLowerCase().includes(keyword) ||
+                 d.phone.toLowerCase().includes(keyword) ||
+                 d.note.toLowerCase().includes(keyword);
+        });
       } else {
         currentFiltered = allData.filter(d => {
           if (d.page !== currentPage) return false;
@@ -1380,10 +839,6 @@
             <div>
               <div class="phone-header-row">
                 <span class="phone-tag">${escapeHtml(item.category)}</span>
-                <div class="admin-card-actions">
-                  <button class="action-icon-btn" onclick="openEditModal(${item.originalIndex})">✏️ 編輯</button>
-                  <button class="action-icon-btn delete" onclick="deleteItemData(${item.originalIndex})">🗑️</button>
-                </div>
               </div>
               <div class="phone-title">${escapeHtml(item.name)}</div>
               ${item.note ? `<div class="phone-note">${escapeHtml(item.note)}</div>` : ''}
@@ -1412,13 +867,7 @@
             <div>
               <div class="phone-header-row">
                 <span class="phone-tag">${escapeHtml(item.category)}</span>
-                <div style="display:flex; align-items:center; gap:6px;">
-                  ${item.dept ? `<span class="phone-dept">${escapeHtml(item.dept)}</span>` : ''}
-                  <div class="admin-card-actions">
-                    <button class="action-icon-btn" onclick="openEditModal(${item.originalIndex})">✏️ 編輯</button>
-                    <button class="action-icon-btn delete" onclick="deleteItemData(${item.originalIndex})">🗑️</button>
-                  </div>
-                </div>
+                ${item.dept ? `<span class="phone-dept">${escapeHtml(item.dept)}</span>` : ''}
               </div>
               <div class="phone-title">${escapeHtml(item.name)}</div>
               ${item.contact ? `<div class="phone-contact">👤 聯絡窗口：<b>${escapeHtml(item.contact)}</b></div>` : ''}
