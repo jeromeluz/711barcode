@@ -549,6 +549,12 @@
       .app-footer{padding:20px 4px;}
     }
     @media(max-width:390px){.grid-container{grid-template-columns:1fr}.page-head h1{font-size:19px}.head-decoration{display:none}.mobile-nav .tab-btn{padding:0 10px}}
+    /* 商品查詢整合在主內容區，桌機右側、手機導覽列下方 */
+    .product-embed{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0;box-shadow:0 8px 26px rgba(0,50,32,.04)}
+    .product-embed.active{display:block}
+    .product-frame{display:block;border:0;width:100%;height:calc(100vh - 205px);min-height:620px;background:#fff}
+    .product-frame-note{font-size:12px;color:#65736b;padding:10px 16px;border-top:1px solid var(--line)}
+    @media(max-width:768px){.product-embed{border-radius:12px}.product-frame{height:calc(100dvh - 225px);min-height:520px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
   </style>
@@ -568,7 +574,7 @@
         <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
-        <a href="product.html" class="tab-btn link-tab"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span><span class="out-arrow">↗</span></a>
+        <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
       </nav>
       <div class="sidebar-bottom"><span class="online-dot"></span> 快速查詢 · 作業支援<div class="sidebar-credit">ST Resource Center</div></div>
     </aside>
@@ -580,7 +586,7 @@
         <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
-        <a href="product.html" class="tab-btn link-tab"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span><span class="out-arrow">↗</span></a>
+        <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
       </nav></div>
       <div class="page-head">
         <div><div class="page-eyebrow"><span class="eyebrow-dot"></span> ST RESOURCE CENTER <span class="eyebrow-sep">/</span> 資源快速查詢</div><h1 id="page-heading">長期 POP 與陳列盒</h1><p id="page-description">快速找到所需的陳列資源、品號與訂購資訊</p></div>
@@ -749,6 +755,10 @@
   </div>
 
   <!-- 卡片清單區塊 -->
+  <section class="product-embed" id="product-embed" aria-label="門市所有商品查詢">
+    <iframe id="product-frame" class="product-frame" title="門市所有商品查詢" loading="lazy"></iframe>
+    <div class="product-frame-note">商品查詢內容來自同目錄的 product.html，直接在此操作即可</div>
+  </section>
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
   <footer class="app-footer">中二區 ST 資源整合平台 <span>·</span> Resource Center</footer>
@@ -858,14 +868,27 @@
     function switchPage(pageName) {
       currentPage = pageName;
       currentCategory = 'ALL';
-      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','ST常用電話':'ST 常用電話','常用表單':'常用表單'};
-      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量、訂貨估算及工具資料','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理'};
+      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢'};
+      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量、訂貨估算及工具資料','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理','門市所有商品查詢':'直接在平台內查詢門市商品資訊'};
       document.getElementById('page-heading').textContent = displayNames[pageName] || pageName;
       document.getElementById('page-description').textContent = descriptions[pageName] || '快速查詢工作所需資源';
       searchInput.value = '';
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
       });
+
+      const isProductPage = pageName === '門市所有商品查詢';
+      document.querySelector('.header-panel').style.display = isProductPage ? 'none' : '';
+      document.getElementById('grid-container').style.display = isProductPage ? 'none' : '';
+      document.getElementById('loading-trigger').style.display = isProductPage ? 'none' : '';
+      const productEmbed = document.getElementById('product-embed');
+      productEmbed.classList.toggle('active', isProductPage);
+      if (isProductPage) {
+        const frame = document.getElementById('product-frame');
+        if (!frame.getAttribute('src')) frame.src = 'product.html';
+        boardStandardSection.style.display = 'none';
+        return;
+      }
 
       if (currentPage === '隔板與省力工具') {
         boardStandardSection.style.display = 'block';
