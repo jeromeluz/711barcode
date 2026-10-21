@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>中二區ST資源整合平台</title>
   <!-- CSV 解析與條碼繪製套件 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -420,28 +420,222 @@
       text-align: center;
       font-weight: 700;
     }
+
+    /* 2026 ST visual refresh — responsive shell */
+    :root { --orange:#EE6F2D; --green:#008155; --red:#E21836; --ink:#202a28; --muted:#75817d; --line:#e9eeea; --canvas:#f6f8f5; }
+    html { scroll-behavior:smooth; }
+    body { padding:0; background:var(--canvas); color:var(--ink); font-size:14px; }
+    button,input,a { -webkit-tap-highlight-color:transparent; }
+    button:focus-visible,a:focus-visible,input:focus-visible {outline:3px solid #ee6f2d78;outline-offset:3px}
+    .app-shell {display:flex; min-height:100vh; width:100%;}
+    .sidebar {width:262px; flex:0 0 262px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; background:#fff; border-right:1px solid var(--line); padding:29px 15px 22px; z-index:40;}
+    .sidebar-brand {display:flex; align-items:center; gap:12px; padding:0 11px 35px;}
+    .brand-logo {width:47px;height:47px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:900;letter-spacing:-1px;position:relative;box-shadow:0 6px 14px #00815522;}
+    .brand-logo i {position:absolute;width:12px;height:6px;bottom:-3px;right:5px;border-radius:4px;background:var(--orange);transform:rotate(-25deg)}
+    .brand-name{font-size:17px;font-weight:850;color:#1f3029;white-space:nowrap;letter-spacing:.3px}
+    .brand-sub{font-size:10px;color:#9aa7a0;margin-top:5px;letter-spacing:.6px}
+    .sidebar-caption {font-size:11px;letter-spacing:1.3px;font-weight:800;color:#8a9690;padding:0 17px 14px;}
+    .sidebar-caption span{font-size:9px;color:#bcc5bf;margin-left:5px;}
+    .sidebar .nav-tabs {display:flex; flex-direction:column; gap:6px; overflow:visible; border:0; margin:0; padding:0;}
+    .tab-btn {display:flex;align-items:center;gap:12px;min-height:48px;padding:0 15px;border:0;border-radius:10px;margin:0;font-size:13.5px;font-weight:700;color:#58645f;white-space:nowrap;text-align:left;transition:background .15s,color .15s;}
+    .tab-btn:hover {background:#f1f6f2;color:var(--green);}
+    .tab-btn.active{background:#eaf5ef;color:var(--green);border:0;position:relative;}
+    .sidebar .tab-btn.active::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--green);border-radius:0 4px 4px 0}
+    .nav-icon {width:20px;height:20px;flex-shrink:0;}
+    .tab-btn.link-tab{color:#58645f;margin-top:20px;border-top:1px solid var(--line);border-radius:0;padding-top:17px;height:65px;}
+    .tab-btn.link-tab:hover{color:var(--orange);}
+    .out-arrow {font-size:16px;margin-left:auto;color:#a7afa8}
+    .sidebar-bottom {margin-top:auto;border-top:1px solid var(--line);padding:20px 15px 0;color:#586d62;font-weight:650;font-size:12px;}
+    .online-dot,.eyebrow-dot {display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:7px;}
+    .sidebar-credit{color:#b0b9b3;font-size:10px;font-weight:500;letter-spacing:.6px;margin:10px 0 0 15px;}
+    .main-content{min-width:0;flex:1;max-width:1800px;padding:35px clamp(18px,3.1vw,54px) 26px;margin:0 auto;}
+    .mobile-topbar,.mobile-nav {display:none;}
+    .page-head {position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;min-height:154px;background:linear-gradient(112deg,#fff 8%,#fbfdf9 100%);border:1px solid var(--line);border-radius:18px;margin-bottom:22px;padding:25px 35px;}
+    .page-eyebrow{font-size:11px;letter-spacing:1px;color:var(--green);font-weight:850;margin-bottom:15px;}
+    .eyebrow-dot {width:6px;height:6px;margin-right:5px;}
+    .eyebrow-sep{color:#b5bdb6;margin:0 7px;}
+    .page-head h1{font-size:clamp(24px,2.25vw,31px);font-weight:850;color:#24312b;line-height:1.25;letter-spacing:.5px;}
+    .page-head p{font-size:13px;color:#819088;margin-top:12px;}
+    .head-decoration{display:flex;gap:8px;align-items:center;margin-right:15px;transform:rotate(-18deg);opacity:.95;}
+    .head-decoration span{display:block;width:25px;height:100px;border-radius:18px;background:var(--orange);}
+    .head-decoration span:nth-child(2){height:142px;background:var(--green);}
+    .head-decoration span:nth-child(3){height:78px;background:var(--red);}
+    .header-panel{position:relative;top:auto;z-index:10;border:1px solid var(--line);box-shadow:none;border-radius:16px;padding:24px 27px 18px;margin-bottom:20px;}
+    .toolbar-label{font-weight:800;font-size:15px;color:#23362d;margin-bottom:15px;}
+    .toolbar-label span{color:#bbc3bd;font-size:10px;font-weight:750;letter-spacing:1.3px;margin-left:8px;}
+    .status-bar{justify-content:flex-end;gap:18px;color:#819087;font-size:12px;margin-top:-37px;margin-bottom:21px;min-height:19px;}
+    .badge{border-radius:7px;padding:4px 9px;background:#e9f6ee;color:var(--green);}
+    #filtered-count{color:var(--orange);font-weight:850;}
+    .search-input{height:51px;border:1px solid #e1e9e3;border-radius:10px;background:#fcfdfb;padding:10px 16px 10px 45px;font-size:14px;}
+    .search-input:focus{border-color:var(--green);box-shadow:0 0 0 3px #00815515;background:white;}
+    .search-wrap {position:relative;}
+    .search-icon{position:absolute;top:50%;left:16px;transform:translateY(-50%);width:19px;height:19px;pointer-events:none;color:#9aa9a0;}
+    .category-scroll{margin-top:15px;padding:0 0 3px;gap:8px;scrollbar-width:none;}
+    .category-scroll::-webkit-scrollbar{display:none}
+    .category-tag{padding:8px 14px;border-radius:8px;background:#f5f8f5;border:1px solid #eff2ed;color:#68766c;font-size:12px;}
+    .category-tag:hover{border-color:#9dc9b0;color:var(--green)}
+    .category-tag.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 3px 7px #00815520;}
+    .grid-container{grid-template-columns:repeat(auto-fill,minmax(min(100%,305px),1fr));gap:16px;}
+    .card,.phone-card,.standard-panel{border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 11px #1b493108;transition:transform .15s,box-shadow .15s;background:#fff;}
+    .card:hover,.phone-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px #194b3010;}
+    .card{padding:18px;min-height:177px;}
+    .card-main-content{gap:12px;margin-bottom:15px;}
+    .card-title{font-size:15px;line-height:1.55;word-break:break-word;color:#26332b;}
+    .meta-cat{border:0;background:#e8f5ed;color:var(--green);padding:5px 8px;border-radius:6px;font-size:11px;}
+    .meta-qty{background:#fff2e9;color:#d45e21;padding:5px 8px;border-radius:6px;font-size:11px;}
+    .pop-img{width:78px;height:72px;border-radius:10px;border-color:#edf0eb;}
+    .card-barcode-box{border-top:1px dashed #e4eae4;padding-top:10px;}
+    .phone-card{padding:19px;min-height:185px;}
+    .phone-tag{background:#e9f6ee;color:var(--green);border:0;border-radius:6px;padding:5px 8px;}
+    .phone-title{font-size:16px;color:#26332b;margin-top:7px;}
+    .phone-note{color:#879189;line-height:1.6;}
+    .phone-number{color:var(--green);}
+    .call-btn{background:var(--green);border-radius:8px;padding:9px 15px;}
+    .call-btn:hover{background:#006b46;}
+    .form-btn{background:var(--orange);border-radius:8px;padding:9px 14px;}
+    .form-btn:hover{background:#d85a1b;}
+    .standard-panel{padding:23px;margin-bottom:18px;}
+    .panel-title{font-size:16px;color:#27342b;}
+    .panel-title::before{background:var(--orange);border-radius:5px;height:20px;}
+    .calc-box{background:#f7faf7;border-color:#e7eee8;border-radius:10px;padding:14px;}
+    .calc-box input{height:37px;border-color:#dce8df;}
+    table.data-table{font-size:12px;min-width:650px;}
+    table.data-table th{background:var(--green);padding:12px 9px;}
+    table.data-table td{padding:11px 8px;}
+    .app-footer{text-align:center;color:#a8b4aa;font-size:11px;padding:28px 10px 8px;letter-spacing:.3px;}
+    .app-footer span{color:var(--orange)}
+    @media(max-width:900px){
+      .sidebar{width:225px;flex-basis:225px;padding-left:11px;padding-right:11px;}
+      .sidebar-brand{padding-left:8px;}
+      .main-content{padding:26px 20px;}
+      .page-head{padding:25px;}
+    }
+    @media(max-width:700px){
+      .app-shell{display:block;}
+      .sidebar{display:none;}
+      .main-content{padding:0 13px 14px;}
+      .mobile-topbar{display:flex;gap:11px;align-items:center;background:#fff;padding:15px 17px;margin:0 -13px;border-bottom:1px solid var(--line);}
+      .mobile-logo{width:37px;height:37px;background:var(--green);color:#fff;border-radius:10px;display:grid;place-items:center;font-size:16px;font-weight:900;}
+      .mobile-topbar strong{display:block;font-size:15px;color:#273c2e;font-weight:850;}
+      .mobile-topbar small{display:block;font-size:10px;color:#98a29b;margin-top:2px;}
+      .mobile-mark{margin-left:auto;height:21px;width:6px;background:var(--orange);border-radius:4px;box-shadow:10px 0 var(--green),20px 0 var(--red);margin-right:21px;}
+      .mobile-nav{display:block;background:#fff;margin:0 -13px 16px;border-bottom:1px solid #e9eee9;}
+      .mobile-nav .nav-tabs{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none;margin:0;border:0;padding:0 9px;}
+      .mobile-nav .nav-tabs::-webkit-scrollbar{display:none;}
+      .mobile-nav .tab-btn{border-radius:0;border-bottom:3px solid transparent;flex:0 0 auto;padding:0 12px;height:51px;min-height:51px;gap:7px;font-size:12px;}
+      .mobile-nav .tab-btn.active{background:transparent;border-bottom-color:var(--green);color:var(--green);}
+      .mobile-nav .nav-icon{width:17px;height:17px;}
+      .mobile-nav .tab-btn.link-tab{margin:0;border-top:0;height:51px;padding-top:0;color:var(--orange);}
+      .mobile-nav .out-arrow{margin-left:0;}
+      .page-head{min-height:111px;padding:17px 19px;border-radius:13px;margin-bottom:14px;}
+      .page-eyebrow{font-size:9px;margin-bottom:10px;letter-spacing:.5px;}
+      .page-head h1{font-size:21px;}
+      .page-head p{font-size:11px;margin-top:8px;line-height:1.5;}
+      .head-decoration{margin:0 -9px 0 8px;gap:5px;opacity:.5;}
+      .head-decoration span{width:13px;height:60px;}
+      .head-decoration span:nth-child(2){height:80px;}
+      .head-decoration span:nth-child(3){height:44px;}
+      .header-panel{padding:17px 15px 14px;border-radius:12px;margin-bottom:14px;}
+      .toolbar-label{font-size:14px;margin-bottom:11px;}
+      .status-bar{margin-top:0;justify-content:flex-start;margin-bottom:13px;gap:15px;font-size:11px;}
+      .search-input{height:47px;font-size:14px;}
+      .category-scroll{margin-top:13px;}
+      .category-tag{font-size:11.5px;padding:7px 12px;}
+      .grid-container{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:11px;}
+      .card,.phone-card{border-radius:12px;min-height:0;padding:15px;}
+      .card-title{font-size:14px;}
+      .standard-panel{border-radius:12px;padding:15px;}
+      .calc-box{align-items:flex-start;}
+      .app-footer{padding:20px 4px;}
+    }
+    @media(max-width:390px){.grid-container{grid-template-columns:1fr}.page-head h1{font-size:19px}.head-decoration{display:none}.mobile-nav .tab-btn{padding:0 10px}}
+    /* 商品查詢整合在主內容區，桌機右側、手機導覽列下方 */
+    .product-embed{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;min-width:0;box-shadow:0 8px 26px rgba(0,50,32,.04)}
+    .product-embed.active{display:block}
+    .product-frame{display:block;border:0;width:100%;height:calc(100vh - 205px);min-height:620px;background:#fff}
+    .product-frame-note{font-size:12px;color:#65736b;padding:10px 16px;border-top:1px solid var(--line)}
+    @media(max-width:768px){.product-embed{border-radius:12px}.product-frame{height:calc(100dvh - 225px);min-height:520px}}
+
+    /* 電子書中心 */
+    .ebook-section{display:none;min-width:0}.ebook-section.active{display:block}
+    .ebook-layout{display:grid;grid-template-columns:minmax(235px,300px) minmax(0,1fr);gap:18px;align-items:start}
+    .ebook-library,.ebook-reader{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 8px 26px rgba(0,50,32,.04);min-width:0;overflow:hidden}
+    .ebook-library{padding:20px;position:sticky;top:22px}.ebook-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .ebook-topline h2{font-size:17px;margin:0;color:#172c24}.ebook-count{font-size:12px;font-weight:700;color:var(--green);background:#eaf5ef;border-radius:99px;padding:5px 10px}
+    .ebook-search{display:block;width:100%;border:1px solid #d8e5dd;border-radius:10px;padding:12px;font-size:14px;outline:none;margin-bottom:15px;background:#fbfcfb}
+    .ebook-search:focus{border-color:var(--green);box-shadow:0 0 0 3px #0081551a}
+    .ebook-list{display:grid;gap:9px;max-height:calc(100vh - 295px);overflow-y:auto}
+    .ebook-item{width:100%;display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6ece8;padding:13px 10px;border-radius:12px;text-align:left;cursor:pointer;color:#172c24}
+    .ebook-item:hover{border-color:#9acdb7;background:#f7fcf9}.ebook-item.selected{border-color:var(--green);background:#edf8f2}
+    .ebook-item-icon{display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#fff1e9;color:#b9541e;font-weight:800;font-size:11px}
+    .ebook-item strong{display:block;font-size:14px;line-height:1.45;word-break:break-word}.ebook-item small{display:block;color:#76857c;font-size:12px;margin-top:4px}
+    .ebook-reader-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}
+    .ebook-reader-head h2{font-size:16px;margin:0;overflow-wrap:anywhere}.ebook-reader-head span{font-size:12px;color:#718379}
+    .ebook-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:9px;padding:12px;background:#f8fbf9;border-bottom:1px solid var(--line)}
+    .ebook-tool-btn{background:#fff;border:1px solid #d4e2d9;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;color:#20523b;cursor:pointer;min-height:38px}
+    .ebook-tool-btn:hover:not(:disabled){border-color:var(--green)}.ebook-tool-btn:disabled{opacity:.38;cursor:not-allowed}
+    .ebook-toolbar input{width:65px;max-width:25vw;border:1px solid #d4e2d9;border-radius:8px;padding:9px 6px;text-align:center;font-size:14px}
+    .ebook-toolbar .ebook-divider{width:1px;height:25px;background:#dce9df;margin:0 3px}
+    .ebook-pages{font-size:13px;color:#56645a;white-space:nowrap}
+    .ebook-stage{background:#edf1ee;min-height:530px;display:flex;justify-content:center;align-items:flex-start;padding:22px 14px;overflow:auto;position:relative}
+    #ebook-canvas{display:block;height:auto;background:white;box-shadow:0 6px 22px #001b101c}
+    .ebook-placeholder{align-self:center;text-align:center;color:#77857c;padding:35px 16px;line-height:1.8}.ebook-placeholder strong{display:block;color:#33473b;font-size:17px;margin-bottom:4px}
+    .ebook-status{padding:10px 18px;font-size:12px;color:#6a7a6e;min-height:39px;border-top:1px solid #e8eee9}
+    .ebook-empty{font-size:13px;line-height:1.75;color:#6a7a6e;padding:20px 8px}.ebook-empty code{font-size:12px;color:#008155}
+    @media(max-width:1050px){.ebook-layout{grid-template-columns:minmax(210px,265px) minmax(0,1fr)}}
+    @media(max-width:760px){.ebook-layout{display:block}.ebook-library{position:static;padding:15px;margin-bottom:13px}.ebook-list{display:flex;overflow-x:auto;max-height:none;padding:1px 1px 8px}.ebook-item{min-width:200px;max-width:250px;flex:0 0 auto}.ebook-reader-head{padding:14px}.ebook-toolbar{gap:6px;padding:10px 5px}.ebook-tool-btn{padding:8px 9px;font-size:12px}.ebook-stage{padding:12px 6px;min-height:380px}.ebook-divider{display:none}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
   </style>
 </head>
 <body>
 
-  <div class="header-panel">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo"><span>ST</span><i></i></div>
+        <div><div class="brand-name">資源整合平台</div><div class="brand-sub">中二區 · Store Toolkit</div></div>
+      </div>
+      <div class="sidebar-caption">功能選單 <span>MENU</span></div>
+      <nav class="nav-tabs" aria-label="主要功能">
+        <button type="button" class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>長期 POP 與陳列盒</span></button>
+        <button type="button" class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 12H5L3 9Z"/><path d="M7 9V6a5 5 0 0 1 10 0v3"/></svg><span>門市自用品</span></button>
+        <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
+        <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
+        <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
+        <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
+        <button type="button" class="tab-btn" data-page="電子檔查看" onclick="switchPage('電子檔查看')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>電子檔查看</span></button>
+      </nav>
+      <div class="sidebar-bottom"><span class="online-dot"></span> 快速查詢 · 作業支援<div class="sidebar-credit">ST Resource Center</div></div>
+    </aside>
+    <main class="main-content">
+      <div class="mobile-topbar"><div class="mobile-logo">ST</div><div><strong>資源整合平台</strong><small>中二區 · Store Toolkit</small></div><span class="mobile-mark"></span></div>
+      <div class="mobile-nav"><nav class="nav-tabs" aria-label="主要功能">
+        <button type="button" class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>長期 POP 與陳列盒</span></button>
+        <button type="button" class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 12H5L3 9Z"/><path d="M7 9V6a5 5 0 0 1 10 0v3"/></svg><span>門市自用品</span></button>
+        <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
+        <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
+        <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
+        <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
+        <button type="button" class="tab-btn" data-page="電子檔查看" onclick="switchPage('電子檔查看')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>電子檔查看</span></button>
+      </nav></div>
+      <div class="page-head">
+        <div><div class="page-eyebrow"><span class="eyebrow-dot"></span> ST RESOURCE CENTER <span class="eyebrow-sep">/</span> 資源快速查詢</div><h1 id="page-heading">長期 POP 與陳列盒</h1><p id="page-description">快速找到所需的陳列資源、品號與訂購資訊</p></div>
+        <div class="head-decoration"><span></span><span></span><span></span></div>
+      </div>
+      <div class="header-panel">
     <!-- 導航分頁 -->
-    <div class="nav-tabs">
-      <button class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')">長期 POP 與陳列盒</button>
-      <button class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')">門市自用品</button>
-      <button class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')">隔板與省力工具</button>
-      <button class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')">📞 ST 常用電話</button>
-      <button class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')">📄 常用表單</button>
-      <a href="product.html" class="tab-btn link-tab">📦 門市所有商品查詢 ↗</a>
-    </div>
 
+
+    <div class="toolbar-label">資料搜尋 <span>SEARCH</span></div>
     <div class="status-bar">
       <div>目前總數：<b id="total-count" class="badge">0</b> 筆</div>
       <div>符合條件：<b id="filtered-count">0</b> 筆</div>
     </div>
 
-    <div>
-      <input type="text" id="search-input" class="search-input" placeholder="輸入關鍵字搜尋...">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input type="search" id="search-input" class="search-input" placeholder="輸入品號或品名關鍵字搜尋..." aria-label="搜尋資源">
     </div>
 
     <div class="category-scroll" id="category-scroll"></div>
@@ -592,10 +786,170 @@
   </div>
 
   <!-- 卡片清單區塊 -->
+  <section class="product-embed" id="product-embed" aria-label="門市所有商品查詢">
+    <iframe id="product-frame" class="product-frame" title="門市所有商品查詢" loading="lazy"></iframe>
+    <div class="product-frame-note">商品查詢內容來自同目錄的 product.html，直接在此操作即可</div>
+  </section>
+
+  <section id="ebook-section" class="ebook-section" aria-label="電子檔查看">
+    <div class="ebook-layout">
+      <aside class="ebook-library">
+        <div class="ebook-topline"><h2>電子檔案庫</h2><span id="ebook-count" class="ebook-count">0 份</span></div>
+        <input id="ebook-search" class="ebook-search" type="search" placeholder="搜尋電子檔名稱或分類" aria-label="搜尋電子檔">
+        <div id="ebook-list" class="ebook-list"><div class="ebook-empty">讀取清單中…</div></div>
+      </aside>
+      <div class="ebook-reader">
+        <div class="ebook-reader-head"><div><h2 id="ebook-title">選擇一本電子檔</h2><span id="ebook-subtitle">單頁 PDF 閱讀模式</span></div></div>
+        <div class="ebook-toolbar">
+          <button class="ebook-tool-btn" id="ebook-prev" type="button" disabled>‹ 上一頁</button>
+          <label class="ebook-pages" for="ebook-page-input">第</label><input type="number" id="ebook-page-input" min="1" value="1" disabled aria-label="跳轉頁碼">
+          <span class="ebook-pages">/ <span id="ebook-total-pages">0</span> 頁</span>
+          <button class="ebook-tool-btn" id="ebook-go" type="button" disabled>跳頁</button>
+          <button class="ebook-tool-btn" id="ebook-next" type="button" disabled>下一頁 ›</button>
+          <span class="ebook-divider"></span>
+          <button class="ebook-tool-btn" id="ebook-zoom-out" type="button" disabled aria-label="縮小">−</button>
+          <span id="ebook-zoom" class="ebook-pages">100%</span>
+          <button class="ebook-tool-btn" id="ebook-zoom-in" type="button" disabled aria-label="放大">＋</button>
+        </div>
+        <div id="ebook-stage" class="ebook-stage"><div class="ebook-placeholder" id="ebook-placeholder"><strong>電子書閱讀區</strong>從電子檔案庫選取 PDF<br>即可在這裡逐頁閱讀</div><canvas id="ebook-canvas" hidden aria-label="PDF 單頁畫面"></canvas></div>
+        <div class="ebook-status" id="ebook-status" aria-live="polite">尚未開啟電子檔</div>
+      </div>
+    </div>
+  </section>
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
+  <footer class="app-footer">中二區 ST 資源整合平台 <span>·</span> Resource Center</footer>
+    </main>
+  </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
+
+    /* 電子檔清單：可修改 pdf/index.json，並把 PDF 放在 pdf/ 資料夾。 */
+    let ebookListLoaded = false;
+    let ebookCatalog = [];
+    let ebookPdf = null;
+    let ebookCurrentPage = 1;
+    let ebookZoom = 1;
+    let ebookRenderSeq = 0;
+    const ebookCanvas = document.getElementById('ebook-canvas');
+    const ebookStatus = document.getElementById('ebook-status');
+    const ebookPageInput = document.getElementById('ebook-page-input');
+    if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    async function loadEbookCatalog() {
+      ebookListLoaded = true;
+      try {
+        const response = await fetch('pdf/index.json?t=' + Date.now(), {cache:'no-store'});
+        if (!response.ok) throw new Error('找不到 pdf/index.json');
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('電子檔清單格式不正確');
+        ebookCatalog = data.filter(item => item && typeof item.title === 'string' && typeof item.file === 'string' && item.file.trim());
+        renderEbookList();
+      } catch(err) {
+        ebookCatalog = [];
+        renderEbookList();
+        ebookStatus.textContent = '目前無法載入電子檔清單，請確認 pdf/index.json 已放在網站中';
+      }
+    }
+    function renderEbookList() {
+      const keyword = document.getElementById('ebook-search').value.trim().toLowerCase();
+      const shown = ebookCatalog.filter(item => [item.title,item.category||'',item.description||''].join(' ').toLowerCase().includes(keyword));
+      document.getElementById('ebook-count').textContent = ebookCatalog.length + ' 份';
+      const list = document.getElementById('ebook-list');
+      list.replaceChildren();
+      if (!shown.length) {
+        const empty = document.createElement('div'); empty.className='ebook-empty';
+        empty.textContent = ebookCatalog.length ? '找不到符合的電子檔' : '目前尚無電子檔。請在 pdf/index.json 新增資料，並上傳對應的 PDF 檔案。';
+        list.appendChild(empty); return;
+      }
+      for (const item of shown) {
+        const button = document.createElement('button');
+        button.type='button';button.className='ebook-item' + (ebookCatalog.indexOf(item) === activeEbookIndex ? ' selected' : '');
+        const ico=document.createElement('span');ico.className='ebook-item-icon';ico.textContent='PDF';
+        const info=document.createElement('span'); const title=document.createElement('strong');title.textContent=item.title;
+        const subtitle=document.createElement('small');subtitle.textContent=item.category||'電子文件';
+        info.append(title,subtitle);button.append(ico,info);
+        button.addEventListener('click',()=>openEbook(ebookCatalog.indexOf(item)));
+        list.appendChild(button);
+      }
+    }
+    let activeEbookIndex = -1;
+    async function openEbook(index) {
+      const item = ebookCatalog[index]; if (!item) return;
+      activeEbookIndex = index;renderEbookList();
+      document.getElementById('ebook-title').textContent = item.title;
+      document.getElementById('ebook-subtitle').textContent = item.category||'PDF 電子檔';
+      ebookPdf = null;ebookCurrentPage=1;ebookZoom=1;ebookRenderSeq++;
+      ebookCanvas.hidden=true; ebookCanvas.style.display='none';
+      const placeholder=document.getElementById('ebook-placeholder'); placeholder.hidden=false;
+      placeholder.innerHTML='<strong>正在開啟 PDF</strong>請稍候…';
+      updateEbookControls();ebookStatus.textContent='正在載入 ' + item.title;
+      const requestId=ebookRenderSeq;
+      try {
+        if (!window.pdfjsLib) throw new Error('PDF 閱讀套件載入失敗，請檢查網路連線');
+        const task=pdfjsLib.getDocument({url:item.file,withCredentials:false});
+        const pdf=await task.promise;
+        if(requestId!==ebookRenderSeq) {await pdf.destroy();return;}
+        ebookPdf=pdf;
+        await renderEbookPage();
+      } catch(err) {
+        if(requestId!==ebookRenderSeq)return;
+        placeholder.innerHTML='';
+        const strong=document.createElement('strong');strong.textContent='無法開啟電子檔';
+        placeholder.append(strong, document.createTextNode('請檢查 PDF 檔案路徑、檔案是否存在及網站伺服器設定'));
+        ebookStatus.textContent='載入失敗：'+(err.message||'未知錯誤');updateEbookControls();
+      }
+    }
+    async function renderEbookPage() {
+      if(!ebookPdf)return;
+      const requestId=++ebookRenderSeq;
+      ebookStatus.textContent='正在顯示第 '+ebookCurrentPage+' 頁…';
+      updateEbookControls();
+      try {
+        const page=await ebookPdf.getPage(ebookCurrentPage);
+        if(requestId!==ebookRenderSeq)return;
+        const stage=document.getElementById('ebook-stage');
+        const natural=page.getViewport({scale:1});
+        const available=Math.max(150,stage.clientWidth-28);
+        const fit=Math.min(1.8,available/natural.width);
+        const pixelRatio=Math.min(window.devicePixelRatio||1,2);
+        const viewport=page.getViewport({scale:fit*ebookZoom});
+        const renderCanvas=document.createElement('canvas');
+        renderCanvas.width=Math.ceil(viewport.width*pixelRatio);
+        renderCanvas.height=Math.ceil(viewport.height*pixelRatio);
+        const ctx=renderCanvas.getContext('2d');
+        await page.render({canvasContext:ctx,viewport,transform:pixelRatio===1?null:[pixelRatio,0,0,pixelRatio,0,0]}).promise;
+        if(requestId!==ebookRenderSeq)return;
+        ebookCanvas.width=renderCanvas.width;ebookCanvas.height=renderCanvas.height;
+        ebookCanvas.style.width=viewport.width+'px'; ebookCanvas.style.height=viewport.height+'px';
+        ebookCanvas.getContext('2d').drawImage(renderCanvas,0,0);
+        ebookCanvas.hidden=false;ebookCanvas.style.display='block';
+        document.getElementById('ebook-placeholder').hidden=true;
+        ebookStatus.textContent='第 '+ebookCurrentPage+' 頁，共 '+ebookPdf.numPages+' 頁';
+        updateEbookControls();
+      }catch(err){if(requestId===ebookRenderSeq)ebookStatus.textContent='頁面讀取失敗：'+(err.message||'未知錯誤');}
+    }
+    function updateEbookControls(){
+      const ready=!!ebookPdf;
+      document.getElementById('ebook-prev').disabled=!ready||ebookCurrentPage<=1;
+      document.getElementById('ebook-next').disabled=!ready||ebookCurrentPage>=ebookPdf.numPages;
+      for(const id of ['ebook-go','ebook-zoom-out','ebook-zoom-in'])document.getElementById(id).disabled=!ready;
+      ebookPageInput.disabled=!ready;ebookPageInput.max=ready?ebookPdf.numPages:1;ebookPageInput.value=ebookCurrentPage;
+      document.getElementById('ebook-total-pages').textContent=ready?ebookPdf.numPages:0;
+      document.getElementById('ebook-zoom').textContent=Math.round(ebookZoom*100)+'%';
+    }
+    function ebookGoToPage(page){if(!ebookPdf)return;const target=Number(page);if(!Number.isInteger(target)||target<1||target>ebookPdf.numPages){ebookStatus.textContent='請輸入 1 到 '+ebookPdf.numPages+' 的頁碼';ebookPageInput.value=ebookCurrentPage;return;}ebookCurrentPage=target;renderEbookPage();}
+    document.getElementById('ebook-search').addEventListener('input',renderEbookList);
+    document.getElementById('ebook-prev').addEventListener('click',()=>ebookGoToPage(ebookCurrentPage-1));
+    document.getElementById('ebook-next').addEventListener('click',()=>ebookGoToPage(ebookCurrentPage+1));
+    document.getElementById('ebook-go').addEventListener('click',()=>ebookGoToPage(ebookPageInput.value));
+    ebookPageInput.addEventListener('keydown',e=>{if(e.key==='Enter')ebookGoToPage(ebookPageInput.value);});
+    document.getElementById('ebook-zoom-out').addEventListener('click',()=>{ebookZoom=Math.max(.5,Math.round((ebookZoom-.25)*100)/100);renderEbookPage();});
+    document.getElementById('ebook-zoom-in').addEventListener('click',()=>{ebookZoom=Math.min(3,Math.round((ebookZoom+.25)*100)/100);renderEbookPage();});
+    let ebookResizeTimeout;
+    window.addEventListener('resize',()=>{if(!ebookPdf||currentPage!=='電子檔查看')return;clearTimeout(ebookResizeTimeout);ebookResizeTimeout=setTimeout(renderEbookPage,180);});
+
     const POP_CSV_PATH = 'pop.csv';
     const CALL_CSV_PATH = 'call.csv';
     const FORM_CSV_PATH = 'form.csv';
@@ -698,9 +1052,34 @@
     function switchPage(pageName) {
       currentPage = pageName;
       currentCategory = 'ALL';
+      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢','電子檔查看':'電子檔查看'};
+      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量、訂貨估算及工具資料','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理','門市所有商品查詢':'直接在平台內查詢門市商品資訊','電子檔查看':'選擇電子檔，單頁閱讀並快速跳轉頁數'};
+      document.getElementById('page-heading').textContent = displayNames[pageName] || pageName;
+      document.getElementById('page-description').textContent = descriptions[pageName] || '快速查詢工作所需資源';
+      searchInput.value = '';
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
       });
+
+      const isProductPage = pageName === '門市所有商品查詢';
+      const isPdfPage = pageName === '電子檔查看';
+      document.getElementById('ebook-section').classList.toggle('active', isPdfPage);
+      if (isPdfPage && !ebookListLoaded) loadEbookCatalog();
+      document.querySelector('.header-panel').style.display = (isProductPage || isPdfPage) ? 'none' : '';
+      document.getElementById('grid-container').style.display = (isProductPage || isPdfPage) ? 'none' : '';
+      document.getElementById('loading-trigger').style.display = (isProductPage || isPdfPage) ? 'none' : '';
+      const productEmbed = document.getElementById('product-embed');
+      productEmbed.classList.toggle('active', isProductPage);
+      if (isPdfPage) {
+        boardStandardSection.style.display = 'none';
+        return;
+      }
+      if (isProductPage) {
+        const frame = document.getElementById('product-frame');
+        if (!frame.getAttribute('src')) frame.src = 'product.html';
+        boardStandardSection.style.display = 'none';
+        return;
+      }
 
       if (currentPage === '隔板與省力工具') {
         boardStandardSection.style.display = 'block';
