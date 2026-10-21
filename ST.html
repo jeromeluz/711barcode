@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>中二區ST資源整合平台</title>
-  <!-- CSV 解析與條碼繪製套件 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- Excel XLSX 解析與條碼繪製套件 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
   <style>
@@ -988,9 +988,10 @@
     let ebookResizeTimeout;
     window.addEventListener('resize',()=>{if(!ebookPdf||currentPage!=='電子檔查看')return;clearTimeout(ebookResizeTimeout);ebookResizeTimeout=setTimeout(renderEbookPage,180);});
 
-    const POP_CSV_PATH = 'pop.csv';
-    const CALL_CSV_PATH = 'call.csv';
-    const FORM_CSV_PATH = 'form.csv';
+    // XLSX 第一個工作表需以第一列為欄名，儲存格文字、數值及換行可讀取。
+    const POP_XLSX_PATH = 'pop.xlsx';
+    const CALL_XLSX_PATH = 'call.xlsx';
+    const FORM_XLSX_PATH = 'form.xlsx';
     const BATCH_SIZE = 40;
 
     let allData = [];
@@ -1009,82 +1010,85 @@
     const boardStandardSection = document.getElementById('board-standard-section');
 
     window.addEventListener('DOMContentLoaded', () => {
-      loadPopCSV();
+      loadPopXLSX();
       loadCallData();
       loadFormData();
       setupInfiniteScroll();
     });
 
-    function loadPopCSV() {
-      Papa.parse(POP_CSV_PATH + '?t=' + Date.now(), {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(res) {
-          allData = res.data.map(d => ({
-            page: (d['頁面'] || '').trim(),
-            category: (d['大分類'] || '').trim(),
-            subcategory: (d['細項分類'] || '').trim(),
-            code: (d['品號'] || '').trim(),
-            name: (d['名稱'] || '').trim(),
-            qty: (d['預設數量/規格'] || '').trim(),
-            note: (d['備註'] || '').trim()
-          }));
-          if (currentPage !== 'ST常用電話' && currentPage !== '常用表單') {
-            updateCategoryTabs();
-            filterAndRender();
-          }
-        },
-        error: function() { console.warn('載入 pop.csv 失敗'); }
-      });
+    const cellText = value => String(value == null ? '' : value).trim();
+
+    async function readXLSX(path) {
+      if (!window.XLSX) throw new Error('Excel 解析套件載入失敗，請確認網路連線');
+      const response = await fetch(path + '?t=' + Date.now(), {cache: 'no-store'});
+      if (!response.ok) throw new Error(`${path} 讀取失敗（HTTP ${response.status}）`);
+      const buffer = await response.arrayBuffer();
+      const workbook = XLSX.read(buffer, {type: 'array', cellText: true, cellDates: false});
+      if (!workbook.SheetNames.length) return [];
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      // 使用 Excel 儲存格的顯示文字，避免品號前導零遺失。
+      return XLSX.utils.sheet_to_json(worksheet, {defval: '', raw: false, blankrows: false});
     }
 
-    function loadCallData() {
-      Papa.parse(CALL_CSV_PATH + '?t=' + Date.now(), {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(res) {
-          callData = res.data.map((d, index) => ({
-            id: index,
-            category: (d['分類'] || '其他').trim(),
-            name: (d['項目'] || '').trim(),
-            dept: (d['負責單位'] || '').trim(),
-            contact: (d['聯絡窗口'] || '').trim(),
-            phone: (d['電話'] || '').trim(),
-            note: (d['備註'] || '').trim()
-          })).filter(item => item.name || item.phone || item.contact);
-
-          if (currentPage === 'ST常用電話') {
-            updateCategoryTabs();
-            filterAndRender();
-          }
-        },
-        error: function() { console.warn('未找到 call.csv 檔案'); }
-      });
+    async function loadPopXLSX() {
+      try {
+        const rows = await readXLSX(POP_XLSX_PATH);
+        allData = rows.map(d => ({
+          page: cellText(d['頁面']),
+          category: cellText(d['大分類']),
+          subcategory: cellText(d['細項分類']),
+          code: cellText(d['品號']),
+          name: cellText(d['名稱']),
+          qty: cellText(d['預設數量/規格']),
+          note: cellText(d['備註'])
+        })).filter(d => d.page || d.code || d.name);
+      } catch (err) {
+        allData = [];
+        console.error('載入 pop.xlsx 失敗', err);
+      }
+      if (!['ST常用電話','常用表單','門市所有商品查詢','電子檔查看'].includes(currentPage)) {
+        updateCategoryTabs(); filterAndRender();
+      }
     }
 
-    function loadFormData() {
-      Papa.parse(FORM_CSV_PATH + '?t=' + Date.now(), {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(res) {
-          formData = res.data.map((d, index) => ({
-            id: index,
-            category: (d['分類'] || '一般表單').trim(),
-            name: (d['表單名稱'] || d['項目'] || '').trim(),
-            note: (d['說明備註'] || d['備註'] || '').trim(),
-            url: (d['表單連結'] || d['網址'] || '').trim()
-          })).filter(item => item.name || item.url);
+    async function loadCallData() {
+      try {
+        const rows = await readXLSX(CALL_XLSX_PATH);
+        callData = rows.map((d, index) => ({
+          id: index,
+          category: cellText(d['分類']) || '其他',
+          name: cellText(d['項目']),
+          dept: cellText(d['負責單位']),
+          contact: cellText(d['聯絡窗口']),
+          phone: cellText(d['電話']),
+          note: cellText(d['備註'])
+        })).filter(item => item.name || item.phone || item.contact);
+      } catch (err) {
+        callData = [];
+        console.error('載入 call.xlsx 失敗', err);
+      }
+      if (currentPage === 'ST常用電話') {
+        updateCategoryTabs(); filterAndRender();
+      }
+    }
 
-          if (currentPage === '常用表單') {
-            updateCategoryTabs();
-            filterAndRender();
-          }
-        },
-        error: function() { console.warn('未找到 form.csv 檔案'); }
-      });
+    async function loadFormData() {
+      try {
+        const rows = await readXLSX(FORM_XLSX_PATH);
+        formData = rows.map((d, index) => ({
+          id: index,
+          category: cellText(d['分類']) || '一般表單',
+          name: cellText(d['表單名稱']) || cellText(d['項目']),
+          note: cellText(d['說明備註']) || cellText(d['備註']),
+          url: cellText(d['表單連結']) || cellText(d['網址'])
+        })).filter(item => item.name || item.url);
+      } catch (err) {
+        formData = [];
+        console.error('載入 form.xlsx 失敗', err);
+      }
+      if (currentPage === '常用表單') {
+        updateCategoryTabs(); filterAndRender();
+      }
     }
 
     function switchPage(pageName) {
