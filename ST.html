@@ -567,6 +567,14 @@
     .ebook-list{display:grid;gap:9px;max-height:calc(100vh - 295px);overflow-y:auto}
     .ebook-item{width:100%;display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6ece8;padding:13px 10px;border-radius:12px;text-align:left;cursor:pointer;color:#172c24}
     .ebook-item:hover{border-color:#9acdb7;background:#f7fcf9}.ebook-item.selected{border-color:var(--green);background:#edf8f2}
+    .ebook-item-row{display:flex;align-items:stretch;gap:7px;min-width:0}
+    .ebook-item-row .ebook-item{flex:1;min-width:0;width:auto}
+    .ebook-download{display:inline-flex;align-items:center;justify-content:center;gap:5px;align-self:stretch;flex:0 0 auto;min-width:42px;padding:8px 10px;text-decoration:none;background:#fff4ec;border:1px solid #f6d5bf;border-radius:11px;color:#c75a25;font-size:12px;font-weight:800;white-space:nowrap}
+    .ebook-download[hidden]{display:none}
+    .ebook-download:hover{background:#EE6F2D;color:white;border-color:#EE6F2D}
+    .ebook-download svg{width:17px;height:17px;flex-shrink:0}
+    .ebook-reader-download{align-self:center;min-height:38px}
+
     .ebook-item-icon{display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#fff1e9;color:#b9541e;font-weight:800;font-size:11px}
     .ebook-item strong{display:block;font-size:14px;line-height:1.45;word-break:break-word}.ebook-item small{display:block;color:#76857c;font-size:12px;margin-top:4px}
     .ebook-reader-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}
@@ -583,7 +591,7 @@
     .ebook-status{padding:10px 18px;font-size:12px;color:#6a7a6e;min-height:39px;border-top:1px solid #e8eee9}
     .ebook-empty{font-size:13px;line-height:1.75;color:#6a7a6e;padding:20px 8px}.ebook-empty code{font-size:12px;color:#008155}
     @media(max-width:1050px){.ebook-layout{grid-template-columns:minmax(210px,265px) minmax(0,1fr)}}
-    @media(max-width:760px){.ebook-layout{display:block}.ebook-library{position:static;padding:15px;margin-bottom:13px}.ebook-list{display:flex;overflow-x:auto;max-height:none;padding:1px 1px 8px}.ebook-item{min-width:200px;max-width:250px;flex:0 0 auto}.ebook-reader-head{padding:14px}.ebook-toolbar{gap:6px;padding:10px 5px}.ebook-tool-btn{padding:8px 9px;font-size:12px}.ebook-stage{padding:12px 6px;min-height:380px}.ebook-divider{display:none}}
+    @media(max-width:760px){.ebook-layout{display:block}.ebook-library{position:static;padding:15px;margin-bottom:13px}.ebook-list{display:flex;overflow-x:auto;max-height:none;padding:1px 1px 8px}.ebook-item-row{min-width:240px;max-width:315px;flex:0 0 auto}.ebook-item{min-width:0;max-width:none;flex:1}.ebook-reader-head{padding:14px}.ebook-toolbar{gap:6px;padding:10px 5px}.ebook-tool-btn{padding:8px 9px;font-size:12px}.ebook-stage{padding:12px 6px;min-height:380px}.ebook-divider{display:none}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
   </style>
@@ -799,7 +807,7 @@
         <div id="ebook-list" class="ebook-list"><div class="ebook-empty">讀取清單中…</div></div>
       </aside>
       <div class="ebook-reader">
-        <div class="ebook-reader-head"><div><h2 id="ebook-title">選擇一本電子檔</h2><span id="ebook-subtitle">單頁 PDF 閱讀模式</span></div></div>
+        <div class="ebook-reader-head"><div><h2 id="ebook-title">選擇一本電子檔</h2><span id="ebook-subtitle">單頁 PDF 閱讀模式</span></div><a id="ebook-reader-download" class="ebook-download ebook-reader-download" hidden aria-label="下載目前電子檔">下載 PDF</a></div>
         <div class="ebook-toolbar">
           <button class="ebook-tool-btn" id="ebook-prev" type="button" disabled>‹ 上一頁</button>
           <label class="ebook-pages" for="ebook-page-input">第</label><input type="number" id="ebook-page-input" min="1" value="1" disabled aria-label="跳轉頁碼">
@@ -852,6 +860,29 @@
         ebookStatus.textContent = '目前無法載入電子檔清單，請確認 pdf/index.json 已放在網站中';
       }
     }
+    function ebookDownloadUrl(file) {
+      try {
+        const url = new URL(file, document.baseURI);
+        if (!['http:', 'https:'].includes(url.protocol)) return null;
+        return url.href;
+      } catch { return null; }
+    }
+    function ebookDownloadName(item) {
+      const basename = (item.file.split(/[?#]/)[0].split('/').pop() || 'document.pdf');
+      try { return decodeURIComponent(basename); } catch { return basename; }
+    }
+    function buildEbookDownload(item, reader = false) {
+      const url = ebookDownloadUrl(item.file);
+      if (!url) return null;
+      const link = document.createElement('a');
+      link.className = 'ebook-download' + (reader ? ' ebook-reader-download' : '');
+      link.href = url;
+      link.download = ebookDownloadName(item);
+      link.title = '下載 ' + item.title;
+      link.setAttribute('aria-label', '下載 ' + item.title);
+      link.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg>' + (reader ? '<span>下載 PDF</span>' : '');
+      return link;
+    }
     function renderEbookList() {
       const keyword = document.getElementById('ebook-search').value.trim().toLowerCase();
       const shown = ebookCatalog.filter(item => [item.title,item.category||'',item.description||''].join(' ').toLowerCase().includes(keyword));
@@ -871,7 +902,9 @@
         const subtitle=document.createElement('small');subtitle.textContent=item.category||'電子文件';
         info.append(title,subtitle);button.append(ico,info);
         button.addEventListener('click',()=>openEbook(ebookCatalog.indexOf(item)));
-        list.appendChild(button);
+        const row=document.createElement('div');row.className='ebook-item-row';row.appendChild(button);
+        const download=buildEbookDownload(item);if(download)row.appendChild(download);
+        list.appendChild(row);
       }
     }
     let activeEbookIndex = -1;
@@ -880,6 +913,11 @@
       activeEbookIndex = index;renderEbookList();
       document.getElementById('ebook-title').textContent = item.title;
       document.getElementById('ebook-subtitle').textContent = item.category||'PDF 電子檔';
+      const readerDownload=document.getElementById('ebook-reader-download');
+      const downloadUrl=ebookDownloadUrl(item.file);
+      readerDownload.hidden=!downloadUrl;
+      if(downloadUrl){readerDownload.href=downloadUrl;readerDownload.download=ebookDownloadName(item);readerDownload.title='下載 '+item.title;}
+
       ebookPdf = null;ebookCurrentPage=1;ebookZoom=1;ebookRenderSeq++;
       ebookCanvas.hidden=true; ebookCanvas.style.display='none';
       const placeholder=document.getElementById('ebook-placeholder'); placeholder.hidden=false;
