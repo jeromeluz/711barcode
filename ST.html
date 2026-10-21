@@ -604,6 +604,14 @@
     .image-preview-close:focus-visible{outline:3px solid #EE6F2D;outline-offset:3px}
     body.preview-open{overflow:hidden}
     @media(max-width:700px){.image-preview{padding:65px 12px 24px}.image-preview img{max-height:calc(100dvh - 120px)}}
+    /* 這兩個完整功能頁直接貼齊主內容頂端，保留導覽列 */
+    @media(min-width:701px){.main-content:has(.product-embed.active),.main-content:has(.ebook-section.active){padding-top:22px}}
+    @media(max-width:700px){.main-content:has(.product-embed.active),.main-content:has(.ebook-section.active){padding-top:0}}
+    /* 防止行動裝置整頁 pinch zoom，仍允許正常滑動 */
+    @media (pointer:coarse) {
+      html,body{touch-action:pan-x pan-y;overscroll-behavior-x:none}
+      input,textarea,select{font-size:16px}
+    }
   </style>
 </head>
 <body>
@@ -1121,6 +1129,7 @@
       const isPdfPage = pageName === '電子檔查看';
       document.getElementById('ebook-section').classList.toggle('active', isPdfPage);
       if (isPdfPage && !ebookListLoaded) loadEbookCatalog();
+      document.querySelector('.page-head').style.display = (isProductPage || isPdfPage) ? 'none' : '';
       document.querySelector('.header-panel').style.display = (isProductPage || isPdfPage) ? 'none' : '';
       document.getElementById('grid-container').style.display = (isProductPage || isPdfPage) ? 'none' : '';
       document.getElementById('loading-trigger').style.display = (isProductPage || isPdfPage) ? 'none' : '';
@@ -1425,6 +1434,34 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
+  </script>
+  <script>
+    /* viewport 單獨使用在部分 iOS Safari / WebView 中不足以阻止縮放。 */
+    (function setupMobileZoomGuard(){
+      const isMobile = () => window.matchMedia('(max-width: 900px) and (pointer: coarse)').matches;
+      function attach(doc){
+        if (!doc || doc.__stZoomGuard) return;
+        try { Object.defineProperty(doc,'__stZoomGuard',{value:true, configurable:true}); } catch(e) { return; }
+        const blockGesture = e => { if(isMobile()) e.preventDefault(); };
+        ['gesturestart','gesturechange','gestureend'].forEach(name => doc.addEventListener(name, blockGesture, {passive:false}));
+        doc.addEventListener('touchmove', e => { if(isMobile() && e.touches && e.touches.length > 1) e.preventDefault(); }, {passive:false});
+        // 不阻擋正常單指滑動、點選或閱讀器的上一頁與下一頁按鈕。
+      }
+      attach(document);
+      const frame = document.getElementById('product-frame');
+      if (frame) frame.addEventListener('load', () => {
+        try {
+          const doc = frame.contentDocument;
+          if (!doc) return;
+          attach(doc);
+          let meta = doc.querySelector('meta[name="viewport"]');
+          if (!meta) { meta=doc.createElement('meta'); meta.name='viewport'; doc.head.appendChild(meta); }
+          meta.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover');
+          // 同網域且可存取時，盡量固定內嵌商品頁面縮放。
+          if (doc.documentElement) doc.documentElement.style.touchAction='pan-x pan-y';
+        } catch(e) { /* 不同來源時瀏覽器不允許修改 iframe */ }
+      });
+    })();
   </script>
 </body>
 </html>
