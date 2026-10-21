@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>中二區ST資源整合平台</title>
   <!-- Excel XLSX 解析與條碼繪製套件 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -594,9 +594,23 @@
     @media(max-width:760px){.ebook-layout{display:block}.ebook-library{position:static;padding:15px;margin-bottom:13px}.ebook-list{display:flex;overflow-x:auto;max-height:none;padding:1px 1px 8px}.ebook-item-row{min-width:240px;max-width:315px;flex:0 0 auto}.ebook-item{min-width:0;max-width:none;flex:1}.ebook-reader-head{padding:14px}.ebook-toolbar{gap:6px;padding:10px 5px}.ebook-tool-btn{padding:8px 9px;font-size:12px}.ebook-stage{padding:12px 6px;min-height:380px}.ebook-divider{display:none}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
+    /* 站內商品圖片預覽 */
+    html,body{max-width:100%;overflow-x:hidden}
+    .pop-img{cursor:zoom-in}
+    .image-preview{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:60px 18px 25px;background:rgba(12,25,19,.85);overscroll-behavior:contain}
+    .image-preview.open{display:flex}
+    .image-preview img{max-width:min(100%,1000px);max-height:calc(100dvh - 100px);width:auto;height:auto;object-fit:contain;border-radius:12px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .image-preview-close{position:absolute;right:18px;top:max(16px,env(safe-area-inset-top));width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:#fff;color:#172c24;font-size:26px;line-height:1;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 15px rgba(0,0,0,.25)}
+    .image-preview-close:focus-visible{outline:3px solid #EE6F2D;outline-offset:3px}
+    body.preview-open{overflow:hidden}
+    @media(max-width:700px){.image-preview{padding:65px 12px 24px}.image-preview img{max-height:calc(100dvh - 120px)}}
   </style>
 </head>
 <body>
+  <div id="image-preview" class="image-preview" role="dialog" aria-modal="true" aria-label="商品圖片預覽" aria-hidden="true" onclick="if(event.target===this)closeImagePreview()">
+    <button type="button" class="image-preview-close" aria-label="關閉圖片預覽" onclick="closeImagePreview()">&times;</button>
+    <img id="image-preview-img" alt="商品圖片放大預覽">
+  </div>
 
   <div class="app-shell">
     <aside class="sidebar">
@@ -1331,7 +1345,7 @@
                   class="pop-img" 
                   loading="lazy"
                   onerror="this.parentElement.style.display='none'"
-                  onclick="window.open(this.src, '_blank')"
+                  onclick="openImagePreview(this.src, this.alt)"
                   title="點擊可檢視原圖"
                 >
               </div>
@@ -1379,6 +1393,30 @@
 
       observer.observe(document.getElementById('loading-trigger'));
     }
+
+    let imagePreviewPreviousFocus = null;
+    function openImagePreview(src, alt) {
+      const modal = document.getElementById('image-preview');
+      const image = document.getElementById('image-preview-img');
+      imagePreviewPreviousFocus = document.activeElement;
+      image.src = src;
+      image.alt = alt || '商品圖片放大預覽';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('preview-open');
+      modal.querySelector('.image-preview-close').focus();
+    }
+    function closeImagePreview() {
+      const modal = document.getElementById('image-preview');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('preview-open');
+      document.getElementById('image-preview-img').removeAttribute('src');
+      if (imagePreviewPreviousFocus && imagePreviewPreviousFocus.isConnected) imagePreviewPreviousFocus.focus();
+    }
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && document.getElementById('image-preview').classList.contains('open')) closeImagePreview();
+    });
 
     function escapeHtml(str) {
       return String(str || '')
