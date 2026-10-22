@@ -619,10 +619,10 @@
 .sidebar-toggle:hover{border-color:#008155;background:#eef8f1}
 .desktop-toolbar-label{font-weight:750;color:#a1afa6;font-size:11px;letter-spacing:.7px}.desktop-toolbar-label i{display:inline-block;width:5px;height:5px;background:#EE6F2D;border-radius:50%;margin:0 9px;vertical-align:middle}
 .app-shell.sidebar-collapsed .sidebar{display:none}.app-shell.sidebar-collapsed .main-content{max-width:1920px}
-.calculator-embed{display:none;min-width:0;background:#fff;border:1px solid #e8eee9;border-radius:16px;overflow:hidden;box-shadow:0 7px 24px #153d2709}
+.calculator-embed{display:none;min-width:0;background:transparent;border:0;border-radius:0;overflow:visible;box-shadow:none}
 .calculator-embed.active{display:block}
-.calculator-embed iframe{display:block;width:100%;height:max(1050px,calc(100dvh - 125px));border:0;background:#f7f8f7}
-@media(max-width:700px){.desktop-toolbar{display:none}.calculator-embed{border:0;border-radius:12px}.calculator-embed iframe{height:1700px;min-height:calc(100dvh - 160px)} }
+.calculator-embed iframe{display:block;width:100%;height:600px;border:0;background:transparent;overflow:hidden}
+@media(max-width:700px){.desktop-toolbar{display:none}.calculator-embed{border:0;border-radius:0}.calculator-embed iframe{height:600px;min-height:0} }
 </style>
 </head>
 <body>
@@ -738,7 +738,7 @@
   </div>
 
   <!-- 卡片清單區塊 -->
-  <section id="layout-calculator" class="calculator-embed" aria-label="隔板計算系統"><iframe id="layout-calculator-frame" title="門市隔板即時計算與 Layout 自動辨識" loading="lazy" src="LayoutOCR.html"></iframe></section>
+  <section id="layout-calculator" class="calculator-embed" aria-label="隔板計算系統"><iframe id="layout-calculator-frame" title="門市隔板即時計算與 Layout 自動辨識" loading="lazy" src="LayoutOCR.html?embed=1"></iframe></section>
       <section class="product-embed" id="product-embed" aria-label="門市所有商品查詢">
     <iframe id="product-frame" class="product-frame" title="門市所有商品查詢" loading="lazy"></iframe>
     <div class="product-frame-note">商品查詢內容來自同目錄的 product.html，直接在此操作即可</div>
@@ -1397,7 +1397,7 @@ window.addEventListener('message',function(ev){
  if(ev.origin!==location.origin||ev.source!==document.getElementById('layout-calculator-frame').contentWindow)return;
  if(ev.data&&ev.data.type==='ST_LAYOUT_HEIGHT'&&Number.isFinite(ev.data.height)){
  const frame=document.getElementById('layout-calculator-frame');
- frame.style.height=Math.min(20000,Math.max(500,ev.data.height))+'px';
+ frame.style.height=Math.min(25000,Math.max(260,Math.ceil(ev.data.height)))+'px';
  }
 });
 function toggleSidebar(){
