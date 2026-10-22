@@ -959,6 +959,9 @@
       loadCallData();
       loadFormData();
       setupInfiniteScroll();
+      // 首次載入時依照分享連結顯示正確頁籤
+      const startPage = PAGE_ROUTES[window.location.hash.slice(1)];
+      if (startPage) switchPage(startPage, false);
     });
 
     const cellText = value => String(value == null ? '' : value).trim();
@@ -1036,7 +1039,37 @@
       }
     }
 
-    function switchPage(pageName) {
+    // 頁籤獨立網址：分享 #1～#8 可直接進入指定功能
+    const PAGE_ROUTES = Object.freeze({
+      '1': '長期POP與陳列盒',
+      '2': '門市自用品',
+      '3': '隔板與省力工具',
+      '4': '隔板計算系統',
+      '5': 'ST常用電話',
+      '6': '常用表單',
+      '7': '門市所有商品查詢',
+      '8': '電子檔查看'
+    });
+    const PAGE_HASHES = Object.fromEntries(Object.entries(PAGE_ROUTES).map(([id, page]) => [page, id]));
+
+    function openPageFromUrl() {
+      const id = window.location.hash.replace(/^#/, '');
+      const page = PAGE_ROUTES[id] || PAGE_ROUTES['1'];
+      if (currentPage !== page) switchPage(page, false);
+    }
+
+    window.addEventListener('hashchange', openPageFromUrl);
+    window.addEventListener('popstate', openPageFromUrl);
+
+    function switchPage(pageName, syncHash = true) {
+      if (!Object.prototype.hasOwnProperty.call(PAGE_HASHES, pageName)) return;
+      if (syncHash) {
+        const targetHash = '#' + PAGE_HASHES[pageName];
+        if (window.location.hash !== targetHash) {
+          history.pushState(null, '', targetHash);
+        }
+      }
+
       currentPage = pageName;
       currentCategory = 'ALL';
       const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','隔板計算系統':'隔板計算系統','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢','電子檔查看':'電子檔查看'};
