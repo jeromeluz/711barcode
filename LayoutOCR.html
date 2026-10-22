@@ -132,4 +132,45 @@ calc();</script><script>
  if('ResizeObserver' in window)new ResizeObserver(reportSize).observe(document.querySelector('main'));
  setTimeout(reportSize,200);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportSize);
 })();
-</script></body></html>
+</script>
+<script>
+/* Transfer vertical touch movement from embedded calculator to ST's page.
+   Keep normal taps/inputs and sideways scrolling within wide result tables. */
+(function(){
+ if(window.parent===window || !new URLSearchParams(location.search).has('embed'))return;
+ const mobile=()=>window.matchMedia('(max-width: 700px)').matches;
+ let lastY=0,lastX=0,mode='',momentumId=0,lastTime=0,velocity=0;
+ function stopMomentum(){if(momentumId)cancelAnimationFrame(momentumId);momentumId=0;}
+ function send(delta){if(delta)window.parent.postMessage({type:'ST_LAYOUT_SCROLL',delta},location.origin)}
+ document.addEventListener('touchstart',e=>{
+   if(!mobile()||e.touches.length!==1)return;
+   stopMomentum();const t=e.touches[0];lastY=t.clientY;lastX=t.clientX;lastTime=performance.now();velocity=0;mode='';
+ },{passive:true});
+ document.addEventListener('touchmove',e=>{
+   if(!mobile()||e.touches.length!==1)return;
+   const t=e.touches[0],dx=t.clientX-lastX,dy=t.clientY-lastY;
+   if(!mode && (Math.abs(dx)>3||Math.abs(dy)>3)){
+     // Horizontal swipe within tables remains a native horizontal scroll.
+     const horizontalTable=e.target.closest('.scroll,.ocrgrid');
+     mode=(horizontalTable&&Math.abs(dx)>Math.abs(dy)*1.1)?'horizontal':'vertical';
+   }
+   if(mode==='vertical'){
+     if(e.cancelable)e.preventDefault();
+     const now=performance.now(),dt=Math.max(1,now-lastTime);
+     velocity=.7*velocity+.3*(-dy/dt);
+     send(-dy);
+     lastTime=now;
+   }
+   lastX=t.clientX;lastY=t.clientY;
+ },{passive:false});
+ document.addEventListener('touchend',()=>{
+   if(!mobile()||mode!=='vertical')return;
+   let v=velocity*16;
+   const tick=()=>{v*=.9;if(Math.abs(v)<.35){momentumId=0;return}send(v);momentumId=requestAnimationFrame(tick)};
+   if(Math.abs(v)>1.5)momentumId=requestAnimationFrame(tick);
+   mode='';
+ },{passive:true});
+ document.addEventListener('touchcancel',()=>{mode='';stopMomentum()},{passive:true});
+})();
+</script>
+</body></html>

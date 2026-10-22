@@ -1452,5 +1452,21 @@ function toggleSidebar(){
  }}catch(e){}
 })();
 </script>
+
+<script>
+/* Mobile LayoutOCR: scrolling inside the frame scrolls the main ST document. */
+(function(){
+ const frame=document.getElementById('layout-calculator-frame');
+ if(!frame)return;
+ window.addEventListener('message',function(event){
+   if(event.source!==frame.contentWindow || event.origin!==location.origin)return;
+   const data=event.data;
+   if(!data||data.type!=='ST_LAYOUT_SCROLL'||!Number.isFinite(data.delta))return;
+   if(window.matchMedia('(max-width: 700px)').matches){
+     window.scrollBy({top:Math.max(-100,Math.min(100,data.delta)),left:0,behavior:'instant'});
+   }
+ });
+})();
+</script>
 </body>
 </html>
