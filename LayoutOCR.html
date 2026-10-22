@@ -127,7 +127,7 @@ scan.addEventListener('click',async()=>{if(!selectedFile){status.textContent='шл
 calc();</script><script>
 (function(){
  if(window.parent===window)return;
- function reportSize(){const main=document.querySelector('main.wrap');if(!main)return;const rect=main.getBoundingClientRect();const h=Math.ceil(rect.height+8);window.parent.postMessage({type:'ST_LAYOUT_HEIGHT',height:h},location.origin)}
+ function reportSize(){const main=document.querySelector('main.wrap');if(!main)return;const last=main.querySelector('section.panel:last-of-type')||main.lastElementChild;const mainRect=main.getBoundingClientRect();const lastRect=last.getBoundingClientRect();const h=Math.ceil(lastRect.bottom-mainRect.top+12);window.parent.postMessage({type:'ST_LAYOUT_HEIGHT',height:h},location.origin)}
  window.addEventListener('load',reportSize);window.addEventListener('resize',reportSize);
  if('ResizeObserver' in window)new ResizeObserver(reportSize).observe(document.querySelector('main'));
  setTimeout(reportSize,200);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportSize);

@@ -621,8 +621,8 @@
 .app-shell.sidebar-collapsed .sidebar{display:none}.app-shell.sidebar-collapsed .main-content{max-width:1920px}
 .calculator-embed{display:none;min-width:0;background:transparent;border:0;border-radius:0;overflow:visible;box-shadow:none}
 .calculator-embed.active{display:block}
-.calculator-embed iframe{display:block;width:100%;height:600px;border:0;background:transparent;overflow:hidden}
-@media(max-width:700px){.desktop-toolbar{display:none}.calculator-embed{border:0;border-radius:0}.calculator-embed iframe{height:600px;min-height:0} }
+.calculator-embed iframe{display:block;width:100%;height:320px;min-height:0;border:0;background:transparent;overflow:hidden}
+@media(max-width:700px){.desktop-toolbar{display:none}.calculator-embed{border:0;border-radius:0}.calculator-embed iframe{height:320px;min-height:0} }
 </style>
 </head>
 <body>
@@ -1050,6 +1050,7 @@
 
       const isCalculatorPage = pageName === '隔板計算系統';
       document.getElementById('layout-calculator').classList.toggle('active', isCalculatorPage);
+      if(isCalculatorPage)requestAnimationFrame(()=>requestAnimationFrame(adjustCalculatorHeight));
       const isProductPage = pageName === '門市所有商品查詢';
       const isPdfPage = pageName === '電子檔查看';
       document.getElementById('ebook-section').classList.toggle('active', isPdfPage);
@@ -1393,11 +1394,46 @@
     })();
   </script>
 <script>
+// Height comes from the actual bottom of the last content panel, not iframe scrollHeight.
+// This prevents an iframe-height / resize feedback loop and the long blank scroll area.
+function adjustCalculatorHeight(){
+ const frame=document.getElementById('layout-calculator-frame');
+ if(!frame)return;
+ try{
+   const doc=frame.contentDocument;
+   if(!doc)return;
+   const main=doc.querySelector('main.wrap');
+   const last=main?.querySelector('section.panel:last-of-type');
+   if(!main||!last)return;
+   const top=main.getBoundingClientRect().top;
+   const bottom=last.getBoundingClientRect().bottom;
+   const target=Math.max(260,Math.min(12000,Math.ceil(bottom-top+12)));
+   if(Math.abs(frame.getBoundingClientRect().height-target)>3)frame.style.height=target+'px';
+ }catch(e){console.warn('隔板內容高度更新失敗',e)}
+}
+(function(){
+ const frame=document.getElementById('layout-calculator-frame');
+ if(!frame)return;
+ frame.addEventListener('load',()=>{
+   adjustCalculatorHeight();
+   try{
+     const doc=frame.contentDocument;
+     const main=doc?.querySelector('main.wrap');
+     if(main&&window.ResizeObserver){
+       const ro=new ResizeObserver(()=>requestAnimationFrame(adjustCalculatorHeight));
+       ro.observe(main);
+       main.querySelectorAll('section.panel').forEach(el=>ro.observe(el));
+     }
+   }catch(e){}
+ });
+ window.addEventListener('resize',()=>requestAnimationFrame(adjustCalculatorHeight));
+})();
+</script>
+<script>
 window.addEventListener('message',function(ev){
  if(ev.origin!==location.origin||ev.source!==document.getElementById('layout-calculator-frame').contentWindow)return;
  if(ev.data&&ev.data.type==='ST_LAYOUT_HEIGHT'&&Number.isFinite(ev.data.height)){
- const frame=document.getElementById('layout-calculator-frame');
- frame.style.height=Math.min(25000,Math.max(260,Math.ceil(ev.data.height)))+'px';
+   adjustCalculatorHeight();
  }
 });
 function toggleSidebar(){
