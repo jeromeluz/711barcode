@@ -612,7 +612,18 @@
       html,body{touch-action:pan-x pan-y;overscroll-behavior-x:none}
       input,textarea,select{font-size:16px}
     }
-  </style>
+  
+/* 2026 sidebar toggle + integrated Layout workspace */
+.desktop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-9px 0 21px;min-height:42px}
+.sidebar-toggle{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#008155;border:1px solid #e0ebe4;box-shadow:0 3px 12px #17482a0a;border-radius:11px;padding:10px 14px;cursor:pointer;font-weight:750;min-height:42px;transition:.2s}
+.sidebar-toggle:hover{border-color:#008155;background:#eef8f1}
+.desktop-toolbar-label{font-weight:750;color:#a1afa6;font-size:11px;letter-spacing:.7px}.desktop-toolbar-label i{display:inline-block;width:5px;height:5px;background:#EE6F2D;border-radius:50%;margin:0 9px;vertical-align:middle}
+.app-shell.sidebar-collapsed .sidebar{display:none}.app-shell.sidebar-collapsed .main-content{max-width:1920px}
+.calculator-embed{display:none;min-width:0;background:#fff;border:1px solid #e8eee9;border-radius:16px;overflow:hidden;box-shadow:0 7px 24px #153d2709}
+.calculator-embed.active{display:block}
+.calculator-embed iframe{display:block;width:100%;height:max(1050px,calc(100dvh - 125px));border:0;background:#f7f8f7}
+@media(max-width:700px){.desktop-toolbar{display:none}.calculator-embed{border:0;border-radius:12px}.calculator-embed iframe{height:1700px;min-height:calc(100dvh - 160px)} }
+</style>
 </head>
 <body>
   <div id="image-preview" class="image-preview" role="dialog" aria-modal="true" aria-label="商品圖片預覽" aria-hidden="true" onclick="if(event.target===this)closeImagePreview()">
@@ -621,7 +632,7 @@
   </div>
 
   <div class="app-shell">
-    <aside class="sidebar">
+    <aside class="sidebar" id="desktop-sidebar">
       <div class="sidebar-brand">
         <div class="brand-logo"><span>ST</span><i></i></div>
         <div><div class="brand-name">資源整合平台</div><div class="brand-sub">中二區 · Store Toolkit</div></div>
@@ -631,6 +642,7 @@
         <button type="button" class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>長期 POP 與陳列盒</span></button>
         <button type="button" class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 12H5L3 9Z"/><path d="M7 9V6a5 5 0 0 1 10 0v3"/></svg><span>門市自用品</span></button>
         <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
+        <button type="button" class="tab-btn" data-page="隔板計算系統" onclick="switchPage('隔板計算系統')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7v10M12 7v4M16 7v10M8 13h8"/></svg><span>隔板計算系統</span></button>
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
         <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
@@ -639,11 +651,13 @@
       <div class="sidebar-bottom"><span class="online-dot"></span> 快速查詢 · 作業支援<div class="sidebar-credit">ST Resource Center</div></div>
     </aside>
     <main class="main-content">
+      <div class="desktop-toolbar"><button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="desktop-sidebar" aria-expanded="true" onclick="toggleSidebar()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h16M4 12h16M4 19h16"/></svg><span id="sidebar-toggle-label">隱藏功能選單</span></button><span class="desktop-toolbar-label">ST RESOURCE CENTER <i></i> 中二區資源整合平台</span></div>
       <div class="mobile-topbar"><div class="mobile-logo">ST</div><div><strong>資源整合平台</strong><small>中二區 · Store Toolkit</small></div><span class="mobile-mark"></span></div>
       <div class="mobile-nav"><nav class="nav-tabs" aria-label="主要功能">
         <button type="button" class="tab-btn active" data-page="長期POP與陳列盒" onclick="switchPage('長期POP與陳列盒')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>長期 POP 與陳列盒</span></button>
         <button type="button" class="tab-btn" data-page="門市自用品" onclick="switchPage('門市自用品')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 12H5L3 9Z"/><path d="M7 9V6a5 5 0 0 1 10 0v3"/></svg><span>門市自用品</span></button>
         <button type="button" class="tab-btn" data-page="隔板與省力工具" onclick="switchPage('隔板與省力工具')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M20 4v16M4 12h16M12 4v16"/></svg><span>隔板與省力工具</span></button>
+        <button type="button" class="tab-btn" data-page="隔板計算系統" onclick="switchPage('隔板計算系統')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7v10M12 7v4M16 7v10M8 13h8"/></svg><span>隔板計算系統</span></button>
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
         <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
@@ -689,7 +703,6 @@
               <th>左型 (個)</th>
               <th>右型 (個)</th>
               <th>主配標準品號 / 數量</th>
-              <th>建議訂貨包數</th>
             </tr>
           </thead>
           <tbody>
@@ -703,11 +716,6 @@
                 • 右隔 315288：<b>65 個</b><br>
                 • 左隔 315285：<b>65 個</b><br>
                 • 易倒輔助 376574：<b>10 個</b> (訂1來10)
-              </td>
-              <td rowspan="3" style="text-align: left; padding-left: 12px; vertical-align: top; color: #c2410c; font-weight: 700;">
-                • T隔 (訂1來10)：<b>70 包</b><br>
-                • 右隔 (訂1來5)：<b>20 包</b><br>
-                • 左隔 (訂1來5)：<b>20 包</b>
               </td>
             </tr>
             <tr id="row-range-2">
@@ -727,96 +735,11 @@
       </div>
     </div>
 
-    <div class="standard-panel">
-      <div class="panel-title">春季檯帳＆輔導訂貨資料表（各類別細項估算）</div>
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr style="background: #e07a5f;">
-              <th style="background: #d96d27;">備註</th>
-              <th style="background: #d96d27;">類別</th>
-              <th style="background: #d96d27;">檯數</th>
-              <th style="background: #d96d27;">估算T型隔板</th>
-              <th style="background: #d96d27;">估計左隔板</th>
-              <th style="background: #d96d27;">估計右隔板</th>
-              <th style="background: #d96d27;">估易倒輔助版</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td></td><td>零食</td><td>7</td><td>252</td><td>42</td><td>42</td><td>200</td></tr>
-            <tr><td></td><td>麵食</td><td>3</td><td>108</td><td>18</td><td>18</td><td>-</td></tr>
-            <tr><td></td><td>食調</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr><td></td><td>烈酒</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr><td></td><td>量販</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>國際用品</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr><td></td><td>國際食品</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>糖果</td><td>3</td><td>216</td><td>18</td><td>18</td><td>-</td></tr>
-            <tr><td></td><td>專案</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>用品</td><td>5</td><td>360</td><td>30</td><td>30</td><td>-</td></tr>
-            <tr><td></td><td>寵物</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr><td></td><td>區域</td><td>1</td><td>36</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr><td></td><td>架前架</td><td>5層</td><td>30</td><td>5</td><td>5</td><td>-</td></tr>
-            <tr class="highlight"><td style="color:#b45309;">牌面較多T*2</td><td>健美</td><td>1</td><td>72</td><td>6</td><td>6</td><td>-</td></tr>
-            <tr class="summary-row">
-              <td colspan="2">總數量 (個)</td>
-              <td>-</td>
-              <td>1,362</td>
-              <td>167</td>
-              <td>167</td>
-              <td>200</td>
-            </tr>
-            <tr class="bg-sub">
-              <td colspan="2">公司主配 (個)</td>
-              <td>-</td>
-              <td>320</td>
-              <td>65</td>
-              <td>65</td>
-              <td>0</td>
-            </tr>
-            <tr style="background:#ffedd5; font-weight:700;">
-              <td colspan="2">包裝入數</td>
-              <td>-</td>
-              <td>訂1來10</td>
-              <td>訂1來5</td>
-              <td>訂1來5</td>
-              <td>訂1來10</td>
-            </tr>
-            <tr style="background:#bbf7d0; font-weight:800; color:#166534;">
-              <td colspan="2">建議上傳 (包)</td>
-              <td>-</td>
-              <td>104 包</td>
-              <td>20 包</td>
-              <td>20 包</td>
-              <td>20 包</td>
-            </tr>
-            <tr>
-              <td colspan="2">成本單價 (元)</td>
-              <td>-</td>
-              <td>$12</td>
-              <td>$12</td>
-              <td>$12</td>
-              <td>$18</td>
-            </tr>
-            <tr style="font-weight: 700;">
-              <td colspan="2">成本小計</td>
-              <td>-</td>
-              <td>$12,504</td>
-              <td>$1,224</td>
-              <td>$1,224</td>
-              <td>$3,600</td>
-            </tr>
-            <tr style="background: #f1f5f9; font-size: 14px; font-weight: 800;">
-              <td colspan="2">總成本估算</td>
-              <td colspan="5" style="text-align: left; padding-left: 14px; color: #b91c1c;">$18,552 元</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <!-- 卡片清單區塊 -->
-  <section class="product-embed" id="product-embed" aria-label="門市所有商品查詢">
+  <section id="layout-calculator" class="calculator-embed" aria-label="隔板計算系統"><iframe id="layout-calculator-frame" title="門市隔板即時計算與 Layout 自動辨識" loading="lazy" src="LayoutOCR.html"></iframe></section>
+      <section class="product-embed" id="product-embed" aria-label="門市所有商品查詢">
     <iframe id="product-frame" class="product-frame" title="門市所有商品查詢" loading="lazy"></iframe>
     <div class="product-frame-note">商品查詢內容來自同目錄的 product.html，直接在此操作即可</div>
   </section>
@@ -1116,8 +1039,8 @@
     function switchPage(pageName) {
       currentPage = pageName;
       currentCategory = 'ALL';
-      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢','電子檔查看':'電子檔查看'};
-      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量、訂貨估算及工具資料','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理','門市所有商品查詢':'直接在平台內查詢門市商品資訊','電子檔查看':'選擇電子檔，單頁閱讀並快速跳轉頁數'};
+      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','隔板計算系統':'隔板計算系統','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢','電子檔查看':'電子檔查看'};
+      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量與工具資料','隔板計算系統':'Layout 智慧辨識與隔板需求即時計算','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理','門市所有商品查詢':'直接在平台內查詢門市商品資訊','電子檔查看':'選擇電子檔，單頁閱讀並快速跳轉頁數'};
       document.getElementById('page-heading').textContent = displayNames[pageName] || pageName;
       document.getElementById('page-description').textContent = descriptions[pageName] || '快速查詢工作所需資源';
       searchInput.value = '';
@@ -1125,16 +1048,22 @@
         btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
       });
 
+      const isCalculatorPage = pageName === '隔板計算系統';
+      document.getElementById('layout-calculator').classList.toggle('active', isCalculatorPage);
       const isProductPage = pageName === '門市所有商品查詢';
       const isPdfPage = pageName === '電子檔查看';
       document.getElementById('ebook-section').classList.toggle('active', isPdfPage);
       if (isPdfPage && !ebookListLoaded) loadEbookCatalog();
-      document.querySelector('.page-head').style.display = (isProductPage || isPdfPage) ? 'none' : '';
-      document.querySelector('.header-panel').style.display = (isProductPage || isPdfPage) ? 'none' : '';
-      document.getElementById('grid-container').style.display = (isProductPage || isPdfPage) ? 'none' : '';
-      document.getElementById('loading-trigger').style.display = (isProductPage || isPdfPage) ? 'none' : '';
+      document.querySelector('.page-head').style.display = (isProductPage || isPdfPage || isCalculatorPage) ? 'none' : '';
+      document.querySelector('.header-panel').style.display = (isProductPage || isPdfPage || isCalculatorPage) ? 'none' : '';
+      document.getElementById('grid-container').style.display = (isProductPage || isPdfPage || isCalculatorPage) ? 'none' : '';
+      document.getElementById('loading-trigger').style.display = (isProductPage || isPdfPage || isCalculatorPage) ? 'none' : '';
       const productEmbed = document.getElementById('product-embed');
       productEmbed.classList.toggle('active', isProductPage);
+      if (isCalculatorPage) {
+        boardStandardSection.style.display = 'none';
+        return;
+      }
       if (isPdfPage) {
         boardStandardSection.style.display = 'none';
         return;
@@ -1463,5 +1392,29 @@
       });
     })();
   </script>
+<script>
+window.addEventListener('message',function(ev){
+ if(ev.origin!==location.origin||ev.source!==document.getElementById('layout-calculator-frame').contentWindow)return;
+ if(ev.data&&ev.data.type==='ST_LAYOUT_HEIGHT'&&Number.isFinite(ev.data.height)){
+ const frame=document.getElementById('layout-calculator-frame');
+ frame.style.height=Math.min(20000,Math.max(500,ev.data.height))+'px';
+ }
+});
+function toggleSidebar(){
+ const shell=document.querySelector('.app-shell');
+ const collapsed=shell.classList.toggle('sidebar-collapsed');
+ const btn=document.getElementById('sidebar-toggle');
+ btn.setAttribute('aria-expanded',String(!collapsed));
+ document.getElementById('sidebar-toggle-label').textContent=collapsed?'顯示功能選單':'隱藏功能選單';
+ try{localStorage.setItem('st-sidebar-collapsed',String(collapsed))}catch(e){}
+}
+(function restoreSidebar(){
+ try{if(localStorage.getItem('st-sidebar-collapsed')==='true'){
+ document.querySelector('.app-shell').classList.add('sidebar-collapsed');
+ document.getElementById('sidebar-toggle').setAttribute('aria-expanded','false');
+ document.getElementById('sidebar-toggle-label').textContent='顯示功能選單';
+ }}catch(e){}
+})();
+</script>
 </body>
 </html>
