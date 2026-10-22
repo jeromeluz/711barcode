@@ -960,8 +960,8 @@
       loadFormData();
       setupInfiniteScroll();
       // 首次載入時依照分享連結顯示正確頁籤
-      const startPage = PAGE_ROUTES[window.location.hash.slice(1)];
-      if (startPage) switchPage(startPage, false);
+      // 在畫面初次建立完成後，立即依網址切換；資料載入與 hash 不互相干擾
+      openPageFromUrl();
     });
 
     const cellText = value => String(value == null ? '' : value).trim();
@@ -1055,18 +1055,20 @@
     function openPageFromUrl() {
       const id = window.location.hash.replace(/^#/, '');
       const page = PAGE_ROUTES[id] || PAGE_ROUTES['1'];
-      if (currentPage !== page) switchPage(page, false);
+      // 每次按網址進站都重建正確的標籤狀態，不依賴初始 active 樣式
+      switchPage(page, false);
     }
 
     window.addEventListener('hashchange', openPageFromUrl);
     window.addEventListener('popstate', openPageFromUrl);
+    window.addEventListener('pageshow', openPageFromUrl);
 
     function switchPage(pageName, syncHash = true) {
       if (!Object.prototype.hasOwnProperty.call(PAGE_HASHES, pageName)) return;
       if (syncHash) {
         const targetHash = '#' + PAGE_HASHES[pageName];
         if (window.location.hash !== targetHash) {
-          history.pushState(null, '', targetHash);
+          window.location.hash = targetHash;
         }
       }
 
@@ -1499,6 +1501,16 @@ function toggleSidebar(){
      window.scrollBy({top:Math.max(-100,Math.min(100,data.delta)),left:0,behavior:'instant'});
    }
  });
+})();
+</script>
+<script>
+// 確保從 LINE／書籤／直接輸入 ST.html#2 進站時，畫面對應正確頁籤。
+(function(){
+  function syncInitialRoute(){
+    if(typeof openPageFromUrl === 'function') openPageFromUrl();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded',syncInitialRoute,{once:true});
+  else syncInitialRoute();
 })();
 </script>
 </body>
