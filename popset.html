@@ -1,0 +1,42 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>統一超商 POP 製作工具</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;800;900&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;background:#f1f4f2;color:#163f30;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif}header{background:#007c4c;color:white;padding:18px 25px;font-size:21px;font-weight:900}.layout{max-width:1350px;margin:22px auto;padding:0 18px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px}.panel,.preview{background:#fff;padding:22px;border-radius:14px;box-shadow:0 3px 20px #0001}.panel h2,.preview h2{font-size:20px;margin:0 0 15px}label{display:block;font-size:14px;font-weight:800;margin:14px 0 6px}input{width:100%;font:inherit;padding:10px 12px;border:1px solid #cbd9d2;border-radius:8px}button{width:100%;background:#e51b23;color:white;font:inherit;font-weight:900;border:0;border-radius:9px;padding:13px;margin-top:20px;cursor:pointer}.preview{text-align:center}canvas{width:100%;max-width:530px;height:auto;display:block;margin:auto;border:1px solid #eee}.note{font-size:12px;color:#65776c;line-height:1.8}.warning{color:#a34c12}@media(max-width:800px){.layout{grid-template-columns:1fr}}</style></head><body><header>統一超商｜暫停營業 POP 產生器</header><main class="layout"><section class="panel"><h2>輸入公告資料</h2><label for="store">門市名稱（不含「門市」）</label><input id="store" value="博元" maxlength="12"><label for="date">停止營業日期</label><input id="date" type="date" value="2026-11-12"><label for="time">停止營業時間</label><input id="time" type="time" value="08:00"><label for="headline">主要公告文字</label><input id="headline" value="停止營業" maxlength="12"><label for="near">鄰近門市名稱</label><input id="near" value="大統" maxlength="12"><label for="meters">鄰近門市距離（公尺）</label><input id="meters" type="number" min="0" value="350"><button id="download" disabled>載入模板中…</button><p class="note">使用重新清理的底圖，公告主標題也可以編輯。下載圖片尺寸 1055 × 1491。</p><p class="note warning">為了支援任意門市名稱，替換的字體使用 Noto Sans TC 粗體，與原始圖片的字型可能仍有細微差異。首次開啟建議保持網路連線以載入字體。</p></section><section class="preview"><h2>即時預覽</h2><canvas id="canvas" width="1055" height="1491"></canvas></section></main><script>
+const W=1055,H=1491,c=document.querySelector('canvas'),ctx=c.getContext('2d'),bg=new Image(),fields=['store','date','time','headline','near','meters'];let ready=false;
+const v=id=>document.getElementById(id).value.trim();
+function fitText(s,x,y,maxWidth,maxHeight,px,color,weight=900){
+ ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;
+ let size=px;
+ do {ctx.font=`${weight} ${size}px 'Noto Sans TC','Microsoft JhengHei',sans-serif`;if(ctx.measureText(s).width<=maxWidth && size<=maxHeight)break;size-=2}while(size>12);
+ ctx.fillText(s,x,y);ctx.restore();
+}
+function centeredSegments(parts,cx,y,maxWidth,maxHeight,px){
+ ctx.save();ctx.textBaseline='middle';let size=px,total=0;
+ const measure=()=>{ctx.font=`900 ${size}px 'Noto Sans TC','Microsoft JhengHei',sans-serif`;return parts.reduce((n,p)=>n+ctx.measureText(p.text).width,0)};
+ total=measure();while((total>maxWidth||size>maxHeight)&&size>12){size-=2;total=measure()}
+ let x=cx-total/2;ctx.textAlign='left';for(const part of parts){ctx.fillStyle=part.color;ctx.fillText(part.text,x,y);x+=ctx.measureText(part.text).width}ctx.restore();
+}
+function draw(){if(!ready)return;ctx.clearRect(0,0,W,H);ctx.drawImage(bg,0,0,W,H);
+ fitText(`統一超商 ${v('store')||'　'}門市`,525,226,825,125,106,'#fff');
+ let date=v('date')||'2026-11-12',dt=new Date(`${date}T12:00:00`),day='日一二三四五六'[dt.getDay()]||'四',parts=date.split('-');
+ fitText(`${+parts[1]}/${+parts[2]}(${day})`,526,447,740,155,145,'#d90009');
+ centeredSegments([{text:v('time')||'08:00',color:'#d90009'},{text:' 起',color:'#4b210d'}],525,604,690,158,150);
+ fitText(v('headline')||'停止營業',525,803,860,175,190,'#fff');
+ fitText('可到鄰近門市',590,1008,675,82,76,'#47200e');
+ const near=v('near')||'鄰近',meters=v('meters')||'0';
+ centeredSegments([{text:`(${near}門市 ${meters}公尺)`,color:'#d6000a'},{text:' 消費',color:'#47200e'}],590,1091,675,65,63);
+}
+fields.forEach(id=>document.getElementById(id).addEventListener('input',draw));bg.onload=async()=>{ready=true;const b=document.getElementById('download');b.disabled=false;b.textContent='下載高解析度 PNG';draw();try{await document.fonts.load("900 100px 'Noto Sans TC'");draw()}catch(e){}};bg.onerror=()=>{document.getElementById('download').textContent='模板圖片載入失敗，請確認 clean_template.png 與網頁放在同一資料夾'};bg.src='clean_template.png';document.getElementById('download').addEventListener('click',()=>{
+ const b=document.getElementById('download');
+ if(!ready){alert('底圖尚未載入，請確認 clean_template.png 與 index.html 放在同一個資料夾');return;}
+ try{
+  draw();
+  const url=c.toDataURL('image/png');
+  if(!url.startsWith('data:image/png'))throw new Error('無法產生 PNG');
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${(v('store')||'門市').replace(/[\\/:*?"<>|]/g,'_')}_POP.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  b.textContent='下載高解析度 PNG';
+ }catch(err){console.error('PNG 下載失敗',err);alert('PNG 下載失敗：'+err.message+'。請改用 Chrome 或 Edge 開啟網頁。');}
+});
+</script></body></html>
