@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>門市隔板即時計算</title><style>
 :root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#182b3b;background:#f2f6fa}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:32px 18px}h1{font-size:27px;margin:0 0 8px}p{color:#607287;line-height:1.6}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.button{background:#173e69;color:white;border:0;padding:11px 18px;border-radius:10px;cursor:pointer;font-weight:700}.button.secondary{background:#e3eaf2;color:#173e69}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.stat{background:#fff;border:1px solid #e0e8ef;border-radius:16px;padding:20px}.stat span{color:#617489;font-size:14px}.stat strong{display:block;font-size:38px;margin-top:6px;color:#153f6d}.panel{background:#fff;border:1px solid #e0e8ef;border-radius:18px;padding:22px;margin-bottom:18px}h2{font-size:19px;margin:0 0 18px}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e1e8f0;border-radius:12px;padding:12px 14px}.field label{font-weight:650}.field input{width:82px;padding:9px;border:1px solid #bac9d8;border-radius:8px;font-size:17px;text-align:center}.note{font-size:13px;color:#65798c;margin:12px 0 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:12px 10px;border-bottom:1px solid #e8edf3;text-align:right}th:first-child,td:first-child{text-align:left}thead{background:#f5f8fc}tfoot{font-weight:800;background:#eef4fa}.scroll{overflow-x:auto}@media(max-width:700px){.fields{grid-template-columns:1fr 1fr}.stat{padding:14px}.stat strong{font-size:29px}}@media(max-width:450px){.fields{grid-template-columns:1fr}.wrap{padding:20px 12px}}.upload{border:2px dashed #afc2d6;border-radius:14px;padding:20px;background:#f7faff}.upload input{max-width:100%}.status{font-size:14px;margin:12px 0;color:#284c72}.ocrgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.ocritem{border:1px solid #dce5ee;border-radius:9px;padding:9px;background:white;display:flex;justify-content:space-between;align-items:center}.ocritem input{width:68px;padding:7px;font-size:16px}.preview{max-height:260px;max-width:100%;object-fit:contain;margin-top:12px;border-radius:8px}.ocrtext{width:100%;min-height:110px;border:1px solid #ccd8e5;border-radius:9px;padding:10px;margin-top:8px;font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}@media(max-width:700px){.ocrgrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:450px){.ocrgrid{grid-template-columns:1fr}}.poplist{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}.popitem{padding:12px;border:1px solid #e0e8ef;border-radius:12px;background:#f8fbfe}.popitem strong{font-size:18px;color:#153f6d}.popitem small{display:block;color:#627589;margin-top:4px}.popitem .sku{font-size:12px;color:#53749a} 
-:root{--red:#E21836;--orange:#EE6F2D;--green:#008155;--ink:#263342;--line:#e5e9ed;background:#f7f8f7;color:var(--ink)}
+:root{--red:#e63332;--orange:#f49b22;--green:#168a52;--ink:#263342;--line:#e5e9ed;background:#f7f8f7;color:var(--ink)}
 body{background:linear-gradient(90deg,var(--red) 0 33.33%,var(--orange) 33.33% 66.66%,var(--green) 66.66% 100%) top/100% 6px no-repeat,#f7f8f7}
 .wrap{max-width:1160px;padding-top:38px}h1{font-size:29px;letter-spacing:.02em}h1:before{content:"";display:inline-block;width:7px;height:28px;background:var(--green);border-radius:4px;vertical-align:-5px;margin-right:12px}h2{color:#263342}.panel,.stat{border-color:var(--line);box-shadow:0 5px 22px rgba(34,52,47,.035)}.button{background:var(--green);border-radius:9px;transition:filter .15s}.button:hover{filter:brightness(.94)}.button.secondary{background:#fff3eb;color:#b74d20;border:1px solid #f6d5c4}.stat{border-top:4px solid var(--green)}.stat:nth-child(3n+1){border-top-color:var(--red)}.stat:nth-child(3n+2){border-top-color:var(--orange)}.stat strong{color:var(--ink);font-size:34px}.field:focus-within{border-color:var(--green);background:#f7fcf8}.field input:focus{outline:2px solid #98d9b3;outline-offset:1px}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.sectionhead h2{margin:0}.poptable th,.poptable td{text-align:left}.poptable th:nth-child(3),.poptable td:nth-child(3){text-align:right;font-weight:700}.poptable tbody tr:hover{background:#f5faf6}.poptable td:nth-child(3){color:var(--green);font-size:16px}.empty{text-align:center!important;color:#87929c;font-weight:400!important;padding:24px!important}.upload{background:#fafdfb;border-color:#a5cbb3}.status{color:#29784d}.note{line-height:1.7} @media(max-width:700px){.poptable{min-width:580px}.stats{grid-template-columns:repeat(2,1fr)}}
 
@@ -12,62 +12,15 @@ html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}button,input{font:inhe
 @media(max-width:420px){.wrap{padding:18px 10px 36px}.stats{gap:8px}.stat{padding:12px 11px;min-height:92px}.stat strong{font-size:27px}.panel{padding:15px 12px}.fields{grid-template-columns:1fr 1fr}.field{flex-direction:column;align-items:stretch;min-height:92px}.field label{font-size:13px}.field input{width:100%;min-height:42px}.sectionhead{align-items:flex-start}.sectionhead h2{font-size:16px}.head-actions{width:100%;justify-content:flex-end}.head-actions .button,.head-actions .collapse-btn{flex:1;justify-content:center}.upload p{font-size:13px}}
 @media(max-width:340px){.fields{grid-template-columns:1fr}.field{flex-direction:row;align-items:center;min-height:60px}.field input{width:80px}.stats{grid-template-columns:1fr 1fr}.stat strong{font-size:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
-
-/* Matching ST resource platform design */
-body{background:#f6f8f5!important;color:#25352d}
-.wrap{max-width:1320px;padding:25px 22px 40px}
-.top{background:white;padding:24px;border:1px solid #e8eee9;border-radius:16px;box-shadow:0 5px 18px #13392308}
-.top h1{color:#243a2c;font-size:25px}
-.panel,.stat{border:1px solid #e5ede7;border-radius:16px;box-shadow:0 4px 16px #1d4b2f08}
-.stat{border-top:4px solid var(--green)}
-.stat:nth-child(3n+1){border-top-color:var(--red)}
-.stat:nth-child(3n+2){border-top-color:var(--orange)}
-.stat strong{color:#243b2c}.button{background:#008155}.button.secondary{background:#fff2e9;color:#ce5d25;border-color:#ffdbc7}
-.field{background:#fff;border-color:#e5eee7}.upload{background:#f7fcf9;border-color:#a6cbb5}
-@media(max-width:700px){.wrap{padding:12px 11px 24px}.top{padding:17px}.top h1{font-size:20px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:25px}.panel{padding:14px}}
-
-/* 嵌入 ST 平台：移除獨立頁面的外框、背景與重複標頭 */
-html.st-embedded{background:#f6f8f5!important}
-html.st-embedded body{background:#f6f8f5!important;overflow-x:hidden}
-html.st-embedded .wrap{max-width:none;width:100%;margin:0;padding:0 1px 4px}
-html.st-embedded .top{margin:0 0 13px;align-items:center}
-html.st-embedded .top h1{font-size:19px;margin:0;color:#23372d}
-html.st-embedded .top h1:before{background:#EE6F2D;height:20px;vertical-align:-4px}
-html.st-embedded .top .button{background:#008155}
-html.st-embedded .stats{margin:0 0 16px;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
-html.st-embedded .stat{padding:17px 19px;box-shadow:0 2px 11px #1b493108;border-radius:14px;border:1px solid #e9eeea;border-top:3px solid #008155}
-html.st-embedded .stat:nth-child(3n+1){border-top-color:#E21836}
-html.st-embedded .stat:nth-child(3n+2){border-top-color:#EE6F2D}
-html.st-embedded .stat strong{font-size:30px;color:#22372d}
-html.st-embedded .panel{border:1px solid #e9eeea;border-radius:15px;box-shadow:0 2px 11px #1b493108;margin:0 0 15px;padding:20px 22px;background:#fff}
-html.st-embedded .panel h2{color:#23372d}
-html.st-embedded .button{background:#008155}
-html.st-embedded .button.secondary{background:#fff2e9;color:#c65f23;border:1px solid #f7dfd1}
-html.st-embedded .field:focus-within{border-color:#008155}
-html.st-embedded .collapse-btn{color:#008155;background:#eef7f0;border-color:#d7e8db}
-html.st-embedded .status{color:#008155}
-html.st-embedded .stat:last-child{border-top-color:#008155}
-@media(max-width:700px){
- html.st-embedded .wrap{padding:0 1px 4px}
- html.st-embedded .top{gap:10px;flex-wrap:nowrap;align-items:center}
- html.st-embedded .top h1{font-size:16px;white-space:nowrap}
- html.st-embedded .top>div:last-child{width:auto;flex:0 0 auto}
- html.st-embedded .top .button{width:auto;min-height:38px;padding:8px 10px;font-size:11px}
- html.st-embedded .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 11px}
- html.st-embedded .stat{padding:12px 13px;min-height:86px}
- html.st-embedded .stat strong{font-size:26px}
- html.st-embedded .panel{padding:15px 13px;margin-bottom:11px}
-}
-@media(max-width:370px){html.st-embedded .top h1{font-size:14px}html.st-embedded .top .button{font-size:10px;padding:7px}}
-</style></head><body><script>if(new URLSearchParams(location.search).get("embed")==="1")document.documentElement.classList.add("st-embedded")</script><main class="wrap"><div class="top"><div><h1>門市隔板即時計算</h1></div><div><button class="button" onclick="exportCSV()">匯出明細 CSV</button></div></div><section class="stats"><div class="stat"><span>T 型隔板</span><strong id="t">0</strong></div><div class="stat"><span>左隔板</span><strong id="l">0</strong></div><div class="stat"><span>右隔板</span><strong id="r">0</strong></div><div class="stat"><span>一般貨架陳列盒</span><strong id="box">0</strong></div><div class="stat"><span>冷凍陳列盒</span><strong id="frozenBox">0</strong></div><div class="stat"><span>糖果陳列架</span><strong id="bottom">0</strong></div><div class="stat"><span>掛勾</span><strong id="hook">0</strong></div></section><section class="panel"><h2>Layout PDF／圖片自動辨識</h2><p>上傳 PDF、JPG、PNG 或 WebP 格式的門市 Layout，會自動辨識並填入台數即時運算，此功能需要網路連線辨識</p><div class="upload"><input id="layoutFile" type="file" accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" aria-label="上傳Layout圖片"><div class="actions"><button class="button" id="scanBtn" type="button">開始辨識 Layout</button></div><div id="ocrStatus" class="status" role="status">尚未選擇圖片</div><img id="layoutPreview" class="preview" alt="Layout預覽" hidden></div></section><section class="panel"><div class="sectionhead"><h2>各品類台數</h2><div class="head-actions"><button type="button" class="button secondary" onclick="resetAll()">全部清除</button><button type="button" class="collapse-btn" aria-expanded="true" data-target="fieldsContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div></div><div id="fieldsContent" class="collapsible"><div class="fields" id="fields"></div></div></section><section class="panel"><div class="sectionhead"><h2>各品類計算明細</h2><button type="button" class="collapse-btn" aria-expanded="true" data-target="detailContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div><div id="detailContent" class="collapsible"><div class="scroll" tabindex="0" role="region" aria-label="各品類計算明細，可左右滑動"><table><thead><tr><th>品類</th><th>台數 / 門數</th><th>T 型</th><th>左隔板</th><th>右隔板</th><th>一般陳列盒</th><th>冷凍陳列盒</th><th>糖果陳列架</th><th>掛勾</th></tr></thead><tbody id="detail"></tbody><tfoot><tr><td>合計</td><td id="count"></td><td id="ft">0</td><td id="fl">0</td><td id="fr">0</td><td id="fbox">0</td><td id="ffrozenBox">0</td><td id="fbottom">0</td><td id="fhook">0</td></tr></tfoot></table></div></div></section><section class="panel"><div class="sectionhead"><h2>POP／專用陳列盒需求清單</h2><button type="button" class="collapse-btn" aria-expanded="true" data-target="popContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div><div id="popContent" class="collapsible"><div class="actions"><button type="button" class="button secondary" onclick="exportPOP()">匯出 POP 清單 CSV</button></div><div class="scroll" tabindex="0" role="region" aria-label="POP需求清單，可左右滑動" style="margin-top:14px"><table class="poptable"><thead><tr><th>品號</th><th>POP／陳列盒名稱</th><th>需求數量</th><th>來源品類</th></tr></thead><tbody id="poplist"></tbody></table></div></div></section></main><script>
-const DATA={"麵食":[{"t":24,"l":6,"r":6},{"t":31,"l":6,"r":6},{"t":40,"l":6,"r":6},{"t":29,"l":6,"r":6}],"糖果":[{"t":48,"l":6,"r":6,"box":0,"bottom":0,"hook":36},{"t":40,"l":6,"r":6,"box":3,"bottom":1,"hook":0},{"t":42,"l":7,"r":7,"box":3,"bottom":0,"hook":0}],"零食":[{"t":42,"l":5,"r":5,"box":3,"bottom":0,"hook":0},{"t":39,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":58,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":30,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":30,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":35,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":5,"l":1,"r":1,"box":0,"bottom":0,"hook":38},{"t":4,"l":1,"r":1,"box":0,"bottom":0,"hook":36}],"食材調味":[{"t":53,"l":5,"r":5,"box":1,"bottom":0,"hook":0}],"饗喫鍋":[{"t":33,"l":6,"r":6,"box":0,"bottom":0,"hook":0}],"量販":[{"t":22,"l":5,"r":5,"box":0,"bottom":0,"hook":0},{"t":25,"l":5,"r":5,"box":0,"bottom":0,"hook":0},{"t":18,"l":5,"r":5,"box":0,"bottom":0,"hook":0}],"國際精品食品":[{"t":29,"l":4,"r":4,"box":0,"bottom":0,"hook":17},{"t":33,"l":4,"r":4,"box":0,"bottom":0,"hook":14}],"國際精品綜合":[{"t":45,"l":5,"r":5,"box":4,"bottom":0,"hook":0}],"用品5台版":[{"t":29,"l":3,"r":3,"box":4,"bottom":0,"hook":0},{"t":32,"l":4,"r":4,"box":2,"bottom":0,"hook":19},{"t":38,"l":4,"r":4,"box":2,"bottom":0,"hook":12},{"t":32,"l":4,"r":4,"box":1,"bottom":0,"hook":7},{"t":23,"l":4,"r":4,"box":3,"bottom":0,"hook":0}],"用品6台版":[{"t":40,"l":4,"r":4,"box":3,"bottom":0,"hook":0},{"t":32,"l":4,"r":4,"box":2,"bottom":0,"hook":19},{"t":34,"l":4,"r":4,"box":2,"bottom":0,"hook":12},{"t":35,"l":4,"r":4,"box":3,"bottom":0,"hook":8},{"t":22,"l":4,"r":4,"box":2,"bottom":0,"hook":7},{"t":25,"l":3,"r":3,"box":3,"bottom":0,"hook":0}],"寵物生活專區":[{"t":36,"l":4,"r":4,"box":0,"bottom":0,"hook":24}],"健美機能":[{"t":64,"l":6,"r":6,"box":6,"bottom":0,"hook":0}],"烈酒":[{"t":44,"l":4,"r":4},{"t":46,"l":4,"r":4}],"烈酒單台":[{"t":46,"l":4,"r":4}],"冷凍":[{"t":0,"l":0,"r":0,"box":37,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":39,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":37,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":11,"bottom":0,"hook":0}]};const POP={"麵食":[[],[],[],[]],"糖果":[[],[{"code":"315497","name":"進口糖果","qty":1},{"code":"328686","name":"進口巧克力","qty":1},{"code":"372820","name":"糖巧限時優惠","qty":1}],[{"code":"492541","name":"糖果壓克力架","qty":1},{"code":"","name":"中與右陳列盒檔期配送","qty":1}]],"零食":[[{"code":"315646","name":"午茶糕點","qty":1},{"code":"365074","name":"MiniToGo陳列(大)","qty":1},{"code":"","name":"星巴克陳列盒","qty":1}],[{"code":"411996","name":"MiniToGo陳列(小)","qty":2}],[],[],[],[],[],[]],"食材調味":[[{"code":"794123","name":"杯湯新式壓克力架","qty":1}]],"饗喫鍋":[[{"code":"721687","name":"饗喫鍋背板","qty":1},{"code":"722986","name":"饗喫鍋冷藏+常溫天吊","qty":1}]],"量販":[[{"code":"006307","name":"量販背板+飾條","qty":1}],[{"code":"006307","name":"量販背板+飾條","qty":1}],[{"code":"006307","name":"量販背板+飾條","qty":1}]],"國際精品食品":[[],[{"code":"347188","name":"酒品專區側招","qty":1}]],"國際精品綜合":[[{"code":"347188","name":"酒品專區側招","qty":1},{"code":"730876","name":"雪肌粹陳列","qty":1},{"code":"","name":"義大利膠囊陳列盒","qty":1},{"code":"","name":"法國香水陳列盒","qty":1}]],"冷凍":[[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}]],"烈酒":[[{"code":"","name":"三層烈酒陳列架","qty":1}],[{"code":"","name":"三層烈酒陳列架","qty":1}]],"烈酒單台":[[{"code":"","name":"三層烈酒陳列架","qty":1}]],"用品5台版":[[{"code":"324333","name":"美麗日記","qty":1},{"code":"376808","name":"隱眼陳列盒","qty":1},{"code":"360551","name":"彩妝保養好務","qty":1},{"code":"361231","name":"生活小物","qty":1}],[{"code":"361205","name":"秋冬三護","qty":1}],[{"code":"326783","name":"醫材小物","qty":1},{"code":"325461","name":"衛生套","qty":1},{"code":"464107","name":"GATSBY陳列","qty":1}],[{"code":"325472","name":"5L以上寵物陳列盒","qty":1}],[{"code":"494038","name":"文具架","qty":1},{"code":"722900","name":"辦公文具壓克力架","qty":1},{"code":"344963","name":"DUSKIN陳列盒","qty":1}]],"用品6台版":[[{"code":"324333","name":"美麗日記","qty":1},{"code":"","name":"(大智通)香水陳列盒","qty":1},{"code":"360551","name":"隨身彩妝","qty":1}],[{"code":"361205","name":"秋冬三護","qty":1}],[{"code":"376808","name":"隱眼陳列盒","qty":1},{"code":"361231","name":"美妝小物","qty":1}],[{"code":"326783","name":"醫材小物","qty":1},{"code":"325461","name":"衛生套","qty":1},{"code":"464107","name":"GATSBY陳列","qty":1}],[{"code":"","name":"BEAMS陳列盒","qty":1},{"code":"344963","name":"DUSKIN陳列","qty":1}],[{"code":"325472","name":"5L以上寵物陳列盒","qty":1},{"code":"494038","name":"文具架","qty":1},{"code":"722900","name":"辦公文具壓克力架","qty":1}]],"寵物生活專區":[[{"code":"346304","name":"寵物專區頭卡","qty":1},{"code":"346312","name":"寵物專區天吊","qty":1},{"code":"346321","name":"寵物形象飾條","qty":1}]],"健美機能":[[{"code":"321855","name":"利捷維","qty":1},{"code":"362029","name":"我的健康日記","qty":1},{"code":"832669","name":"味覺糖","qty":1},{"code":"","name":"大智通DHC陳列盒","qty":1},{"code":"326356","name":"保健補給","qty":1},{"code":"333799","name":"美麗對策","qty":1}]],"區域商品":[[{"code":"","name":"名特產背板(根據尺寸訂)","qty":1}]],"專案":[[]],"不冰水":[[{"code":"597282","name":"不冰飲料飾條","qty":1},{"code":"307574","name":"不冰背板","qty":1}]]};const names=['麵食','糖果','零食','食材調味','饗喫鍋','量販','國際精品食品','國際精品綜合','冷凍','烈酒','用品','寵物生活專區','健美機能'];const inputs={};let output=[];
+</style></head><body><main class="wrap"><div class="top"><div><h1>門市隔板即時計算</h1></div><div><button class="button" onclick="exportCSV()">匯出明細 CSV</button></div></div><section class="stats"><div class="stat"><span>T 型隔板</span><strong id="t">0</strong></div><div class="stat"><span>左隔板</span><strong id="l">0</strong></div><div class="stat"><span>右隔板</span><strong id="r">0</strong></div><div class="stat"><span>一般貨架陳列盒</span><strong id="box">0</strong></div><div class="stat"><span>冷凍陳列盒</span><strong id="frozenBox">0</strong></div><div class="stat"><span>糖果陳列架</span><strong id="bottom">0</strong></div><div class="stat"><span>掛勾</span><strong id="hook">0</strong></div></section><section class="panel"><h2>Layout PDF／圖片自動辨識</h2><p>上傳 PDF、JPG、PNG 或 WebP 格式的門市 Layout，會自動辨識並填入台數即時運算，此功能需要網路連線辨識</p><div class="upload"><input id="layoutFile" type="file" accept=".pdf,application/pdf,image/png,image/jpeg,image/webp" aria-label="上傳Layout圖片"><div class="actions"><button class="button" id="scanBtn" type="button">開始辨識 Layout</button></div><div id="ocrStatus" class="status" role="status">尚未選擇圖片</div><img id="layoutPreview" class="preview" alt="Layout預覽" hidden></div></section><section class="panel"><div class="sectionhead"><h2>各品類台數</h2><div class="head-actions"><button type="button" class="button secondary" onclick="resetAll()">全部清除</button><button type="button" class="collapse-btn" aria-expanded="true" data-target="fieldsContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div></div><div id="fieldsContent" class="collapsible"><div class="fields" id="fields"></div></div></section><section class="panel"><div class="sectionhead"><h2>各品類計算明細</h2><button type="button" class="collapse-btn" aria-expanded="true" data-target="detailContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div><div id="detailContent" class="collapsible"><div class="scroll" tabindex="0" role="region" aria-label="各品類計算明細，可左右滑動"><table><thead><tr><th>品類</th><th>台數 / 門數</th><th>T 型</th><th>左隔板</th><th>右隔板</th><th>一般陳列盒</th><th>冷凍陳列盒</th><th>糖果陳列架</th><th>掛勾</th></tr></thead><tbody id="detail"></tbody><tfoot><tr><td>合計</td><td id="count"></td><td id="ft">0</td><td id="fl">0</td><td id="fr">0</td><td id="fbox">0</td><td id="ffrozenBox">0</td><td id="fbottom">0</td><td id="fhook">0</td></tr></tfoot></table></div></div></section><section class="panel"><div class="sectionhead"><h2>POP／專用陳列盒需求清單</h2><button type="button" class="collapse-btn" aria-expanded="true" data-target="popContent" onclick="toggleSection(this)"><span class="arrow">▾</span> 收合</button></div><div id="popContent" class="collapsible"><div class="actions"><button type="button" class="button secondary" onclick="exportPOP()">匯出 POP 清單 CSV</button></div><div class="scroll" tabindex="0" role="region" aria-label="POP需求清單，可左右滑動" style="margin-top:14px"><table class="poptable"><thead><tr><th>品號</th><th>POP／陳列盒名稱</th><th>需求數量</th><th>來源品類</th></tr></thead><tbody id="poplist"></tbody></table></div></div></section></main><script>
+const DATA={"麵食":[{"t":24,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":31,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":40,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":29,"l":6,"r":6,"box":0,"bottom":0,"hook":0}],"糖果":[{"t":48,"l":6,"r":6,"box":0,"bottom":0,"hook":36},{"t":40,"l":6,"r":6,"box":3,"bottom":1,"hook":0},{"t":42,"l":7,"r":7,"box":3,"bottom":0,"hook":0}],"零食":[{"t":42,"l":5,"r":5,"box":3,"bottom":0,"hook":0},{"t":39,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":58,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":30,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":30,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":35,"l":6,"r":6,"box":0,"bottom":0,"hook":0},{"t":5,"l":1,"r":1,"box":0,"bottom":0,"hook":38},{"t":4,"l":1,"r":1,"box":0,"bottom":0,"hook":36}],"食材調味":[{"t":53,"l":5,"r":5,"box":1,"bottom":0,"hook":0}],"饗喫鍋":[{"t":33,"l":6,"r":6,"box":0,"bottom":0,"hook":0}],"量販":[{"t":22,"l":5,"r":5,"box":0,"bottom":0,"hook":0},{"t":25,"l":5,"r":5,"box":0,"bottom":0,"hook":0},{"t":18,"l":5,"r":5,"box":0,"bottom":0,"hook":0}],"國際精品食品":[{"t":29,"l":4,"r":4,"box":0,"bottom":0,"hook":17},{"t":33,"l":4,"r":4,"box":0,"bottom":0,"hook":14}],"國際精品綜合":[{"t":45,"l":5,"r":5,"box":4,"bottom":0,"hook":0}],"用品5台版":[{"t":29,"l":3,"r":3,"box":4,"bottom":0,"hook":0},{"t":32,"l":4,"r":4,"box":2,"bottom":0,"hook":19},{"t":38,"l":4,"r":4,"box":2,"bottom":0,"hook":12},{"t":32,"l":4,"r":4,"box":1,"bottom":0,"hook":7},{"t":23,"l":4,"r":4,"box":3,"bottom":0,"hook":0}],"用品6台版":[{"t":40,"l":4,"r":4,"box":3,"bottom":0,"hook":0},{"t":32,"l":4,"r":4,"box":2,"bottom":0,"hook":19},{"t":34,"l":4,"r":4,"box":2,"bottom":0,"hook":12},{"t":35,"l":4,"r":4,"box":3,"bottom":0,"hook":8},{"t":22,"l":4,"r":4,"box":2,"bottom":0,"hook":7},{"t":25,"l":3,"r":3,"box":3,"bottom":0,"hook":0}],"寵物生活專區":[{"t":36,"l":4,"r":4,"box":0,"bottom":0,"hook":24}],"健美機能":[{"t":64,"l":6,"r":6,"box":6,"bottom":0,"hook":0}],"烈酒單台":[{"t":46,"l":4,"r":4,"box":0,"bottom":0,"hook":0}],"烈酒":[{"t":44,"l":4,"r":4,"box":0,"bottom":0,"hook":0},{"t":46,"l":4,"r":4,"box":0,"bottom":0,"hook":0}],"專案":[{"t":30,"l":5,"r":5,"box":0,"bottom":0,"hook":0}],"不冰水":[{"t":30,"l":5,"r":5,"box":0,"bottom":0,"hook":0}],"區域商品":[{"t":30,"l":5,"r":5,"box":0,"bottom":0,"hook":0}],"天素地蔬":[{"t":18,"l":4,"r":4,"box":0,"bottom":0,"hook":0}],"天素地蔬兩台":[{"t":29,"l":6,"r":6,"box":0,"bottom":0,"hook":0}],"冷凍":[{"t":0,"l":0,"r":0,"box":37,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":39,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":37,"bottom":0,"hook":0},{"t":0,"l":0,"r":0,"box":11,"bottom":0,"hook":0}]};const POP={"麵食":[[],[],[],[]],"糖果":[[],[{"code":"315497","name":"進口糖果","qty":1},{"code":"328686","name":"進口巧克力","qty":1},{"code":"372820","name":"糖巧限時優惠","qty":1}],[{"code":"492541","name":"糖果壓克力架","qty":1},{"code":"","name":"中與右陳列盒檔期配送","qty":1}]],"零食":[[{"code":"315646","name":"午茶糕點","qty":1},{"code":"365074","name":"MiniToGo陳列(大)","qty":1},{"code":"","name":"星巴克陳列盒","qty":1}],[{"code":"411996","name":"MiniToGo陳列(小)","qty":2}],[],[],[],[],[],[]],"食材調味":[[{"code":"794123","name":"杯湯新式壓克力架","qty":1}]],"饗喫鍋":[[{"code":"721687","name":"饗喫鍋背板","qty":1},{"code":"722986","name":"饗喫鍋冷藏+常溫天吊","qty":1}]],"量販":[[{"code":"006307","name":"量販背板+飾條","qty":1}],[{"code":"006307","name":"量販背板+飾條","qty":1}],[{"code":"006307","name":"量販背板+飾條","qty":1}]],"國際精品食品":[[],[{"code":"347188","name":"酒品專區側招","qty":1}]],"國際精品綜合":[[{"code":"347188","name":"酒品專區側招","qty":1},{"code":"730876","name":"雪肌粹陳列","qty":1},{"code":"","name":"義大利膠囊陳列盒","qty":1},{"code":"","name":"法國香水陳列盒","qty":1}]],"用品5台版":[[{"code":"324333","name":"美麗日記","qty":1},{"code":"376808","name":"隱眼陳列盒","qty":1},{"code":"360551","name":"彩妝保養好務","qty":1},{"code":"361231","name":"生活小物","qty":1}],[{"code":"361205","name":"秋冬三護","qty":1}],[{"code":"326783","name":"醫材小物","qty":1},{"code":"325461","name":"衛生套","qty":1},{"code":"464107","name":"GATSBY陳列","qty":1}],[{"code":"325472","name":"5L以上寵物陳列盒","qty":1}],[{"code":"494038","name":"文具架","qty":1},{"code":"722900","name":"辦公文具壓克力架","qty":1},{"code":"344963","name":"DUSKIN陳列盒","qty":1}]],"用品6台版":[[{"code":"324333","name":"美麗日記","qty":1},{"code":"","name":"(大智通)香水陳列盒","qty":1},{"code":"360551","name":"隨身彩妝","qty":1}],[{"code":"361205","name":"秋冬三護","qty":1}],[{"code":"376808","name":"隱眼陳列盒","qty":1},{"code":"361231","name":"美妝小物","qty":1}],[{"code":"326783","name":"醫材小物","qty":1},{"code":"325461","name":"衛生套","qty":1},{"code":"464107","name":"GATSBY陳列","qty":1}],[{"code":"","name":"BEAMS陳列盒","qty":1},{"code":"344963","name":"DUSKIN陳列","qty":1}],[{"code":"325472","name":"5L以上寵物陳列盒","qty":1},{"code":"494038","name":"文具架","qty":1},{"code":"722900","name":"辦公文具壓克力架","qty":1}]],"寵物生活專區":[[{"code":"346304","name":"寵物專區頭卡","qty":1},{"code":"346312","name":"寵物專區天吊","qty":1},{"code":"346321","name":"寵物形象飾條","qty":1}]],"健美機能":[[{"code":"321855","name":"利捷維","qty":1},{"code":"362029","name":"我的健康日記","qty":1},{"code":"832669","name":"味覺糖","qty":1},{"code":"","name":"大智通DHC陳列盒","qty":1},{"code":"326356","name":"保健補給","qty":1},{"code":"333799","name":"美麗對策","qty":1}]],"烈酒單台":[[{"code":"","name":"三層烈酒陳列架","qty":1}]],"烈酒":[[{"code":"","name":"三層烈酒陳列架","qty":1}],[{"code":"","name":"三層烈酒陳列架","qty":1}]],"專案":[[]],"不冰水":[[{"code":"597282","name":"不冰飲料飾條","qty":1},{"code":"307574","name":"不冰背板","qty":1}]],"區域商品":[[{"code":"","name":"名特產背板(根據尺寸訂)","qty":1}]],"天素地蔬":[[]],"天素地蔬兩台":[[]],"冷凍":[[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}],[{"code":"637721","name":"冷凍陳列盒(2入/組)","qty":1}]]};const names=["麵食", "糖果", "零食", "食材調味", "饗喫鍋", "量販", "國際精品食品", "國際精品綜合", "冷凍", "烈酒", "用品", "寵物生活專區", "健美機能", "專案", "不冰水", "區域商品", "天素地蔬"];const inputs={};let output=[];
 const fields=document.getElementById('fields');names.forEach(name=>{let div=document.createElement('div');div.className='field';let label=document.createElement('label');label.textContent=name+(name==='冷凍'?'（門）':'（台）');let input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.value='0';input.setAttribute('aria-label',name+'數量');input.addEventListener('input',calc);inputs[name]=input;div.append(label,input);fields.append(div)});
-function getSeries(name,n){if(name==='用品')return n===5?DATA['用品5台版']:DATA['用品6台版'];if(name==='烈酒'&&n===1)return DATA['烈酒單台'];return DATA[name]}
+function getSeries(name,n){if(name==='用品')return n===5?DATA['用品5台版']:DATA['用品6台版'];if(name==='天素地蔬'&&n===2)return DATA['天素地蔬兩台'];if(name==='烈酒'&&n===1)return DATA['烈酒單台'];return DATA[name]}
 function sourceName(name,i,n){if(name==='冷凍')return (i+1)+'門冷凍';if(name==='用品')return '用品'+(i+1)+(n===5?'（5台版）':'（6台版）');if(name==='烈酒')return n===1?'烈酒':'烈酒'+(i+1);if(name==='量販')return '量販'+(i===0?'':i+1);if(name==='國際精品食品')return '國際食品'+(i===0?'':i+1);if(name==='國際精品綜合')return '國際綜合';if(['食材調味','饗喫鍋','寵物生活專區','健美機能'].includes(name))return name;return name+(i+1)}
 let popRows=[];
-function renderPOP(){let totals=new Map();for(const name of names){const n=Math.max(0,Math.min(9999,Math.floor(Number(inputs[name].value)||0)));if(!n)continue;const source=name==='用品'?(n===5?'用品5台版':'用品6台版'):(name==='烈酒'&&n===1?'烈酒單台':name);const arr=POP[source]||[];for(let i=0;i<n;i++){for(const item of (arr[Math.min(i,arr.length-1)]||[])){const key=(item.code||'')+'|'+item.name;const old=totals.get(key)||{...item,qty:0,from:new Set()};old.qty+=item.qty;old.from.add(name);totals.set(key,old)}}}for(const item of totals.values()){if(item.code==='637721'){const frozenNeed=Math.max(0,Math.min(9999,Math.floor(Number(inputs['冷凍'].value)||0)));const series=DATA['冷凍'];let pieces=0;for(let i=0;i<frozenNeed;i++)pieces+=series[Math.min(i,series.length-1)].box||0;item.qty=Math.ceil(pieces/2);}}popRows=[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,'zh-Hant'));const el=document.getElementById('poplist');el.replaceChildren();if(!popRows.length){el.innerHTML='<tr><td colspan="4" class="empty">尚未輸入台數</td></tr>';return}for(const p of popRows){const tr=document.createElement('tr');for(const value of [p.code||'—',p.name,p.qty,[...p.from].join('、')]){const td=document.createElement('td');td.textContent=value;tr.append(td)}el.append(tr)}}
+function renderPOP(){let totals=new Map();for(const name of names){const n=Math.max(0,Math.min(9999,Math.floor(Number(inputs[name].value)||0)));if(!n)continue;const source=name==='用品'?(n===5?'用品5台版':'用品6台版'):(name==='烈酒'&&n===1?'烈酒單台':(name==='天素地蔬'&&n===2?'天素地蔬兩台':name));const arr=POP[source]||[];for(let i=0;i<(name==='天素地蔬'&&n===2?1:n);i++){for(const item of (arr[Math.min(i,arr.length-1)]||[])){const key=(item.code||'')+'|'+item.name;const old=totals.get(key)||{...item,qty:0,from:new Set()};old.qty+=item.qty;old.from.add(name);totals.set(key,old)}}}for(const item of totals.values()){if(item.code==='637721'){const frozenNeed=Math.max(0,Math.min(9999,Math.floor(Number(inputs['冷凍'].value)||0)));const series=DATA['冷凍'];let pieces=0;for(let i=0;i<frozenNeed;i++)pieces+=series[Math.min(i,series.length-1)].box||0;item.qty=Math.ceil(pieces/2);}}popRows=[...totals.values()].sort((a,b)=>a.name.localeCompare(b.name,'zh-Hant'));const el=document.getElementById('poplist');el.replaceChildren();if(!popRows.length){el.innerHTML='<tr><td colspan="4" class="empty">尚未輸入台數</td></tr>';return}for(const p of popRows){const tr=document.createElement('tr');for(const value of [p.code||'—',p.name,p.qty,[...p.from].join('、')]){const td=document.createElement('td');td.textContent=value;tr.append(td)}el.append(tr)}}
 function exportPOP(){const lines=[['品號','品名','數量','來源'],...popRows.map(p=>[p.code,p.name,p.qty,[...p.from].join('、')])];const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='POP及專用陳列盒需求.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function calc(){const keys=['t','l','r','box','frozenBox','bottom','hook'];let totals=Object.fromEntries(keys.map(k=>[k,0])),counts=0;output=[];const body=document.getElementById('detail');body.replaceChildren();for(const name of names){let n=Math.max(0,Math.floor(Number(inputs[name].value)||0));n=Math.min(n,9999);if(!n)continue;counts+=n;let arr=getSeries(name,n),sum=Object.fromEntries(keys.map(k=>[k,0])),sources=[];for(let i=0;i<n;i++){let idx=Math.min(i,arr.length-1);keys.forEach(k=>sum[k]+= k==='frozenBox' ? (name==='冷凍' ? (arr[idx].box||0) : 0) : (k==='box' && name==='冷凍' ? 0 : (arr[idx][k]||0)));sources.push(sourceName(name,idx,n))}keys.forEach(k=>totals[k]+=sum[k]);let src=sources.length<=12?sources.join(' + '):sources.slice(0,8).join(' + ')+' … 共 '+n+(name==='冷凍'?' 門':' 台');output.push([name,n,src,...keys.map(k=>sum[k])]);let tr=document.createElement('tr');for(const x of [name,n,...keys.map(k=>sum[k])]){let td=document.createElement('td');td.textContent=x;tr.append(td)}body.append(tr)}keys.forEach(k=>{document.getElementById(k).textContent=totals[k].toLocaleString();document.getElementById('f'+k).textContent=totals[k].toLocaleString()});document.getElementById('count').textContent=counts;renderPOP()}
+function calc(){const keys=['t','l','r','box','frozenBox','bottom','hook'];let totals=Object.fromEntries(keys.map(k=>[k,0])),counts=0;output=[];const body=document.getElementById('detail');body.replaceChildren();for(const name of names){let n=Math.max(0,Math.floor(Number(inputs[name].value)||0));n=Math.min(n,9999);if(!n)continue;counts+=n;let arr=getSeries(name,n),sum=Object.fromEntries(keys.map(k=>[k,0])),sources=[];for(let i=0;i<(name==='天素地蔬'&&n===2?1:n);i++){let idx=Math.min(i,arr.length-1);keys.forEach(k=>sum[k]+= k==='frozenBox' ? (name==='冷凍' ? (arr[idx].box||0) : 0) : (k==='box' && name==='冷凍' ? 0 : (arr[idx][k]||0)));sources.push(sourceName(name,idx,n))}keys.forEach(k=>totals[k]+=sum[k]);let src=sources.length<=12?sources.join(' + '):sources.slice(0,8).join(' + ')+' … 共 '+n+(name==='冷凍'?' 門':' 台');output.push([name,n,src,...keys.map(k=>sum[k])]);let tr=document.createElement('tr');for(const x of [name,n,...keys.map(k=>sum[k])]){let td=document.createElement('td');td.textContent=x;tr.append(td)}body.append(tr)}keys.forEach(k=>{document.getElementById(k).textContent=totals[k].toLocaleString();document.getElementById('f'+k).textContent=totals[k].toLocaleString()});document.getElementById('count').textContent=counts;renderPOP()}
 function resetAll(){names.forEach(n=>inputs[n].value=0);calc()}
 function toggleSection(btn){const el=document.getElementById(btn.dataset.target);const expanded=btn.getAttribute('aria-expanded')==='true';el.hidden=expanded;btn.setAttribute('aria-expanded',String(!expanded));btn.innerHTML='<span class="arrow">▾</span> '+(expanded?'展開':'收合')}
 function exportCSV(){const keys=['t','l','r','box','frozenBox','bottom','hook'];const totals=keys.map(k=>output.reduce((acc,row)=>acc+(Number(row[3+keys.indexOf(k)])||0),0));const count=output.reduce((acc,row)=>acc+(Number(row[1])||0),0);const lines=[['品類','台數或門數','T型隔板','左隔板','右隔板','一般陳列盒','冷凍陳列盒','糖果陳列架','掛勾'],...output.map(row=>[row[0],row[1],...row.slice(3)]),['合計',count,...totals]];const csv='\ufeff'+lines.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='門市隔板計算明細.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
@@ -79,31 +32,59 @@ const aliases=[
  ['食材調味',/(?:食材調味料|食材調味|調味食材|食調)/g],
  ['健美機能',/(?:健美機能|健美)/g],['饗喫鍋',/(?:饗喫鍋|饗吃鍋)/g],
  ['麵食',/麵食/g],['糖果',/糖果/g],['零食',/零食/g],['量販',/量販/g],
- ['冷凍',/冷凍/g],['烈酒',/(?:超值酒藏|烈酒)/g],['用品',/用品/g]
+ ['冷凍',/冷凍/g],['專案',/專案/g],['不冰水',/不冰水/g],['天素地蔬',/天素地蔬/g],['烈酒',/(?:超值酒藏|烈酒)/g],['用品',/用品/g]
 ];
-const extraAliases=[['區域商品',/(?:區域商品|區域)/g],['3C吊掛',/(?:3C吊掛|3C吊)/g]];
+const extraAliases=[['3C吊掛',/(?:3C吊掛|3C吊)/g]];
 
 let selectedFile=null;const status=document.getElementById('ocrStatus');const scan=document.getElementById('scanBtn');
 document.getElementById('layoutFile').addEventListener('change',e=>{selectedFile=e.target.files[0]||null;const img=document.getElementById('layoutPreview');if(img.dataset.url)URL.revokeObjectURL(img.dataset.url);if(selectedFile){if(selectedFile.type==='application/pdf'||selectedFile.name.toLowerCase().endsWith('.pdf')){img.hidden=true}else{img.dataset.url=URL.createObjectURL(selectedFile);img.src=img.dataset.url;img.hidden=false}status.textContent='已選擇 '+selectedFile.name+'，按「開始辨識 Layout」'}else{img.hidden=true;status.textContent='尚未選擇圖片'}});
-function parseLayout(text){
- const result={};
- // Count unique shelf numbers; exclude hanging-only racks, shelf layer descriptions and freezer equipment captions.
- const lines=text.replace(/國際精品\s*\(食品\)/g,'國際精品食品').replace(/國際精品\s*\(綜合\)/g,'國際精品綜合').split(/\n/);
- for(const [name,re] of [...aliases,...extraAliases]){
-  const ids=new Set();let bare=0;
-  for(const line of lines){
-   let clean=line.replace(/210\s*[-－]\s*4\s*門冷凍/g,'').replace(/饗喫鍋\s*\d+\s*層/g,'').replace(/零食吊\s*\d+/g,'');
-   let m;const rx=new RegExp(re.source,'g');
-   while((m=rx.exec(clean))!==null){
-    let tail=clean.slice(m.index+m[0].length).match(/^\s*[-－_#：:]?\s*(\d{1,2})(?!\d)/);
-    let n=tail?Number(tail[1]):null;
-    if(name==='烈酒' && m[0].includes('超值酒藏')){bare=1;continue;}
-    if(n&&n<=99)ids.add(n);else if(name==='饗喫鍋'&&/饗喫鍋/.test(clean))bare=1;
-    else if(name!=='冷凍')bare=1;
-   }
+function parseLayout(text, positioned=[]){
+ const result=Object.fromEntries(names.map(n=>[n,0]));
+ const ids=Object.fromEntries(names.map(n=>[n,new Set()]));
+ const bare=new Set();
+ // Some CAD exports split vertical labels into separate text fragments.
+ // Match shelf numbers, not keyword occurrences; ignore equipment and shelf-layer captions.
+ const cleaned=text.replace(/(?:210|225|180)\s*[-+＋]\s*\d+\s*門(?:冷凍)?/g,' ')
+   .replace(/(?:冷凍|天素地蔬|饗喫鍋)\s*\d+\s*層/g,' ')
+   .replace(/零食吊\s*\d+/g,' ')
+   .replace(/天素地蔬\s*\d+\s*台/g,' ')
+   .replace(/(?:天素地蔬|饗喫鍋)\s*\d+\s*層/g,' ');
+ const rules=[
+  ['國際精品食品',/(?:國際精品\s*[(（]?食品[)）]?|國際食品)\s*(\d{1,2})/g],
+  ['國際精品綜合',/(?:國際精品\s*[(（]?綜合[)）]?|國際綜合)\s*(\d{1,2})/g],
+  ['寵物生活專區',/(?:寵物生活專區|寵物生活|寵物專區)\s*(\d{1,2})/g],
+  ['食材調味',/(?:食材調味|食調)\s*(\d{1,2})/g],
+  ['健美機能',/(?:健美機能|健美)\s*(\d{1,2})/g],
+  ['饗喫鍋',/饗[喫吃]鍋\s*(\d{1,2})(?!\s*層)/g],
+  ['麵食',/麵食\s*(\d{1,2})/g],['糖果',/糖果\s*(\d{1,2})/g],
+  ['零食',/零食\s*(\d{1,2})(?!\s*吊)/g],['量販',/量販\s*(\d{1,2})/g],
+  ['冷凍',/冷凍\s*(\d{1,2})(?!\s*層)/g],['專案',/專案\s*(\d{1,2})/g],
+  ['不冰水',/不冰水\s*(\d{1,2})/g],['區域商品',/(?:區域商品|區域)\s*(\d{1,2})/g],
+  ['天素地蔬',/天素地蔬\s*(\d{1,2})(?!\s*(?:台|層))/g],
+  ['烈酒',/烈酒\s*(\d{1,2})/g],['用品',/用品\s*(\d{1,2})/g]
+ ];
+ for(const [name,re] of rules){for(const m of cleaned.matchAll(re)){const n=Number(m[1]);if(n>0&&n<=99)ids[name].add(n)}}
+ // Match separately drawn vertical 國際精品 and (食品)1 / (綜合)1 by spatial proximity.
+ for(const page of positioned){
+  const labels=page.filter(x=>/國際精品/.test(x.str));
+  for(const x of page){const m=x.str.match(/[（(]\s*(食品|綜合)\s*[）)]\s*(\d{1,2})/);
+   if(!m)continue;
+   const near=labels.some(y=>Math.abs(x.x-y.x)<45&&Math.abs(x.y-y.y)<55);
+   if(near)ids[m[1]==='食品'?'國際精品食品':'國際精品綜合'].add(Number(m[2]));
   }
-  result[name]=name==='烈酒' ? (ids.size + (bare?1:0)) : (ids.size?Math.max(...ids):bare);
  }
+ // OCR fallback for adjacent labels that were split by line breaks.
+ const loose=text.match(/國際精品[\s\S]{0,35}?[（(]\s*(食品|綜合)\s*[）)]\s*(\d{1,2})/g)||[];
+ for(const str of loose){const m=str.match(/[（(]\s*(食品|綜合)\s*[）)]\s*(\d{1,2})/);if(m)ids[m[1]==='食品'?'國際精品食品':'國際精品綜合'].add(Number(m[2]))}
+ // 「專案」與「時尚文具」為不同貨架，不能互相代入編號。
+ // 專案無編號時算一台；時尚文具不計入專案架。
+ if(/專案(?:架)?/.test(cleaned)&&!ids['專案'].size)bare.add('專案');
+ if(/超值酒藏\s*\d+/.test(text))bare.add('烈酒');
+ if(/饗[喫吃]鍋(?!\s*\d+\s*層)/.test(cleaned)&&!ids['饗喫鍋'].size)bare.add('饗喫鍋');
+ for(const name of names)result[name]=ids[name].size?Math.max(...ids[name]):0;
+ result['烈酒']+=bare.has('烈酒')?1:0;
+ if(!result['專案']&&bare.has('專案'))result['專案']=1;
+ if(!result['饗喫鍋']&&bare.has('饗喫鍋'))result['饗喫鍋']=1;
  return result;
 }
 async function extractPdfText(file){
@@ -111,66 +92,17 @@ async function extractPdfText(file){
  const mod=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
  mod.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
  const pdf=await mod.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
- const pages=[];
+ const pages=[], positioned=[];
  for(let i=1;i<=pdf.numPages;i++){
   status.textContent='讀取 PDF 第 '+i+' / '+pdf.numPages+' 頁…';
-  const page=await pdf.getPage(i);const content=await page.getTextContent();
-  // Separate positioned text fragments, retaining each individual label.
-  pages.push(content.items.map(x=>x.str).join('\n'));
+  const page=await pdf.getPage(i),content=await page.getTextContent();
+  const items=content.items.filter(x=>x.str&&x.str.trim()).map(x=>({str:x.str.trim(),x:x.transform[4],y:x.transform[5]}));
+  positioned.push(items);pages.push(items.map(x=>x.str).join('\n'));
  }
- return pages.join('\n');
+ return {text:pages.join('\n'),positioned};
 }
-function fillOcr(text){let counts=parseLayout(text);let total=Object.values(counts).reduce((a,b)=>a+b,0);names.forEach(name=>inputs[name].value=counts[name]||0);calc();status.textContent='辨識完成，已自動套用 '+total+' 台／門。可在下方修正台數。'}
+function fillOcr(text, positioned=[]){let counts=parseLayout(text,positioned);let total=Object.values(counts).reduce((a,b)=>a+b,0);names.forEach(name=>inputs[name].value=counts[name]||0);calc();status.textContent='辨識完成，已自動套用 '+total+' 台／門。可在下方修正台數。'}
 function loadTesseract(){return new Promise((resolve,reject)=>{if(window.Tesseract)return resolve();let sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=resolve;sc.onerror=()=>reject(new Error('無法載入辨識引擎，請確認網路連線'));document.head.append(sc)})}
-scan.addEventListener('click',async()=>{if(!selectedFile){status.textContent='請先選擇 Layout 圖片';return}scan.disabled=true;try{status.textContent='正在載入文字辨識引擎…';if(selectedFile.type==='application/pdf'||selectedFile.name.toLowerCase().endsWith('.pdf')){let t=await extractPdfText(selectedFile);fillOcr(t);if(!t.trim())status.textContent='這份 PDF 沒有可讀文字，請改用清晰圖片或手動輸入';return}await loadTesseract();status.textContent='正在辨識圖片文字，可能需要一些時間…';let worker=await Tesseract.createWorker('chi_tra+eng',1,{logger:m=>{if(m.status==='recognizing text')status.textContent='辨識中 '+Math.round((m.progress||0)*100)+'%'}});try{let res=await worker.recognize(selectedFile);let t=res.data.text||'';fillOcr(t);if(!t.trim())status.textContent='沒有辨識到文字，建議改用較清晰的圖片'}finally{await worker.terminate()}}catch(err){status.textContent='辨識失敗：'+err.message+'。可以手動輸入下方台數計算。'}finally{scan.disabled=false}});
+scan.addEventListener('click',async()=>{if(!selectedFile){status.textContent='請先選擇 Layout 圖片';return}scan.disabled=true;try{status.textContent='正在載入文字辨識引擎…';if(selectedFile.type==='application/pdf'||selectedFile.name.toLowerCase().endsWith('.pdf')){let parsed=await extractPdfText(selectedFile);fillOcr(parsed.text,parsed.positioned);if(!parsed.text.trim())status.textContent='這份 PDF 沒有可讀文字，請改用清晰圖片或手動輸入';return}await loadTesseract();status.textContent='正在辨識圖片文字，可能需要一些時間…';let worker=await Tesseract.createWorker('chi_tra+eng',1,{logger:m=>{if(m.status==='recognizing text')status.textContent='辨識中 '+Math.round((m.progress||0)*100)+'%'}});try{let res=await worker.recognize(selectedFile);let t=res.data.text||'';fillOcr(t);if(!t.trim())status.textContent='沒有辨識到文字，建議改用較清晰的圖片'}finally{await worker.terminate()}}catch(err){status.textContent='辨識失敗：'+err.message+'。可以手動輸入下方台數計算。'}finally{scan.disabled=false}});
 
-calc();</script><script>
-(function(){
- if(window.parent===window)return;
- function reportSize(){const main=document.querySelector('main.wrap');if(!main)return;const last=main.querySelector('section.panel:last-of-type')||main.lastElementChild;const mainRect=main.getBoundingClientRect();const lastRect=last.getBoundingClientRect();const h=Math.ceil(lastRect.bottom-mainRect.top+12);window.parent.postMessage({type:'ST_LAYOUT_HEIGHT',height:h},location.origin)}
- window.addEventListener('load',reportSize);window.addEventListener('resize',reportSize);
- if('ResizeObserver' in window)new ResizeObserver(reportSize).observe(document.querySelector('main'));
- setTimeout(reportSize,200);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportSize);
-})();
-</script>
-<script>
-/* Transfer vertical touch movement from embedded calculator to ST's page.
-   Keep normal taps/inputs and sideways scrolling within wide result tables. */
-(function(){
- if(window.parent===window || !new URLSearchParams(location.search).has('embed'))return;
- const mobile=()=>window.matchMedia('(max-width: 700px)').matches;
- let lastY=0,lastX=0,mode='',momentumId=0,lastTime=0,velocity=0;
- function stopMomentum(){if(momentumId)cancelAnimationFrame(momentumId);momentumId=0;}
- function send(delta){if(delta)window.parent.postMessage({type:'ST_LAYOUT_SCROLL',delta},location.origin)}
- document.addEventListener('touchstart',e=>{
-   if(!mobile()||e.touches.length!==1)return;
-   stopMomentum();const t=e.touches[0];lastY=t.clientY;lastX=t.clientX;lastTime=performance.now();velocity=0;mode='';
- },{passive:true});
- document.addEventListener('touchmove',e=>{
-   if(!mobile()||e.touches.length!==1)return;
-   const t=e.touches[0],dx=t.clientX-lastX,dy=t.clientY-lastY;
-   if(!mode && (Math.abs(dx)>3||Math.abs(dy)>3)){
-     // Horizontal swipe within tables remains a native horizontal scroll.
-     const horizontalTable=e.target.closest('.scroll,.ocrgrid');
-     mode=(horizontalTable&&Math.abs(dx)>Math.abs(dy)*1.1)?'horizontal':'vertical';
-   }
-   if(mode==='vertical'){
-     if(e.cancelable)e.preventDefault();
-     const now=performance.now(),dt=Math.max(1,now-lastTime);
-     velocity=.7*velocity+.3*(-dy/dt);
-     send(-dy);
-     lastTime=now;
-   }
-   lastX=t.clientX;lastY=t.clientY;
- },{passive:false});
- document.addEventListener('touchend',()=>{
-   if(!mobile()||mode!=='vertical')return;
-   let v=velocity*16;
-   const tick=()=>{v*=.9;if(Math.abs(v)<.35){momentumId=0;return}send(v);momentumId=requestAnimationFrame(tick)};
-   if(Math.abs(v)>1.5)momentumId=requestAnimationFrame(tick);
-   mode='';
- },{passive:true});
- document.addEventListener('touchcancel',()=>{mode='';stopMomentum()},{passive:true});
-})();
-</script>
-</body></html>
+calc();</script></body></html>
