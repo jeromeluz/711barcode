@@ -6,79 +6,12 @@
     <meta property="og:title" content="7-11商品快速查詢系統">
   <meta property="og:description" content="7-11快速查詢品號與PMA類別，省力化好幫手！">
   <style>
-    :root {
-      --primary: #0056b3;
-      --bg: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-main: #212529;
-      --text-muted: #6c757d;
-      --border: #dee2e6;
-      --highlight: #ffeeba;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    body { background-color: var(--bg); color: var(--text-main); padding: 12px; display: flex; justify-content: center; user-select: none; }
-    .container { width: 100%; max-width: 760px; background: var(--card-bg); border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 16px; display: flex; flex-direction: column; max-height: 96vh;}
-    
-/* 頂部 Header 排版優化：上下兩排對齊，防重疊 */
-    header { border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-    .header-top, .header-bottom { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    .main-title { font-size: 20px; color: #111; white-space: nowrap; font-weight: 900; margin: 0; }
-    .result-count { font-size: 16px; color: var(--text-muted); font-weight: 800; white-space: nowrap; margin: 0; }
-    .notice-text { font-size: 12px; color: #dc3545; font-weight: 600; white-space: nowrap; margin: 0; }
-    .update-date { font-size: 11px; color: #888; white-space: nowrap; margin: 0; font-weight: bold; }
-    
-    /* 螢幕較小時，微調字體避免超出邊界 */
-    @media (max-width: 580px) {
-      header { padding-bottom: 8px; gap: 6px; }
-      .main-title { font-size: 16px; }
-      .result-count { font-size: 14px; }
-      .notice-text { font-size: 10px; }
-      .update-date { font-size: 10px; }
-    }
-
-    .search-panel { margin-bottom: 12px; flex-shrink: 0;}
-    .search-input { width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid #ced4da; border-radius: 8px; outline: none; transition: 0.2s; }
-    .search-input:focus { border-color: var(--primary); }
-    
-    .filter-bar { margin-top: 10px; min-height: 32px; width: 100%; }
-    .pma-tags { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; cursor: grab; }
-    .pma-tags::-webkit-scrollbar { display: none; }
-    .pma-tags:active { cursor: grabbing; }
-    
-    .filter-tag { background: #e8f4fd; color: #0056b3; padding: 5px 14px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.15s; border: 1px solid transparent; flex-shrink: 0;}
-    .filter-tag.active { background: #0056b3; color: #ffffff; border-color: #0056b3; box-shadow: 0 2px 4px rgba(0,86,179,0.3); }
-    
-    .filter-tag.new-tag { background: #ffff00; color: #ff0000; border-color: #f1c40f; }
-    .filter-tag.new-tag.active { background: #ff0000; color: #ffff00; border-color: #ff0000; box-shadow: 0 2px 4px rgba(255,0,0,0.3); }
-
-    .result-list { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; -webkit-overflow-scrolling: touch; }
-    .item-row { padding: 12px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background-color 0.15s; }
-    .item-row:last-child { border-bottom: none; }
-    .item-row:active { background-color: #f8f9fa; }
-    
-    .copy-flash { background-color: #d4edda !important; transition: background-color 0.1s !important; }
-
-    .item-code { font-family: monospace; font-size: 18px; font-weight: 800; color: #d63384; flex-shrink: 0; pointer-events: none;}
-    .item-name { font-size: 15px; font-weight: bold; color: var(--text-main); flex-grow: 1; line-height: 1.3; pointer-events: none;}
-    
-    .item-pma { background: #e8f4fd; color: #0066cc; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; flex-shrink: 0; white-space: nowrap; display: flex; align-items: center; pointer-events: none;}
-    .new-badge { background: #ffff00; color: #ff0000; padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 11px; margin-right: 6px; line-height: 1; }
-
-    .highlight { background-color: var(--highlight); font-weight: bold; padding: 0 2px; border-radius: 2px; color: #000; }
-    .state-box { text-align: center; padding: 30px 16px; color: var(--text-muted); font-size: 14px; }
-    
-    .toast-container {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background-color: rgba(33, 37, 41, 0.95); color: #ffffff; padding: 12px 24px;
-      border-radius: 30px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
-      pointer-events: none; white-space: nowrap; text-align: center;
-    }
-    .toast-container.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-  </style>
+:root{--green:#087b48;--orange:#f58220;--red:#e43d3c;--bg:#f5f7f5;--ink:#1c3028;--muted:#718077;--line:#e5ece7}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;padding:20px 12px;user-select:none}.container{max-width:880px;margin:auto;background:white;border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 45px #123a2310;overflow:hidden;display:flex;flex-direction:column;height:calc(100dvh - 40px);min-height:480px}.brand-stripe{height:8px;flex-shrink:0;background:linear-gradient(90deg,var(--green) 0 45%,var(--orange) 45% 76%,var(--red) 76%)}header{padding:22px 25px 12px;flex-shrink:0}.header-top,.header-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.header-bottom{margin-top:10px;flex-wrap:wrap}.main-title{font-size:25px;letter-spacing:-.7px;font-weight:850;margin:0}.main-title:before{content:'7';display:inline-grid;place-items:center;background:var(--green);color:white;width:38px;height:38px;border-radius:12px;margin-right:12px;font-size:24px;box-shadow:inset -5px -5px 0 #f58220}.result-count{font-size:13px;font-weight:800;color:var(--green);background:#eaf6ef;padding:8px 12px;border-radius:99px;white-space:nowrap}.notice-text{font-size:11px;color:#b74c42;font-weight:650}.update-date{font-size:11px;color:var(--muted)}.search-panel{padding:12px 25px 17px;flex-shrink:0}.search-input{width:100%;font-size:16px;padding:16px 18px;border:1.5px solid #dce7df;border-radius:14px;outline:0;background:#f9fbf9;color:var(--ink);transition:.2s}.search-input:focus{border-color:var(--green);background:white;box-shadow:0 0 0 4px #087b4812}.filter-bar{margin-top:16px}.pma-tags{display:flex;gap:8px;overflow-x:auto;padding:2px 0 7px;scrollbar-width:none;cursor:grab}.pma-tags::-webkit-scrollbar{display:none}.filter-tag{flex-shrink:0;white-space:nowrap;border-radius:10px;padding:9px 13px;font-size:12px;font-weight:750;background:#f2f5f2;color:#607168;border:1px solid #e8ede8;cursor:pointer}.filter-tag.active{background:var(--green);border-color:var(--green);color:white}.filter-tag.new-tag{background:#fff1e5;color:#c66b18;border-color:#ffe2c6}.filter-tag.new-tag.active{background:var(--orange);color:white;border-color:var(--orange)}.list-caption{padding:11px 25px;background:#f7faf8;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:#708177;font-size:12px;font-weight:650;flex-shrink:0}.result-list{overflow-y:auto;flex:1;overscroll-behavior:contain}.item-row{display:flex;align-items:center;gap:14px;padding:16px 25px;border-bottom:1px solid #edf1ee;cursor:pointer;transition:background .15s;min-height:77px}.item-row:hover{background:#f7fbf8}.item-row:active,.copy-flash{background:#eaf7ee!important}.item-code{font-size:17px;font-weight:850;letter-spacing:.3px;color:var(--green);font-variant-numeric:tabular-nums;flex-shrink:0}.item-name{flex:1;font-size:14px;line-height:1.5;font-weight:650;min-width:0;overflow-wrap:anywhere}.item-row>div:last-child{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}.item-pma{background:#f0f4f1;border-radius:7px;padding:5px 8px;color:#65786b;font-size:11px;font-weight:650;white-space:nowrap}.new-badge{background:#fff0e5;color:#e27418;border-radius:6px;font-size:10px;padding:4px 6px;font-weight:850}.highlight{background:#ffedbb;border-radius:3px}.state-box{text-align:center;padding:50px 12px;color:var(--muted)}.toast-container{position:fixed;z-index:100;bottom:24px;left:50%;transform:translate(-50%,15px);background:#183e2c;color:white;padding:12px 20px;border-radius:99px;opacity:0;visibility:hidden;transition:.2s;white-space:nowrap;font-size:13px;max-width:95vw;overflow:hidden;text-overflow:ellipsis}.toast-container.show{opacity:1;visibility:visible;transform:translate(-50%,0)}.modal-backdrop{position:fixed;inset:0;z-index:50;background:#132c20a8;display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(5px)}.modal-backdrop.open{display:flex}.product-modal{width:min(100%,440px);background:white;border-radius:23px;overflow:hidden;box-shadow:0 20px 70px #0003}.modal-stripe{height:7px;background:linear-gradient(90deg,var(--green) 0 45%,var(--orange) 45% 76%,var(--red) 76%)}.modal-content{padding:25px}.modal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--green);font-size:13px;font-weight:850}.close-btn{border:0;background:#f0f4f1;width:34px;height:34px;border-radius:50%;font-size:22px;cursor:pointer;color:#506557}.modal-name{font-size:22px;line-height:1.4;margin:20px 0 8px;font-weight:850;overflow-wrap:anywhere}.modal-pma{color:#7b8980;font-size:13px}.barcode-panel{margin:22px 0 15px;padding:23px 12px 15px;border:1px solid var(--line);border-radius:15px;text-align:center;background:white}.barcode-panel svg{max-width:100%;height:auto}.barcode-number{font-size:21px;font-weight:850;letter-spacing:2px;color:var(--ink);margin-top:7px}.barcode-note{font-size:12px;line-height:1.7;color:#7d8981;margin-bottom:18px}.modal-actions{display:flex;gap:9px}.action-btn{border:0;border-radius:11px;padding:13px 10px;flex:1;font-size:14px;font-weight:800;cursor:pointer;background:#edf5ef;color:var(--green)}.action-btn.primary{background:var(--green);color:white}@media(max-width:600px){body{padding:0}.container{height:100dvh;min-height:0;border-radius:0;border:0}.main-title{font-size:19px}.main-title:before{width:32px;height:32px;font-size:20px;margin-right:8px}header{padding:18px 16px 8px}.search-panel{padding:10px 16px 13px}.item-row{padding:13px 15px;gap:10px}.item-code{font-size:15px}.item-name{font-size:13px}.item-pma{font-size:10px}.list-caption{padding:10px 16px}.notice-text,.update-date{font-size:10px}.result-count{font-size:11px;padding:7px 9px}}
+</style>
 </head>
 <body>
 <div class="container">
+<div class="brand-stripe"></div>
 <header>
     <div class="header-top">
       <h1 class="main-title">7-11商品快速查詢</h1>
@@ -97,7 +30,8 @@
     </div>
   </div>
   
-  <div class="result-list" id="resultList">
+  <div class="list-caption">商品清單 · 點選查看條碼 · 長按複製商品資訊</div>
+<div class="result-list" id="resultList">
             <div class="item-row" data-code="832952" data-name="日清山頭火辛味噌拉麵-杯">
                 <div class="item-code">832952</div>
                 <div class="item-name">日清山頭火辛味噌拉麵-杯</div>
@@ -371,6 +305,8 @@
 </div>
 <div class="toast-container" id="copyToast">已複製：商品資訊</div>
 
+<div class="modal-backdrop" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalName"><div class="product-modal"><div class="modal-stripe"></div><div class="modal-content"><div class="modal-heading"><span>商品條碼資訊</span><button type="button" class="close-btn" id="closeModal" aria-label="關閉">×</button></div><h2 class="modal-name" id="modalName"></h2><div class="modal-pma" id="modalPma"></div><div class="barcode-panel"><svg id="barcodeSvg" aria-label="商品品號 Code 128 條碼"></svg><div class="barcode-number" id="barcodeNumber"></div></div><div class="barcode-note" id="barcodeNote">此條碼以六碼品號產生 Code 128，是否能由門市 POS 辨識須依 POS 商品主檔與掃描設定實測確認</div><div class="modal-actions"><button class="action-btn" id="copyCodeBtn">複製品號</button><button class="action-btn primary" id="copyInfoBtn">複製商品資訊</button></div></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <!-- 資料庫在底下 -->
 
 <script>
@@ -636,7 +572,8 @@ const newItemsSet = new Set(newItems);
       activeRow = row;
       pressTimer = setTimeout(() => {
           if (!isScrolling && activeRow) {
-              triggerCopy(activeRow);
+              longPressFired = true;
+            triggerCopy(activeRow);
           }
       }, 400); // 0.4 秒長按複製
   }
@@ -666,6 +603,45 @@ const newItemsSet = new Set(newItems);
         renderList();
     }, 300); 
   });
+
+
+  // 點選商品開啟條碼詳情，保留原本長按複製行為
+  const productModal = document.getElementById('productModal');
+  let selectedProduct = null;
+  let longPressFired = false;
+  function openProduct(row) {
+    selectedProduct = {code:row.dataset.code,name:row.dataset.name,pma:row.querySelector('.item-pma')?.textContent || ''};
+    document.getElementById('modalName').textContent = selectedProduct.name;
+    document.getElementById('modalPma').textContent = selectedProduct.pma;
+    document.getElementById('barcodeNumber').textContent = selectedProduct.code;
+    const svg = document.getElementById('barcodeSvg');
+    svg.innerHTML = '';
+    const note = document.getElementById('barcodeNote');
+    if (typeof JsBarcode === 'function') {
+      try {
+        JsBarcode(svg, selectedProduct.code, {format:'CODE128',lineColor:'#111',width:2.5,height:90,displayValue:false,margin:6});
+        note.textContent = 'Code 128 條碼以六碼品號編碼。能否由門市 POS 辨識並對應商品，需以實際 POS 商品主檔測試確認';
+      } catch (e) { note.textContent = '條碼產生失敗，請確認品號格式'; }
+    } else { note.textContent = '條碼函式庫載入失敗，請確認網路連線後重新整理'; }
+    productModal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeProduct(){productModal.classList.remove('open');document.body.style.overflow='';}
+  document.getElementById('closeModal').addEventListener('click',closeProduct);
+  productModal.addEventListener('click',e=>{if(e.target===productModal)closeProduct();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeProduct();});
+  resultListContainer.addEventListener('click',e=>{
+    if(longPressFired){longPressFired=false;return;}
+    const row=e.target.closest('.item-row');if(row)openProduct(row);
+  });
+  async function copySelected(text){
+    try {if(navigator.clipboard && window.isSecureContext)await navigator.clipboard.writeText(text);
+      else {const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
+      toast.textContent='已複製：'+text;toast.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>toast.classList.remove('show'),2000);
+    }catch(e){toast.textContent='複製失敗，請手動複製';toast.classList.add('show');}
+  }
+  document.getElementById('copyCodeBtn').addEventListener('click',()=>selectedProduct&&copySelected(selectedProduct.code));
+  document.getElementById('copyInfoBtn').addEventListener('click',()=>selectedProduct&&copySelected(selectedProduct.code+' '+selectedProduct.name));
 
   // 初始化
   renderTags('');
