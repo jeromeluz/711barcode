@@ -13,3 +13,7 @@
 
 ## 注意
 Firebase 免登入公開讀寫可能被任何人修改資料，建議定期備份。
+
+
+## 盤點 undefined 修正
+修正原本應有數量未設定時，盤點紀錄 `before` 為 undefined 導致 Firebase transaction 失敗的問題。現在會以 `null` 記錄「未設定」，盤點只更新 expected，不修改 remaining。只需覆蓋 `app.js`，無須重匯資料庫。

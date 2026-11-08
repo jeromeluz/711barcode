@@ -77,12 +77,13 @@ function mutate(d,path,p){
   const item=d.items.find(i=>i.name===x.name);if(!item)throw Error('找不到物品 '+x.name);
   if(path==='/api/transactions'&&x.quantity===0)throw Error('取用或歸還數量必須大於零');
   const expected=item.stores[p.store].expected;
-  const before=path==='/api/audit'?expected:item.stores[p.store].remaining;
+  const before=path==='/api/audit'?(expected??null):item.stores[p.store].remaining;
+  if(path==='/api/transactions'&&!validNumber(before))throw Error(`${x.name} 的剩餘數量不正確，請檢查資料庫`);
   if(path==='/api/transactions'&&p.type==='restock'&&validNumber(expected)&&before+x.quantity>expected&&!p.confirmOverLimit)throw Error(`${x.name} 歸還後 ${before+x.quantity} 件，超過應有數量 ${expected} 件，請先確認超量歸還`);
   if(path==='/api/transactions'&&p.type==='take'&&x.quantity>before)throw Error(`${x.name} 剩餘只有 ${before} 個`);
   const after=path==='/api/audit'?x.quantity:p.type==='take'?before-x.quantity:before+x.quantity;
   if(!validNumber(after))throw Error('數量超出範圍');
-  changes.push({item,before,after,quantity:x.quantity});
+  changes.push({item,before:before??null,after,quantity:x.quantity});
  }
  if(path==='/api/audit'&&d.items.some(i=>!seen.has(i.name)))throw Error('盤點項目不完整');
  const overLimitReturns=path==='/api/transactions'&&p.type==='restock'?changes.filter(c=>validNumber(c.item.stores[p.store].expected)&&c.after>c.item.stores[p.store].expected):[];
@@ -90,7 +91,7 @@ function mutate(d,path,p){
  for(const [index,c] of changes.entries()){
   if(type==='audit')c.item.stores[p.store].expected=c.after;
   else c.item.stores[p.store].remaining=c.after;
-  d.history.unshift({id:batchId+'-'+index,batchId,time,type,person:p.person.trim(),store:p.store,item:c.item.name,quantity:c.quantity,before:c.before,after:c.after,overLimit:type==='restock'&&validNumber(c.item.stores[p.store].expected)&&c.after>c.item.stores[p.store].expected});
+  d.history.unshift({id:batchId+'-'+index,batchId,time,type,person:p.person.trim(),store:p.store,item:c.item.name,quantity:c.quantity,before:c.before??null,after:c.after,overLimit:type==='restock'&&validNumber(c.item.stores[p.store].expected)&&c.after>c.item.stores[p.store].expected});
  }
 }
 async function apiFetch(path,options={}){
