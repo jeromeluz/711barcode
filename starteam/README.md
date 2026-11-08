@@ -30,3 +30,10 @@
 
 ## 已設定 Firebase 專案
 此版本已填入 starteam-a1367 的 Web App 設定。請在 Firebase Console 的 Realtime Database → Rules 貼上 database.rules.json 的內容並發布。首次使用時在 Data 頁面匯入 initial-database.json 到資料庫根節點（已有正式資料請勿覆蓋）。然後將本資料夾內檔案上傳 GitHub repository 根目錄並啟用 Pages。
+
+
+## 連線中問題修正
+此版修正 Firebase 不儲存空陣列造成 history / people 缺少時頁面無法渲染的問題。
+若仍有錯誤，畫面狀態列會顯示詳細原因。
+上傳 GitHub 時只需更新 `app.js` 和 `index.html`，**不要重新匯入 initial-database.json**，避免覆蓋正式資料。
+建議使用 Ctrl+Shift+R 強制重新整理或手機無痕視窗測試。

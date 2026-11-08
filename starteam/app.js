@@ -8,7 +8,9 @@ function response(status,payload){return {ok:status>=200&&status<300,status,json
 function validNumber(n){return Number.isSafeInteger(n)&&n>=0}
 function validatePerson(d,p){if(typeof p.person!=='string'||!d.people?.includes(p.person.trim()))throw Error('請從人員清單選擇姓名');if(!d.stores.includes(p.store))throw Error('門市不存在')}
 function mutate(d,path,p){
- if(!d||!Array.isArray(d.items)||!Array.isArray(d.history)||!Array.isArray(d.stores))throw Error('資料庫尚未初始化，請先匯入初始資料');
+ if(!d||!Array.isArray(d.items)||!Array.isArray(d.stores))throw Error('資料庫結構不完整，請檢查 inventory/stores 和 inventory/items');
+ if(!Array.isArray(d.history))d.history=[];
+ if(!Array.isArray(d.people))d.people=[];
  if(path==='/api/personnel'){
   if(!Array.isArray(p.people)||p.people.length>200)throw Error('人員清單格式錯誤');
   const names=p.people.map(x=>typeof x==='string'?x.trim():'');
@@ -74,5 +76,10 @@ function msg(t,ok){$('message').textContent=t;$('message').className='message '+
 unsubscribe=onValue(root,snapshot=>{
  const value=snapshot.val();
  if(!value){$('status').textContent='尚未匯入庫存初始資料';return}
- data=value;draw();
-},err=>{$('status').textContent='讀取失敗，請檢查 Firebase 資料庫規則';console.error(err)});
+ try {
+  if(!Array.isArray(value.stores)||!Array.isArray(value.items))throw Error('資料結構不完整，inventory 需要 stores 和 items 陣列');
+  value.history=Array.isArray(value.history)?value.history:[];
+  value.people=Array.isArray(value.people)?value.people:[];
+  data=value;draw();
+ } catch(e) { $('status').textContent='資料處理失敗：'+e.message;console.error('資料處理失敗',e); }
+},err=>{$('status').textContent='Firebase 讀取失敗：'+(err.code||err.message||'請檢查網路及規則');console.error('Firebase 讀取失敗',err)});
