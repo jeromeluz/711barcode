@@ -26,3 +26,7 @@
 **免登入代表資料庫公開讀寫。任何取得 Firebase 資料庫網址的人，也可能直接修改或刪除資料，並非只能透過網頁操作。姓名紀錄不具備身分驗證能力。** 不建議儲存敏感資料，並請定期到 Firebase Console 匯出 JSON 備份。
 
 若你已經有 Firebase 資料，**不要重新匯入初始 JSON**，只需更新 GitHub 網頁檔與 Firebase 規則。原始 Excel 的御豪銅片應有數量未填，初始資料保留 null。
+
+
+## 已設定 Firebase 專案
+此版本已填入 starteam-a1367 的 Web App 設定。請在 Firebase Console 的 Realtime Database → Rules 貼上 database.rules.json 的內容並發布。首次使用時在 Data 頁面匯入 initial-database.json 到資料庫根節點（已有正式資料請勿覆蓋）。然後將本資料夾內檔案上傳 GitHub repository 根目錄並啟用 Pages。
