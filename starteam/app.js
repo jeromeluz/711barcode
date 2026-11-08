@@ -29,6 +29,37 @@ function mutate(d,path,p){
  repairStoreKeys(d);
  if(!Array.isArray(d.history))d.history=[];
  if(!Array.isArray(d.people))d.people=[];
+ if(path==='/api/stores'){
+  const action=p.action, oldName=typeof p.oldName==='string'?p.oldName.trim():'', newName=typeof p.newName==='string'?p.newName.trim():'';
+  if(!d.stores.includes(oldName))throw Error('門市不存在或已被其他人修改，請重新整理');
+  if(action==='rename'){
+   if(!newName||newName.length>40||newName.includes('/')||newName.includes('\\'))throw Error('門市名稱不正確，請使用 1 至 40 字且不可包含斜線');
+   if(newName===oldName)throw Error('新舊門市名稱相同');
+   if(d.stores.includes(newName)||d.items.some(i=>Object.hasOwn(i.stores,newName)))throw Error('新門市名稱已存在，不能覆蓋');
+   for(const item of d.items){if(!Object.hasOwn(item.stores,oldName))throw Error('部分物品缺少舊門市庫存，已取消更名')}
+   d.stores=d.stores.map(n=>n===oldName?newName:n);
+   for(const item of d.items){item.stores[newName]=item.stores[oldName];delete item.stores[oldName]}
+   for(const h of d.history){if(h.store===oldName)h.store=newName}
+   if(!Array.isArray(d.storeChanges))d.storeChanges=[];
+   d.storeChanges.unshift({action:'rename',oldName,newName,time:new Date().toISOString()});
+   return;
+  }
+  if(action==='delete'){
+   if(d.stores.length<=1)throw Error('至少需要保留一間門市');
+   if(p.confirmName!==oldName||p.confirmPhrase!=='確認永久刪除')throw Error('刪除確認內容不正確');
+   // 先封存門市庫存與完整歷史紀錄，再從使用中的清單移除。
+   if(!d.deletedStores||typeof d.deletedStores!=='object')d.deletedStores={};
+   const archiveId='deleted_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
+   d.deletedStores[archiveId]={name:oldName,deletedAt:new Date().toISOString(),items:d.items.map(i=>({name:i.name,stock:i.stores[oldName]})),history:d.history.filter(h=>h.store===oldName)};
+   d.stores=d.stores.filter(n=>n!==oldName);
+   for(const item of d.items)delete item.stores[oldName];
+   d.history=d.history.filter(h=>h.store!==oldName);
+   if(!Array.isArray(d.storeChanges))d.storeChanges=[];
+   d.storeChanges.unshift({action:'delete',oldName,time:new Date().toISOString(),archiveId});
+   return;
+  }
+  throw Error('未知門市操作');
+ }
  if(path==='/api/personnel'){
   if(!Array.isArray(p.people)||p.people.length>200)throw Error('人員清單格式錯誤');
   const names=p.people.map(x=>typeof x==='string'?x.trim():'');
@@ -46,16 +77,19 @@ function mutate(d,path,p){
   const item=d.items.find(i=>i.name===x.name);if(!item)throw Error('找不到物品 '+x.name);
   if(path==='/api/transactions'&&x.quantity===0)throw Error('取用或歸還數量必須大於零');
   const before=item.stores[p.store].remaining;
+  const expected=item.stores[p.store].expected;
+  if(path==='/api/transactions'&&p.type==='restock'&&validNumber(expected)&&before+x.quantity>expected&&!p.confirmOverLimit)throw Error(`${x.name} 歸還後 ${before+x.quantity} 件，超過應有數量 ${expected} 件，請先確認超量歸還`);
   if(path==='/api/transactions'&&p.type==='take'&&x.quantity>before)throw Error(`${x.name} 剩餘只有 ${before} 個`);
   const after=path==='/api/audit'?x.quantity:p.type==='take'?before-x.quantity:before+x.quantity;
   if(!validNumber(after))throw Error('數量超出範圍');
   changes.push({item,before,after,quantity:x.quantity});
  }
  if(path==='/api/audit'&&d.items.some(i=>!seen.has(i.name)))throw Error('盤點項目不完整');
+ const overLimitReturns=path==='/api/transactions'&&p.type==='restock'?changes.filter(c=>validNumber(c.item.stores[p.store].expected)&&c.after>c.item.stores[p.store].expected):[];
  const batchId=crypto.randomUUID(),time=new Date().toISOString(),type=path==='/api/audit'?'audit':p.type;
  for(const [index,c] of changes.entries()){
   c.item.stores[p.store].remaining=c.after;
-  d.history.unshift({id:batchId+'-'+index,batchId,time,type,person:p.person.trim(),store:p.store,item:c.item.name,quantity:c.quantity,before:c.before,after:c.after});
+  d.history.unshift({id:batchId+'-'+index,batchId,time,type,person:p.person.trim(),store:p.store,item:c.item.name,quantity:c.quantity,before:c.before,after:c.after,overLimit:type==='restock'&&validNumber(c.item.stores[p.store].expected)&&c.after>c.item.stores[p.store].expected});
  }
 }
 async function apiFetch(path,options={}){
@@ -73,7 +107,7 @@ async function apiFetch(path,options={}){
  }catch(e){return response(500,{error:e.message||'寫入失敗，請檢查 Firebase 權限'})}
 }
 
-const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'庫存盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',st.remaining,st.expected===null?'—':st.expected-st.remaining])});$('inventory-summary').textContent=`${data.items.length} 種物品 · 剩餘共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
+const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'庫存盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',st.remaining,st.expected===null?'—':st.expected-st.remaining])});renderStoreEditor();$('inventory-summary').textContent=`${data.items.length} 種物品 · 剩餘共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
 function localDate(time){const d=new Date(time);return Number.isNaN(d.getTime())?'未知日期':new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
 function localTime(time){const d=new Date(time);return Number.isNaN(d.getTime())?'時間不明':d.toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit'})}
 function renderHistory(){renderHistoryType('take-history',data.history.filter(h=>h.store===store&&h.type!=='audit'&&h.type!=='set'));renderHistoryType('audit-history',data.history.filter(h=>h.store===store&&(h.type==='audit'||h.type==='set')))}
@@ -87,7 +121,15 @@ $('audit-form').addEventListener('submit',async e=>{e.preventDefault();const inp
 $('store').addEventListener('change',e=>{store=e.target.value;draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
 function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`剩餘 ${stock.remaining}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
 $('toggle-all').onclick=()=>{const cards=[...document.querySelectorAll('.item-choice')];const all=cards.every(c=>c.querySelector('[type=checkbox]').checked);cards.forEach(c=>c.querySelector('[type=checkbox]').checked=!all);updateSelected()};
-$('form').addEventListener('submit',async e=>{e.preventDefault();const items=[...document.querySelectorAll('.item-choice')].filter(el=>el.querySelector('[type=checkbox]').checked).map(el=>({name:el.dataset.name,quantity:Number(el.querySelector('[type=number]').value),raw:el.querySelector('[type=number]').value}));const p={store,person:$('person').value.trim(),type:mode,items:items.map(({name,quantity})=>({name,quantity}))};if(!items.length){msg('請至少選擇一項物品',false);return}if(items.some(i=>i.raw===''||!Number.isSafeInteger(i.quantity)||i.quantity<0||(p.type!=='set'&&i.quantity===0))){msg('請為每個已選物品輸入正確的整數數量',false);return}if(!p.person){msg('請選擇夥伴姓名',false);return}if(!confirm(`確認由 ${p.person} 在 ${p.store} ${labels[p.type]}以下物品？\n`+items.map(i=>`${i.name}：${i.quantity}`).join('\n')))return;$('submit').disabled=true;try{let r=await apiFetch('/api/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}),result=await r.json();if(!r.ok)throw Error(result.error||'操作失敗');msg(`成功登記 ${items.length} 項物品，庫存已更新`,true);document.querySelectorAll('.item-choice').forEach(el=>{el.querySelector('[type=checkbox]').checked=false;el.querySelector('[type=number]').value=''});await load()}catch(err){msg(err.message,false);await load()}finally{$('submit').disabled=false}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const items=[...document.querySelectorAll('.item-choice')].filter(el=>el.querySelector('[type=checkbox]').checked).map(el=>({name:el.dataset.name,quantity:Number(el.querySelector('[type=number]').value),raw:el.querySelector('[type=number]').value}));const p={store,person:$('person').value.trim(),type:mode,items:items.map(({name,quantity})=>({name,quantity}))};if(!items.length){msg('請至少選擇一項物品',false);return}if(items.some(i=>i.raw===''||!Number.isSafeInteger(i.quantity)||i.quantity<0||(p.type!=='set'&&i.quantity===0))){msg('請為每個已選物品輸入正確的整數數量',false);return}if(!p.person){msg('請選擇夥伴姓名',false);return}
+if(p.type==='restock'){
+ const excess=items.flatMap(x=>{const stock=data.items.find(i=>i.name===x.name)?.stores?.[store];if(!stock||!Number.isSafeInteger(stock.expected)||stock.expected<0)return [];const after=stock.remaining+x.quantity;return after>stock.expected?[`${x.name}：目前 ${stock.remaining} + 歸還 ${x.quantity} = ${after}（應有 ${stock.expected}，超出 ${after-stock.expected}）`]:[]});
+ if(excess.length){
+  if(!confirm('以下物品歸還後將超過該門市應有數量：\n\n'+excess.join('\n')+'\n\n確定仍要歸還這些數量嗎？'))return;
+  if(!confirm('再次確認：超量歸還後，請到「盤點庫存」將實際庫存修正為正確數量。\n\n確定繼續？'))return;
+  p.confirmOverLimit=true;
+ }
+}if(!confirm(`確認由 ${p.person} 在 ${p.store} ${labels[p.type]}以下物品？\n`+items.map(i=>`${i.name}：${i.quantity}`).join('\n')))return;$('submit').disabled=true;try{let r=await apiFetch('/api/transactions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}),result=await r.json();if(!r.ok)throw Error(result.error||'操作失敗');msg(`成功登記 ${items.length} 項物品，庫存已更新`+(p.confirmOverLimit?'。本次有超過應有數量的歸還，請到「盤點庫存」確認並修正實際數量。':''),true);document.querySelectorAll('.item-choice').forEach(el=>{el.querySelector('[type=checkbox]').checked=false;el.querySelector('[type=number]').value=''});await load()}catch(err){msg(err.message,false);await load()}finally{$('submit').disabled=false}});
 function msg(t,ok){$('message').textContent=t;$('message').className='message '+(ok?'ok':'err')}/* Firebase onValue handles realtime refresh; initialized after login. */
 
 // 公開讀寫版本：不需要帳號登入，所有訪客均可操作。
@@ -106,3 +148,31 @@ unsubscribe=onValue(root,snapshot=>{
   data=value;draw();
  } catch(e) { $('status').textContent='資料處理失敗：'+e.message;console.error('資料處理失敗',e); }
 },err=>{$('status').textContent='Firebase 讀取失敗：'+(err.code||err.message||'請檢查網路及規則');console.error('Firebase 讀取失敗',err)});
+
+
+// 門市編輯：每次儲存都透過 Firebase transaction 原子性更名或封存刪除。
+function renderStoreEditor(){
+ const sel=$('edit-store');if(!sel)return;
+ const old=sel.value;sel.replaceChildren(...data.stores.map(n=>new Option(n,n)));
+ sel.value=data.stores.includes(old)?old:(data.stores.includes(store)?store:data.stores[0]);
+}
+$('open-stores').onclick=()=>{if(!data)return;renderStoreEditor();$('store-edit-message').textContent='';$('new-store-name').value='';$('store-dialog').showModal()};
+$('close-stores').onclick=()=>$('store-dialog').close();
+$('rename-store').onclick=async()=>{
+ const oldName=$('edit-store').value,newName=$('new-store-name').value.trim();
+ if(!newName){$('store-edit-message').textContent='請輸入新門市名稱';return}
+ if(!confirm(`確認將「${oldName}」更名為「${newName}」？\n所有物品庫存與歷史紀錄都會一起更名。`))return;
+ const btn=$('rename-store');btn.disabled=true;
+ try{const r=await apiFetch('/api/stores',{method:'POST',body:JSON.stringify({action:'rename',oldName,newName})});const v=await r.json();if(!r.ok)throw Error(v.error||'更名失敗');store=newName;$('store-dialog').close();msg('門市已更名，庫存與紀錄完整保留',true)}catch(e){$('store-edit-message').textContent=e.message}finally{btn.disabled=false}
+};
+$('delete-store').onclick=async()=>{
+ const oldName=$('edit-store').value;
+ if(!confirm(`第一道確認：確定要刪除「${oldName}」？\n刪除後這間門市不再出現在庫存與操作清單。`))return;
+ if(!confirm(`第二道確認：請再次確認刪除「${oldName}」。\n該門市的庫存與紀錄將封存於 Firebase deletedStores，不能從網頁直接還原。`))return;
+ const typed=prompt(`第三道確認：請完整輸入門市名稱「${oldName}」`);
+ if(typed!==oldName){$('store-edit-message').textContent='門市名稱不一致，已取消刪除';return}
+ const phrase=prompt('第四道確認：請輸入「確認永久刪除」');
+ if(phrase!=='確認永久刪除'){$('store-edit-message').textContent='確認文字不一致，已取消刪除';return}
+ const btn=$('delete-store');btn.disabled=true;
+ try{const r=await apiFetch('/api/stores',{method:'POST',body:JSON.stringify({action:'delete',oldName,confirmName:typed,confirmPhrase:phrase})});const v=await r.json();if(!r.ok)throw Error(v.error||'刪除失敗');store='';$('store-dialog').close();msg('門市已移除，原始庫存及紀錄已封存於 Firebase',true)}catch(e){$('store-edit-message').textContent=e.message}finally{btn.disabled=false}
+};

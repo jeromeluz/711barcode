@@ -1,7 +1,7 @@
 {
   "inventory": {
     "stores": [
-      "大村村中",
+      "順風",
       "東億",
       "敦和",
       "御豪"
@@ -10,10 +10,6 @@
       {
         "name": "氣球柱",
         "stores": {
-          "大村村中": {
-            "expected": 2,
-            "remaining": 2
-          },
           "東億": {
             "expected": 1,
             "remaining": 1
@@ -25,16 +21,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 2,
+            "remaining": 2
           }
         }
       },
       {
         "name": "剪刀",
         "stores": {
-          "大村村中": {
-            "expected": 11,
-            "remaining": 11
-          },
           "東億": {
             "expected": 22,
             "remaining": 22
@@ -46,16 +42,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 11,
+            "remaining": 11
           }
         }
       },
       {
         "name": "胸花",
         "stores": {
-          "大村村中": {
-            "expected": 8,
-            "remaining": 8
-          },
           "東億": {
             "expected": 21,
             "remaining": 21
@@ -67,16 +63,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 8,
+            "remaining": 8
           }
         }
       },
       {
         "name": "白手套",
         "stores": {
-          "大村村中": {
-            "expected": 7,
-            "remaining": 7
-          },
           "東億": {
             "expected": 12,
             "remaining": 12
@@ -88,16 +84,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 7,
+            "remaining": 7
           }
         }
       },
       {
         "name": "托盤",
         "stores": {
-          "大村村中": {
-            "expected": null,
-            "remaining": 0
-          },
           "東億": {
             "expected": 1,
             "remaining": 1
@@ -109,16 +105,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": null,
+            "remaining": 0
           }
         }
       },
       {
         "name": "彩球",
         "stores": {
-          "大村村中": {
-            "expected": 7,
-            "remaining": 7
-          },
           "東億": {
             "expected": 9,
             "remaining": 9
@@ -130,16 +126,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 7,
+            "remaining": 7
           }
         }
       },
       {
         "name": "娃娃",
         "stores": {
-          "大村村中": {
-            "expected": 16,
-            "remaining": 16
-          },
           "東億": {
             "expected": 17,
             "remaining": 17
@@ -151,16 +147,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 16,
+            "remaining": 16
           }
         }
       },
       {
         "name": "螺絲",
         "stores": {
-          "大村村中": {
-            "expected": 14,
-            "remaining": 14
-          },
           "東億": {
             "expected": 18,
             "remaining": 18
@@ -172,16 +168,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 14,
+            "remaining": 14
           }
         }
       },
       {
         "name": "銅片",
         "stores": {
-          "大村村中": {
-            "expected": 11,
-            "remaining": 11
-          },
           "東億": {
             "expected": 24,
             "remaining": 24
@@ -193,16 +189,16 @@
           "御豪": {
             "expected": null,
             "remaining": 35
+          },
+          "順風": {
+            "expected": 11,
+            "remaining": 11
           }
         }
       },
       {
         "name": "銅盤",
         "stores": {
-          "大村村中": {
-            "expected": 9,
-            "remaining": 9
-          },
           "東億": {
             "expected": 20,
             "remaining": 20
@@ -214,16 +210,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 9,
+            "remaining": 9
           }
         }
       },
       {
         "name": "銅柱",
         "stores": {
-          "大村村中": {
-            "expected": 12,
-            "remaining": 12
-          },
           "東億": {
             "expected": 14,
             "remaining": 14
@@ -235,16 +231,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 12,
+            "remaining": 12
           }
         }
       },
       {
         "name": "桌巾",
         "stores": {
-          "大村村中": {
-            "expected": 1,
-            "remaining": 1
-          },
           "東億": {
             "expected": 1,
             "remaining": 1
@@ -256,16 +252,16 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 1,
+            "remaining": 1
           }
         }
       },
       {
         "name": "延長線",
         "stores": {
-          "大村村中": {
-            "expected": 2,
-            "remaining": 2
-          },
           "東億": {
             "expected": 1,
             "remaining": 1
@@ -277,6 +273,10 @@
           "御豪": {
             "expected": null,
             "remaining": 0
+          },
+          "順風": {
+            "expected": 2,
+            "remaining": 2
           }
         }
       }
