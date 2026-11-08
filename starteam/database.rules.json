@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "inventory": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
