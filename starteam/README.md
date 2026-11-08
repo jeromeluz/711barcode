@@ -17,3 +17,7 @@ Firebase 免登入公開讀寫可能被任何人修改資料，建議定期備�
 
 ## 盤點 undefined 修正
 修正原本應有數量未設定時，盤點紀錄 `before` 為 undefined 導致 Firebase transaction 失敗的問題。現在會以 `null` 記錄「未設定」，盤點只更新 expected，不修改 remaining。只需覆蓋 `app.js`，無須重匯資料庫。
+
+
+## 新增門市
+門市編輯中可輸入新門市名稱，按「新增門市」。每項物品的應有與剩餘數量初始均為 0。接著使用盤點庫存設定該門市應有總數量（盤點不改剩餘數量）。新增採用 Firebase transaction 避免同名及並行覆寫。

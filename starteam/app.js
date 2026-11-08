@@ -31,6 +31,15 @@ function mutate(d,path,p){
  if(!Array.isArray(d.people))d.people=[];
  if(path==='/api/stores'){
   const action=p.action, oldName=typeof p.oldName==='string'?p.oldName.trim():'', newName=typeof p.newName==='string'?p.newName.trim():'';
+  if(action==='add'){
+   if(!newName||newName.length>40||/[\/\\.#$\[\]]/.test(newName))throw Error('門市名稱需為 1 至 40 字，不可包含 / \u005c . # $ [ ]');
+   if(d.stores.includes(newName)||d.items.some(i=>Object.hasOwn(i.stores,newName)))throw Error('門市名稱已存在');
+   d.stores.push(newName);
+   for(const item of d.items)item.stores[newName]={expected:0,remaining:0};
+   if(!Array.isArray(d.storeChanges))d.storeChanges=[];
+   d.storeChanges.unshift({action:'add',newName,time:new Date().toISOString()});
+   return;
+  }
   if(!d.stores.includes(oldName))throw Error('門市不存在或已被其他人修改，請重新整理');
   if(action==='rename'){
    if(!newName||newName.length>40||newName.includes('/')||newName.includes('\\'))throw Error('門市名稱不正確，請使用 1 至 40 字且不可包含斜線');
@@ -207,6 +216,14 @@ function renderStoreEditor(){
 }
 $('open-stores').onclick=()=>{if(!data)return;renderStoreEditor();$('store-edit-message').textContent='';$('new-store-name').value='';$('store-dialog').showModal()};
 $('close-stores').onclick=()=>$('store-dialog').close();
+$('add-store').onclick=async()=>{
+ const newName=$('add-store-name').value.trim();
+ if(!newName){$('store-edit-message').textContent='請輸入要新增的門市名稱';return}
+ if(!confirm(`確定新增「${newName}」門市？\n所有物品的應有數量及剩餘數量將從 0 開始，可再進入盤點庫存設定應有數量。`))return;
+ const btn=$('add-store');btn.disabled=true;
+ try{const r=await apiFetch('/api/stores',{method:'POST',body:JSON.stringify({action:'add',newName})});const v=await r.json();if(!r.ok)throw Error(v.error||'新增門市失敗');store=newName;$('store-dialog').close();msg('已新增門市，請使用盤點庫存設定應有數量',true);$('add-store-name').value=''}catch(e){$('store-edit-message').textContent=e.message}finally{btn.disabled=false}
+};
+
 $('rename-store').onclick=async()=>{
  const oldName=$('edit-store').value,newName=$('new-store-name').value.trim();
  if(!newName){$('store-edit-message').textContent='請輸入新門市名稱';return}
