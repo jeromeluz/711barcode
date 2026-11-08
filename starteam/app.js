@@ -7,8 +7,26 @@ let unsubscribe=null;
 function response(status,payload){return {ok:status>=200&&status<300,status,json:async()=>payload}}
 function validNumber(n){return Number.isSafeInteger(n)&&n>=0}
 function validatePerson(d,p){if(typeof p.person!=='string'||!d.people?.includes(p.person.trim()))throw Error('請從人員清單選擇姓名');if(!d.stores.includes(p.store))throw Error('門市不存在')}
+// 兼容門市改名：stores 清單已更名，但物品庫存仍以舊名稱為鍵。
+// 僅在能明確辨識單一舊鍵時搬移，不會憑空建立 0 庫存。
+function repairStoreKeys(d){
+ if(!Array.isArray(d?.stores)||!Array.isArray(d?.items))return false;
+ let changed=false;
+ for(const item of d.items){
+  if(!item.stores||typeof item.stores!=='object')throw Error(`物品「${item.name}」沒有門市庫存資料`);
+  for(const name of d.stores){
+   if(item.stores[name])continue;
+   const oldKeys=Object.keys(item.stores).filter(k=>!d.stores.includes(k));
+   const old=oldKeys.includes('大村村中')&&name==='順風'?'大村村中':oldKeys.length===1?oldKeys[0]:null;
+   if(!old||!item.stores[old])throw Error(`「${item.name}」找不到「${name}」的庫存，請檢查 Firebase items/stores 的門市名稱`);
+   item.stores[name]=item.stores[old];delete item.stores[old];changed=true;
+  }
+ }
+ return changed;
+}
 function mutate(d,path,p){
  if(!d||!Array.isArray(d.items)||!Array.isArray(d.stores))throw Error('資料庫結構不完整，請檢查 inventory/stores 和 inventory/items');
+ repairStoreKeys(d);
  if(!Array.isArray(d.history))d.history=[];
  if(!Array.isArray(d.people))d.people=[];
  if(path==='/api/personnel'){
@@ -78,6 +96,11 @@ unsubscribe=onValue(root,snapshot=>{
  if(!value){$('status').textContent='尚未匯入庫存初始資料';return}
  try {
   if(!Array.isArray(value.stores)||!Array.isArray(value.items))throw Error('資料結構不完整，inventory 需要 stores 和 items 陣列');
+  const needsRepair=repairStoreKeys(value);
+  if(needsRepair){
+   $('status').textContent='偵測到門市更名，正在同步修復庫存…';
+   runTransaction(root,current=>{if(!current)return;repairStoreKeys(current);return current},{applyLocally:false}).catch(e=>{$('status').textContent='門市名稱修復失敗：'+e.message});
+  }
   value.history=Array.isArray(value.history)?value.history:[];
   value.people=Array.isArray(value.people)?value.people:[];
   data=value;draw();

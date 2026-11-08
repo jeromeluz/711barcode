@@ -37,3 +37,8 @@
 若仍有錯誤，畫面狀態列會顯示詳細原因。
 上傳 GitHub 時只需更新 `app.js` 和 `index.html`，**不要重新匯入 initial-database.json**，避免覆蓋正式資料。
 建議使用 Ctrl+Shift+R 強制重新整理或手機無痕視窗測試。
+
+
+## 門市更名修正
+若在 Firebase 將 `inventory/stores` 的「大村村中」改為「順風」，但 `inventory/items/*/stores` 仍是舊名稱，新版會自動將每項物品的舊庫存鍵搬到「順風」，保留原有 expected / remaining 數值，不會重設庫存。
+上傳 `app.js` 覆蓋 GitHub Pages 的 `starteam/app.js`，重新整理即可。第一次載入會使用 Firebase 交易修復資料。建議更新前在 Firebase Data 頁面匯出 JSON 備份。
