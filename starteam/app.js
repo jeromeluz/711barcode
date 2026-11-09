@@ -147,7 +147,7 @@ async function apiFetch(path,options={}){
  }catch(e){return response(500,{error:e.message||'寫入失敗，請檢查 Firebase 權限'})}
 }
 
-const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'應有數量盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',`良品 ${condition(st).good??'未設定'} / 損壞或舊品 ${condition(st).bad}`,st.remaining,availableGood(st,outstandingFromHistory(data,store,i.name)),st.expected===null?'—':st.expected-st.remaining])});renderStoreEditor();$('inventory-summary').textContent=`${data.items.length} 種物品 · 剩餘共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
+const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'應有數量盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',`良品 ${condition(st).good??'未設定'} / 損壞或舊品 ${condition(st).bad}`,availableGood(st,outstandingFromHistory(data,store,i.name)),st.expected===null?'—':st.expected-st.remaining])});renderStoreEditor();$('inventory-summary').textContent=`${data.items.length} 種物品 · 可借用共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
 function localDate(time){const d=new Date(time);return Number.isNaN(d.getTime())?'未知日期':new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
 function localTime(time){const d=new Date(time);return Number.isNaN(d.getTime())?'時間不明':d.toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit'})}
 // 每個紀錄區塊獨立分頁，每次顯示最多 10 筆操作（同次多物品算 1 筆）。
@@ -213,7 +213,7 @@ async function load(){if(data)draw();else $('status').textContent='等待雲端�
  for(const el of [total,good,bad])el.addEventListener('input',()=>{const valid=total.value!==''&&good.value!==''&&bad.value!==''&&Number(good.value)+Number(bad.value)===Number(total.value);card.classList.toggle('changed',total.value!==String(before??'')||good.value!==String(cond.good??'')||bad.value!==String(cond.bad));card.classList.toggle('invalid-condition',!valid)});
  card.append(name,fields);list.append(card)
  });d.showModal()};
-$('close-audit').onclick=()=>$('audit-dialog').close();$('open-people').onclick=()=>{$('people-list').value=(data.people||[]).join('\n');$('people-message').textContent='';$('people-dialog').showModal()};$('close-people').onclick=()=>$('people-dialog').close();$('people-form').addEventListener('submit',async e=>{e.preventDefault();const people=$('people-list').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(new Set(people).size!==people.length){$('people-message').textContent='人員姓名不可重複';return}const btn=$('people-submit');btn.disabled=true;try{const r=await apiFetch('/api/personnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people})});const out=await r.json();if(!r.ok)throw Error(out.error||'儲存失敗');$('people-dialog').close();await load()}catch(err){$('people-message').textContent=err.message}finally{btn.disabled=false}});
+$('close-audit').onclick=()=>$('audit-dialog').close();$('open-people').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');$('people-list').value=(data.people||[]).join('\n');$('people-message').textContent='';$('people-dialog').showModal()};$('close-people').onclick=()=>$('people-dialog').close();$('people-form').addEventListener('submit',async e=>{e.preventDefault();const people=$('people-list').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(new Set(people).size!==people.length){$('people-message').textContent='人員姓名不可重複';return}const btn=$('people-submit');btn.disabled=true;try{const r=await apiFetch('/api/personnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people})});const out=await r.json();if(!r.ok)throw Error(out.error||'儲存失敗');$('people-dialog').close();await load()}catch(err){$('people-message').textContent=err.message}finally{btn.disabled=false}});
 $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  const cards=[...$('audit-items').querySelectorAll('.audit-item')];
  const items=cards.map(c=>({name:c.dataset.name,quantity:Number(c.querySelector('[data-kind=expected]').value),good:Number(c.querySelector('[data-kind=good]').value),bad:Number(c.querySelector('[data-kind=bad]').value)}));
@@ -226,7 +226,7 @@ $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  try{const r=await apiFetch('/api/audit',{method:'POST',body:JSON.stringify({person,store,items})});const result=await r.json();if(!r.ok)throw Error(result.error||'盤點失敗');$('audit-dialog').close();msg('盤點完成，已更新應有總數、良品／損壞或舊品，並扣除未歸還數量重新計算剩餘數量',true);await load()}catch(err){$('audit-message').textContent=err.message}finally{btn.disabled=false}
 });
 $('store').addEventListener('change',e=>{store=e.target.value;draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
-function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`剩餘 ${stock.remaining}｜可借用 ${availableGood(stock,outstandingFromHistory(data,store,item.name))}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
+function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`可借用 ${availableGood(stock,outstandingFromHistory(data,store,item.name))}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
 $('toggle-all').onclick=()=>{const cards=[...document.querySelectorAll('.item-choice')];const all=cards.every(c=>c.querySelector('[type=checkbox]').checked);cards.forEach(c=>c.querySelector('[type=checkbox]').checked=!all);updateSelected()};
 $('form').addEventListener('submit',async e=>{e.preventDefault();const items=[...document.querySelectorAll('.item-choice')].filter(el=>el.querySelector('[type=checkbox]').checked).map(el=>({name:el.dataset.name,quantity:Number(el.querySelector('[type=number]').value),raw:el.querySelector('[type=number]').value}));const p={store,person:$('person').value.trim(),type:mode,items:items.map(({name,quantity})=>({name,quantity}))};if(!items.length){msg('請至少選擇一項物品',false);return}if(items.some(i=>i.raw===''||!Number.isSafeInteger(i.quantity)||i.quantity<0||(p.type!=='set'&&i.quantity===0))){msg('請為每個已選物品輸入正確的整數數量',false);return}if(!p.person){msg('請選擇夥伴姓名',false);return}
 if(p.type==='take'){
@@ -267,7 +267,7 @@ function renderStoreEditor(){
  const old=sel.value;sel.replaceChildren(...data.stores.map(n=>new Option(n,n)));
  sel.value=data.stores.includes(old)?old:(data.stores.includes(store)?store:data.stores[0]);
 }
-$('open-stores').onclick=()=>{if(!data)return;renderStoreEditor();$('store-edit-message').textContent='';$('new-store-name').value='';$('store-dialog').showModal()};
+$('open-stores').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');if(!data)return;renderStoreEditor();$('store-edit-message').textContent='';$('new-store-name').value='';$('store-dialog').showModal()};
 $('close-stores').onclick=()=>$('store-dialog').close();
 $('add-store').onclick=async()=>{
  const newName=$('add-store-name').value.trim();
@@ -295,3 +295,57 @@ $('delete-store').onclick=async()=>{
  const btn=$('delete-store');btn.disabled=true;
  try{const r=await apiFetch('/api/stores',{method:'POST',body:JSON.stringify({action:'delete',oldName,confirmName:typed,confirmPhrase:phrase})});const v=await r.json();if(!r.ok)throw Error(v.error||'刪除失敗');store='';$('store-dialog').close();msg('門市已移除，原始庫存及紀錄已封存於 Firebase',true)}catch(e){$('store-edit-message').textContent=e.message}finally{btn.disabled=false}
 };
+
+// 更多設定：人員及門市編輯收進同一個選單。
+$('settings-toggle').addEventListener('click',e=>{
+ e.stopPropagation();
+ const menu=$('settings-dropdown');const open=menu.classList.toggle('hidden')===false;
+ $('settings-toggle').setAttribute('aria-expanded',String(open));
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.settings-menu')){$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false')}});
+
+// 匯出目前選取門市的完整紀錄，不受畫面每次顯示 10 筆的限制。
+function excelSafe(value){
+ if(value===null||value===undefined)return '';
+ if(typeof value==='number'&&Number.isFinite(value))return value;
+ const text=String(value);
+ return /^[=+@\-\t\r]/.test(text)?"'"+text:text;
+}
+function excelTime(value){
+ const date=new Date(value);
+ return Number.isNaN(date.getTime())?'':date.toLocaleString('zh-TW',{timeZone:'Asia/Taipei',hour12:false});
+}
+function exportExcel(){
+ if(!data||!store){alert('請等待資料同步完成');return}
+ if(!window.XLSX){alert('Excel 匯出套件尚未載入，請確認網路後重新整理');return}
+ const X=window.XLSX,wb=X.utils.book_new();
+ const inventory=[['門市','物品','應有數量','良品','損壞或舊品','可借用','已取用']];
+ for(const item of data.items){
+  const stock=item.stores?.[store];if(!stock)continue;
+  const available=availableGood(stock,outstandingFromHistory(data,store,item.name));
+  inventory.push([store,item.name,stock.expected??'',condition(stock).good??'',condition(stock).bad,available,Number.isSafeInteger(stock.expected)?stock.expected-available:'']);
+ }
+ const borrow=[['時間','門市','夥伴姓名','操作','物品','數量','操作前可借用','操作後可借用','批次編號']];
+ const audits=[['時間','門市','盤點人','物品','應有調整前','應有調整後','良品調整前','良品調整後','損壞或舊品調整前','損壞或舊品調整後','可借用調整前','可借用調整後','未歸還','批次編號']];
+ const records=(data.history||[]).filter(h=>h&&h.store===store).sort((a,b)=>new Date(b.time)-new Date(a.time));
+ for(const h of records){
+  if(h.type==='take'||h.type==='restock')borrow.push([excelTime(h.time),h.store,h.person||'',h.type==='take'?'取用':'歸還',h.item||'',h.quantity??'',h.before??'',h.after??'',h.batchId||'']);
+  else if(h.type==='audit'||h.type==='set')audits.push([excelTime(h.time),h.store,h.person||'',h.item||'',h.before??'',h.after??'',h.beforeGood??'',h.afterGood??'',h.beforeBad??'',h.afterBad??'',h.beforeRemaining??'',h.afterRemaining??'',h.outstanding??'',h.batchId||'']);
+ }
+ for(const [name,rows,widths] of [
+  ['門市物品庫存',inventory,[14,18,14,12,18,14,12]],
+  ['借用歸還紀錄',borrow,[23,14,16,12,18,12,18,18,40]],
+  ['盤點紀錄',audits,[23,14,16,18,18,18,16,16,22,22,20,20,14,40]]
+ ]){
+  const safeRows=rows.map((r,i)=>i===0?r:r.map(excelSafe));
+  const sheet=X.utils.aoa_to_sheet(safeRows);
+  sheet['!cols']=widths.map(w=>({wch:w}));
+  sheet['!autofilter']={ref:X.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(0,rows.length-1),c:rows[0].length-1}})};
+  X.utils.book_append_sheet(wb,sheet,name);
+ }
+ const date=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Taipei'});
+ const filename=store.replace(/[\\/:*?"<>|]/g,'_')+'_造勢物品管理_'+date+'.xlsx';
+ X.writeFile(wb,filename);
+}
+$('export-excel').addEventListener('click',exportExcel);
