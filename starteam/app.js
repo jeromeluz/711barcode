@@ -196,7 +196,41 @@ async function apiFetch(path,options={}){
  }catch(e){return response(500,{error:e.message||'寫入失敗，請檢查 Firebase 權限'})}
 }
 
-const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'應有數量盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',`良品 ${condition(st).good??'未設定'} / 損壞或舊品 ${condition(st).bad}`,availableGood(st,outstandingFromHistory(data,store,i.name)),st.expected===null?'—':st.expected-st.remaining])});renderStoreEditor();$('inventory-summary').textContent=`${data.items.length} 種物品 · 可借用共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
+const $=id=>document.getElementById(id);let data=null;let store='';let mode='take';
+// 定位僅在本機用於選擇門市，不上傳座標至 Firebase。
+const GEO_STORES=[
+ {name:'順風',lat:24.072617097669205,lng:120.52997889493611},
+ {name:'東億',lat:23.705405891021567,lng:120.45447371026694}
+];
+const GEO_RADIUS_METERS=250;
+let geoStarted=false,geoResult=null,geoApplied=false,storeManuallyChosen=false;
+function geoDistance(lat1,lng1,lat2,lng2){
+ const rad=Math.PI/180,R=6371000;
+ const a=Math.sin((lat2-lat1)*rad/2)**2+Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin((lng2-lng1)*rad/2)**2;
+ return 2*R*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function geoHint(text){const el=$('geo-hint');if(el)el.textContent=text;}
+function applyGeoSelection(){
+ if(!data||geoApplied||storeManuallyChosen||!geoResult)return;
+ const {latitude,longitude,accuracy}=geoResult;
+ if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||!Number.isFinite(accuracy)||accuracy>150){geoHint('定位精度不足，請手動選擇門市');geoApplied=true;return;}
+ const matches=GEO_STORES.filter(x=>data.stores.includes(x.name)).map(x=>({...x,distance:geoDistance(latitude,longitude,x.lat,x.lng)})).sort((a,b)=>a.distance-b.distance);
+ const nearest=matches[0];geoApplied=true;
+ if(nearest&&nearest.distance<=GEO_RADIUS_METERS){
+  store=nearest.name;draw();geoHint(`已依定位選擇 ${nearest.name}（約 ${Math.round(nearest.distance)} 公尺），可手動更換`);
+ }else geoHint('附近沒有符合的門市，請手動選擇');
+}
+function startGeoSelection(){
+ if(geoStarted)return;geoStarted=true;
+ if(!navigator.geolocation||!window.isSecureContext){geoHint('無法使用定位，請手動選擇門市');return;}
+ geoHint('正在確認附近門市…');
+ navigator.geolocation.getCurrentPosition(
+  pos=>{geoResult=pos.coords;applyGeoSelection();},
+  ()=>geoHint('未取得定位，請手動選擇門市'),
+  {enableHighAccuracy:true,timeout:8000,maximumAge:60000}
+ );
+}
+const labels={take:'取用',restock:'歸還',set:'盤點設定',audit:'應有數量盤點'};function td(text){let el=document.createElement('td');el.textContent=String(text);return el}function row(parent,values){let tr=document.createElement('tr');values.forEach(v=>tr.append(td(v)));parent.append(tr)}function draw(){if(!data)return;const selections=Object.fromEntries([...document.querySelectorAll('.item-choice')].map(el=>[el.dataset.name,{checked:el.querySelector('[type=checkbox]').checked,quantity:el.querySelector('[type=number]').value}]));$('store').replaceChildren(...data.stores.map(s=>{let o=new Option(s,s);return o}));if(!data.stores.includes(store))store=data.stores[0];$('store').value=store;renderChoices(selections);$('inventory').replaceChildren();let total=0;data.items.forEach(i=>{let st=i.stores[store];total+=st.remaining;row($('inventory'),[i.name,st.expected??'未設定',`良品 ${condition(st).good??'未設定'} / 損壞或舊品 ${condition(st).bad}`,availableGood(st,outstandingFromHistory(data,store,i.name)),st.expected===null?'—':st.expected-st.remaining])});renderStoreEditor();$('inventory-summary').textContent=`${data.items.length} 種物品 · 可借用共 ${total} 件 · 取用 ${data.history.filter(h=>h.store===store&&h.type==='take').length} 筆紀錄`;renderPeople();renderHistory();$('status').textContent='資料已同步'}function renderPeople(){for(const id of ['person','audit-person']){const el=$(id),old=el.value;el.replaceChildren(new Option('請選擇人員',''),...(data.people||[]).map(n=>new Option(n,n)));if((data.people||[]).includes(old))el.value=old}}
 function localDate(time){const d=new Date(time);return Number.isNaN(d.getTime())?'未知日期':new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)}
 function localTime(time){const d=new Date(time);return Number.isNaN(d.getTime())?'時間不明':d.toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit'})}
 // 每個紀錄區塊獨立分頁，每次顯示最多 10 筆操作（同次多物品算 1 筆）。
@@ -281,7 +315,7 @@ $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  const btn=$('audit-submit');btn.disabled=true;
  try{const r=await apiFetch('/api/audit',{method:'POST',body:JSON.stringify({person,store,items})});const result=await r.json();if(!r.ok)throw Error(result.error||'盤點失敗');$('audit-dialog').close();msg('盤點完成，已更新應有總數、良品／損壞或舊品，並扣除未歸還數量重新計算剩餘數量',true);await load()}catch(err){$('audit-message').textContent=err.message}finally{btn.disabled=false}
 });
-$('store').addEventListener('change',e=>{store=e.target.value;draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
+$('store').addEventListener('change',e=>{storeManuallyChosen=true;store=e.target.value;geoHint('已手動選擇門市');draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
 function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`可借用 ${availableGood(stock,outstandingFromHistory(data,store,item.name))}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
 $('return-mine').onclick=async()=>{
  if(!data)return msg('資料尚未同步，請稍後再試',false);
@@ -338,7 +372,7 @@ unsubscribe=onValue(root,snapshot=>{
   }
   value.history=Array.isArray(value.history)?value.history:[];
   value.people=Array.isArray(value.people)?value.people:[];
-  data=value;draw();
+  data=value;draw();applyGeoSelection();startGeoSelection();
  } catch(e) { $('status').textContent='資料處理失敗：'+e.message;console.error('資料處理失敗',e); }
 },err=>{$('status').textContent='Firebase 讀取失敗：'+(err.code||err.message||'請檢查網路及規則');console.error('Firebase 讀取失敗',err)});
 
