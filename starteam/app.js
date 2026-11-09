@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getDatabase, ref, onValue, runTransaction } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import { getDatabase, ref, onValue, runTransaction, get } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
 import { firebaseConfig } from './firebase-config.js';
 const app=initializeApp(firebaseConfig), db=getDatabase(app);
 const root=ref(db,'inventory');
@@ -296,7 +296,7 @@ $('delete-store').onclick=async()=>{
  try{const r=await apiFetch('/api/stores',{method:'POST',body:JSON.stringify({action:'delete',oldName,confirmName:typed,confirmPhrase:phrase})});const v=await r.json();if(!r.ok)throw Error(v.error||'刪除失敗');store='';$('store-dialog').close();msg('門市已移除，原始庫存及紀錄已封存於 Firebase',true)}catch(e){$('store-edit-message').textContent=e.message}finally{btn.disabled=false}
 };
 
-// 更多設定：人員及門市編輯收進同一個選單。
+// 更多設定：人員、門市、Excel 匯出、JSON 備份與還原。
 $('settings-toggle').addEventListener('click',e=>{
  e.stopPropagation();
  const menu=$('settings-dropdown');const open=menu.classList.toggle('hidden')===false;
@@ -349,3 +349,66 @@ function exportExcel(){
  X.writeFile(wb,filename);
 }
 $('export-excel').addEventListener('click',exportExcel);
+
+
+// JSON 備份使用 Firebase 最新快照，保留 inventory 的完整結構與歷史紀錄。
+function downloadJsonFile(obj,filename){
+ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+function closeSettings(){
+ $('settings-dropdown').classList.add('hidden');
+ $('settings-toggle').setAttribute('aria-expanded','false');
+}
+$('backup-json').addEventListener('click',async()=>{
+ closeSettings();
+ try{
+  const snapshot=await get(root);
+  if(!snapshot.exists())throw Error('Firebase 尚無 inventory 資料');
+  const date=new Date().toLocaleString('sv-SE',{timeZone:'Asia/Taipei'}).replace(' ','_').replaceAll(':','-');
+  downloadJsonFile({inventory:snapshot.val()},'starteam_inventory_backup_'+date+'.json');
+  alert('JSON 備份已產生，請妥善保存檔案');
+ }catch(e){alert('備份失敗：'+e.message)}
+});
+function validateBackup(source){
+ if(!source||typeof source!=='object'||Array.isArray(source))throw Error('JSON 最外層必須是物件');
+ const d=source.inventory;
+ if(!d||typeof d!=='object'||Array.isArray(d))throw Error('請選擇本系統匯出的 JSON（必須包含 inventory）');
+ if(!Array.isArray(d.stores)||!d.stores.length||!d.stores.every(x=>typeof x==='string'&&x.trim()))throw Error('門市清單格式錯誤');
+ if(new Set(d.stores).size!==d.stores.length)throw Error('門市名稱重複');
+ if(!Array.isArray(d.items)||!d.items.length)throw Error('物品清單格式錯誤');
+ if(!d.items.every(item=>item&&typeof item.name==='string'&&item.stores&&typeof item.stores==='object'&&d.stores.every(st=>{
+  const v=item.stores[st];return v&&validNumber(v.remaining)&&(v.expected===null||validNumber(v.expected))&&(v.good===undefined||validNumber(v.good))&&(v.bad===undefined||validNumber(v.bad));
+ })))throw Error('物品庫存格式不正確，請確認各門市數量');
+ if(d.history!==undefined&&!Array.isArray(d.history))throw Error('history 必須是陣列');
+ if(d.people!==undefined&&!Array.isArray(d.people))throw Error('people 必須是陣列');
+ if(JSON.stringify(d).length>8_000_000)throw Error('備份檔過大，請聯絡管理者');
+ return d;
+}
+$('restore-json').addEventListener('click',()=>{closeSettings();$('restore-file').value='';$('restore-file').click()});
+$('restore-file').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>10_000_000)throw Error('JSON 檔案過大');
+  const parsed=JSON.parse(await file.text());
+  const restored=validateBackup(parsed);
+  const summary=`備份門市：${restored.stores.join('、')}\n物品：${restored.items.length} 種\n歷史紀錄：${restored.history?.length||0} 筆`;
+  if(!confirm('還原將覆蓋目前 Firebase inventory 底下全部庫存、人員、門市與紀錄。\n\n'+summary+'\n\n確定要繼續嗎？'))return;
+  const typed=prompt('最後確認：請輸入「確認還原」才會覆蓋雲端資料');
+  if(typed!=='確認還原')return;
+  const btn=$('restore-json');btn.disabled=true;
+  try{
+   // 在覆寫前先下載線上快照作為救援備份。
+   const current=await get(root);
+   if(current.exists()){
+    const stamp=new Date().toISOString().replaceAll(':','-');
+    downloadJsonFile({inventory:current.val()},'starteam_before_restore_'+stamp+'.json');
+   }
+   const result=await runTransaction(root,()=>restored,{applyLocally:false});
+   if(!result.committed)throw Error('資料庫交易未完成');
+   alert('還原成功，資料已寫入 Firebase，頁面將顯示還原後的庫存');
+  }finally{btn.disabled=false}
+ }catch(err){alert('還原失敗：'+err.message)}
+});
