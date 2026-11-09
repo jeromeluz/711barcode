@@ -135,10 +135,27 @@ function mutate(d,path,p){
   throw Error('未知物品操作');
  }
  if(path==='/api/personnel'){
-  if(!Array.isArray(p.people)||p.people.length>200)throw Error('人員清單格式錯誤');
-  const names=p.people.map(x=>typeof x==='string'?x.trim():'');
-  if(names.some(x=>!x||x.length>40)||new Set(names).size!==names.length)throw Error('姓名不可空白、重複或超過40字');
-  d.people=names;return;
+  const action=p.action;
+  if(action==='add'){
+   const name=typeof p.name==='string'?p.name.trim():'';
+   if(!name||name.length>40)throw Error('姓名需為 1 至 40 字');
+   if((d.people||[]).some(x=>x===name))throw Error('人員姓名不可重複');
+   if((d.people||[]).length>=200)throw Error('人員最多 200 位');
+   d.people=[...(d.people||[]),name];return;
+  }
+  if(action==='delete'){
+   const name=typeof p.name==='string'?p.name.trim():'';
+   if(!d.people?.includes(name))throw Error('人員不存在，請重新整理');
+   if(p.confirmName!==name)throw Error('刪除確認不正確');
+   const outstanding=[];
+   for(const st of d.stores){for(const [item,n] of personOutstanding(d,st,name))if(n>0)outstanding.push(`${st}／${item}：${n} 件`)}
+   if(outstanding.length)throw Error('尚有未歸還物品，請先歸還：\n'+outstanding.join('\n'));
+   d.people=d.people.filter(x=>x!==name);
+   // 刪除該人員的歷史紀錄。由於已核對所有門市淨借用量為零，不影響剩餘未歸還數量。
+   d.history=(d.history||[]).filter(h=>h.person!==name);
+   return;
+  }
+  throw Error('未知人員操作');
  }
  validatePerson(d,p);
  if(!Array.isArray(p.items)||!p.items.length||p.items.length>d.items.length)throw Error('物品清單不正確');
@@ -303,7 +320,34 @@ async function itemAction(payload,buttonId){const btn=$(buttonId);btn.disabled=t
 $('add-item').onclick=()=>itemAction({action:'add',newName:$('add-item-name').value},'add-item');
 $('rename-item').onclick=()=>{const oldName=$('edit-item').value,newName=$('new-item-name').value.trim();if(!confirm(`確定將「${oldName}」更名為「${newName}」？所有門市與歷史紀錄會同步更新。`))return;itemAction({action:'rename',oldName,newName},'rename-item')};
 $('delete-item').onclick=()=>{const oldName=$('edit-item').value;if(!confirm(`確定要刪除「${oldName}」？所有門市將不再顯示此物品，歷史紀錄會保留。`))return;const typed=prompt(`再次確認，請輸入物品名稱「${oldName}」`);if(typed!==oldName)return;itemAction({action:'delete',oldName,confirmName:typed},'delete-item')};
-$('open-people').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');$('people-list').value=(data.people||[]).join('\n');$('people-message').textContent='';$('people-dialog').showModal()};$('close-people').onclick=()=>$('people-dialog').close();$('people-form').addEventListener('submit',async e=>{e.preventDefault();const people=$('people-list').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(new Set(people).size!==people.length){$('people-message').textContent='人員姓名不可重複';return}const btn=$('people-submit');btn.disabled=true;try{const r=await apiFetch('/api/personnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people})});const out=await r.json();if(!r.ok)throw Error(out.error||'儲存失敗');$('people-dialog').close();await load()}catch(err){$('people-message').textContent=err.message}finally{btn.disabled=false}});
+function renderPeopleEntries(){
+ const list=$('people-entries');list.replaceChildren();
+ for(const name of data.people||[]){
+  const row=document.createElement('div');row.className='people-entry';
+  const label=document.createElement('span');label.textContent=name;
+  const btn=document.createElement('button');btn.type='button';btn.className='danger';btn.textContent='刪除';
+  btn.onclick=async()=>{
+   const outstanding=[];
+   for(const st of data.stores){for(const [item,n] of personOutstanding(data,st,name))if(n>0)outstanding.push(`${st}／${item}：${n} 件`)}
+   if(outstanding.length){alert(`${name} 尚有以下未歸還物品：\n\n${outstanding.join('\n')}\n\n請全部歸還後才能刪除人員`);return}
+   if(!confirm(`第一次確認：確定刪除「${name}」？\n該人員的借用歸還與盤點歷史紀錄也會一併刪除，無法復原。`))return;
+   if(!confirm(`第二次確認：確定永久刪除「${name}」及其所有歷史紀錄嗎？`))return;
+   btn.disabled=true;
+   try{const r=await apiFetch('/api/personnel',{method:'POST',body:JSON.stringify({action:'delete',name,confirmName:name})});const result=await r.json();if(!r.ok)throw Error(result.error||'刪除失敗');await load();renderPeopleEntries();$('people-message').textContent=`已刪除 ${name} 及其歷史紀錄`}
+   catch(e){$('people-message').textContent=e.message;btn.disabled=false}
+  };
+  row.append(label,btn);list.append(row);
+ }
+}
+$('open-people').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');$('add-person-name').value='';$('people-message').textContent='';renderPeopleEntries();$('people-dialog').showModal()};
+$('close-people').onclick=()=>$('people-dialog').close();
+$('add-person').onclick=async()=>{
+ const name=$('add-person-name').value.trim();if(!name){$('people-message').textContent='請輸入姓名';return}
+ if((data.people||[]).includes(name)){$('people-message').textContent='此人員已存在，不能重複新增';return}
+ const btn=$('add-person');btn.disabled=true;
+ try{const r=await apiFetch('/api/personnel',{method:'POST',body:JSON.stringify({action:'add',name})});const result=await r.json();if(!r.ok)throw Error(result.error||'新增失敗');await load();renderPeopleEntries();$('add-person-name').value='';$('people-message').textContent=`已新增 ${name}`}
+ catch(e){$('people-message').textContent=e.message}finally{btn.disabled=false}
+};
 $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  const cards=[...$('audit-items').querySelectorAll('.audit-item')];
  const items=cards.map(c=>({name:c.dataset.name,quantity:Number(c.querySelector('[data-kind=expected]').value),good:Number(c.querySelector('[data-kind=good]').value),bad:Number(c.querySelector('[data-kind=bad]').value)}));
@@ -315,8 +359,9 @@ $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  const btn=$('audit-submit');btn.disabled=true;
  try{const r=await apiFetch('/api/audit',{method:'POST',body:JSON.stringify({person,store,items})});const result=await r.json();if(!r.ok)throw Error(result.error||'盤點失敗');$('audit-dialog').close();msg('盤點完成，已更新應有總數、良品／損壞或舊品，並扣除未歸還數量重新計算剩餘數量',true);await load()}catch(err){$('audit-message').textContent=err.message}finally{btn.disabled=false}
 });
-$('store').addEventListener('change',e=>{storeManuallyChosen=true;store=e.target.value;geoHint('已手動選擇門市');draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
+$('store').addEventListener('change',e=>{storeManuallyChosen=true;store=e.target.value;geoHint('已手動選擇門市');draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('return-mine').hidden=mode!=='restock';$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
 function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`可借用 ${availableGood(stock,outstandingFromHistory(data,store,item.name))}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
+$('return-mine').hidden=true;
 $('return-mine').onclick=async()=>{
  if(!data)return msg('資料尚未同步，請稍後再試',false);
  const person=$('person').value.trim();
