@@ -105,6 +105,35 @@ function mutate(d,path,p){
   }
   throw Error('未知門市操作');
  }
+ if(path==='/api/items'){
+  const action=p.action,oldName=typeof p.oldName==='string'?p.oldName.trim():'',newName=typeof p.newName==='string'?p.newName.trim():'';
+  const checkName=n=>n.length>0&&n.length<=40&&!/[\\/.#$\[\]]/.test(n);
+  if(action==='add'){
+   if(!checkName(newName))throw Error('物品名稱需為 1 至 40 字且不能包含 Firebase 禁用符號');
+   if(d.items.some(i=>i.name===newName))throw Error('物品名稱已存在');
+   d.items.push({name:newName,stores:Object.fromEntries(d.stores.map(st=>[st,{expected:0,remaining:0,good:0,bad:0}]))});return;
+  }
+  const item=d.items.find(i=>i.name===oldName);
+  if(!item)throw Error('物品不存在，請重新整理');
+  if(action==='rename'){
+   if(!checkName(newName)||newName===oldName)throw Error('請輸入有效且不同的新名稱');
+   if(d.items.some(i=>i.name===newName))throw Error('新名稱已存在');
+   item.name=newName;
+   for(const h of d.history)if(h.item===oldName)h.item=newName;
+   return;
+  }
+  if(action==='delete'){
+   if(d.items.length<=1)throw Error('至少保留一種物品');
+   if(p.confirmName!==oldName)throw Error('刪除確認不正確');
+   for(const st of d.stores){if(outstandingFromHistory(d,st,oldName)>0)throw Error(`${st} 尚有未歸還的「${oldName}」，請先歸還再刪除`)}
+   if(!Array.isArray(d.deletedItems))d.deletedItems=[];
+   d.deletedItems.push({name:oldName,stores:item.stores,deletedAt:new Date().toISOString()});
+   d.items=d.items.filter(i=>i.name!==oldName);
+   // 保留歷史紀錄作為稽核依據，歷史清單仍能顯示舊物品名稱。
+   return;
+  }
+  throw Error('未知物品操作');
+ }
  if(path==='/api/personnel'){
   if(!Array.isArray(p.people)||p.people.length>200)throw Error('人員清單格式錯誤');
   const names=p.people.map(x=>typeof x==='string'?x.trim():'');
@@ -233,7 +262,14 @@ async function load(){if(data)draw();else $('status').textContent='等待雲端�
  for(const el of [total,good,bad])el.addEventListener('input',()=>{const valid=total.value!==''&&good.value!==''&&bad.value!==''&&Number(good.value)+Number(bad.value)===Number(total.value);card.classList.toggle('changed',total.value!==String(before??'')||good.value!==String(cond.good??'')||bad.value!==String(cond.bad));card.classList.toggle('invalid-condition',!valid)});
  card.append(name,fields);list.append(card)
  });d.showModal()};
-$('close-audit').onclick=()=>$('audit-dialog').close();$('open-people').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');$('people-list').value=(data.people||[]).join('\n');$('people-message').textContent='';$('people-dialog').showModal()};$('close-people').onclick=()=>$('people-dialog').close();$('people-form').addEventListener('submit',async e=>{e.preventDefault();const people=$('people-list').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(new Set(people).size!==people.length){$('people-message').textContent='人員姓名不可重複';return}const btn=$('people-submit');btn.disabled=true;try{const r=await apiFetch('/api/personnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people})});const out=await r.json();if(!r.ok)throw Error(out.error||'儲存失敗');$('people-dialog').close();await load()}catch(err){$('people-message').textContent=err.message}finally{btn.disabled=false}});
+$('close-audit').onclick=()=>$('audit-dialog').close();
+$('open-items').onclick=()=>{if(!data)return;$('audit-dialog').close();$('item-edit-message').textContent='';$('add-item-name').value='';$('new-item-name').value='';$('edit-item').replaceChildren(...data.items.map(i=>new Option(i.name,i.name)));$('items-dialog').showModal()};
+$('close-items').onclick=()=>$('items-dialog').close();
+async function itemAction(payload,buttonId){const btn=$(buttonId);btn.disabled=true;$('item-edit-message').textContent='';try{const r=await apiFetch('/api/items',{method:'POST',body:JSON.stringify(payload)});const result=await r.json();if(!r.ok)throw Error(result.error||'操作失敗');$('items-dialog').close();await load();msg('物品資料已更新',true)}catch(e){$('item-edit-message').textContent=e.message}finally{btn.disabled=false}}
+$('add-item').onclick=()=>itemAction({action:'add',newName:$('add-item-name').value},'add-item');
+$('rename-item').onclick=()=>{const oldName=$('edit-item').value,newName=$('new-item-name').value.trim();if(!confirm(`確定將「${oldName}」更名為「${newName}」？所有門市與歷史紀錄會同步更新。`))return;itemAction({action:'rename',oldName,newName},'rename-item')};
+$('delete-item').onclick=()=>{const oldName=$('edit-item').value;if(!confirm(`確定要刪除「${oldName}」？所有門市將不再顯示此物品，歷史紀錄會保留。`))return;const typed=prompt(`再次確認，請輸入物品名稱「${oldName}」`);if(typed!==oldName)return;itemAction({action:'delete',oldName,confirmName:typed},'delete-item')};
+$('open-people').onclick=()=>{$('settings-dropdown').classList.add('hidden');$('settings-toggle').setAttribute('aria-expanded','false');$('people-list').value=(data.people||[]).join('\n');$('people-message').textContent='';$('people-dialog').showModal()};$('close-people').onclick=()=>$('people-dialog').close();$('people-form').addEventListener('submit',async e=>{e.preventDefault();const people=$('people-list').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(new Set(people).size!==people.length){$('people-message').textContent='人員姓名不可重複';return}const btn=$('people-submit');btn.disabled=true;try{const r=await apiFetch('/api/personnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people})});const out=await r.json();if(!r.ok)throw Error(out.error||'儲存失敗');$('people-dialog').close();await load()}catch(err){$('people-message').textContent=err.message}finally{btn.disabled=false}});
 $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
  const cards=[...$('audit-items').querySelectorAll('.audit-item')];
  const items=cards.map(c=>({name:c.dataset.name,quantity:Number(c.querySelector('[data-kind=expected]').value),good:Number(c.querySelector('[data-kind=good]').value),bad:Number(c.querySelector('[data-kind=bad]').value)}));
@@ -457,4 +493,66 @@ $('restore-file').addEventListener('change',async e=>{
    alert('還原成功，資料已寫入 Firebase，頁面將顯示還原後的庫存');
   }finally{btn.disabled=false}
  }catch(err){alert('還原失敗：'+err.message)}
+});
+
+
+// 選擇性重置：在 Firebase transaction 內只修改使用者勾選的資料。
+const resetNames={transactions:'借用歸還紀錄',audits:'盤點紀錄',stores:'門市',inventory:'物品庫存',people:'人員清單'};
+const initialStores=['順風','東億','敦和','御豪'];
+$('reset-all').addEventListener('click',()=>{
+ closeSettings();
+ document.querySelectorAll('.reset-choice').forEach(c=>c.checked=false);
+ $('reset-dialog').showModal();
+});
+$('close-reset').onclick=()=>$('reset-dialog').close();
+$('execute-reset').addEventListener('click',async()=>{
+ const choices=[...document.querySelectorAll('.reset-choice:checked')].map(c=>c.value);
+ if(!choices.length){alert('請先勾選至少一個重置項目');return}
+ const btn=$('execute-reset');
+ try{
+  const snap=await get(root);
+  if(!snap.exists())throw Error('Firebase 尚無庫存資料');
+  const current=snap.val();
+  const histories=Array.isArray(current.history)?current.history:[];
+  const counts={transactions:histories.filter(h=>h&&h.type!=='audit'&&h.type!=='set').length,audits:histories.filter(h=>h&&(h.type==='audit'||h.type==='set')).length,stores:(current.stores||[]).length,inventory:(current.items||[]).length,people:(current.people||[]).length};
+  const summary=choices.map(k=>`${resetNames[k]}：${counts[k]} ${k==='inventory'?'種':k==='stores'?'間':'筆'}`).join('\n');
+  const caution=choices.includes('transactions')?'\n注意：清除借用歸還紀錄後，無法查詢過往未歸還物品。':'';
+  const storeWarning=choices.includes('stores')?'\n門市將恢復預設四間，非預設門市及其庫存會被移除。':'';
+  if(!confirm(`第一次確認：即將重置以下資料（所有門市）\n\n${summary}${caution}${storeWarning}\n\n確定繼續嗎？`))return;
+  const code=prompt('請輸入驗證碼 4302，才能繼續重置');
+  if(code===null)return;
+  if(code.trim()!=='4302'){alert('驗證碼錯誤，已取消重置');return}
+  if(!confirm(`最後確認：真的要重置以下資料嗎？\n\n${choices.map(k=>resetNames[k]).join('、')}\n\n確認後系統會先自動下載 JSON 備份，再執行重置。`))return;
+  btn.disabled=true;
+  // 先從 Firebase 重新取得完整快照並下載，備份產生失敗就中止重置。
+  const backupSnapshot=await get(root);
+  if(!backupSnapshot.exists())throw Error('無法取得重置前備份，已取消操作');
+  const backupStamp=new Date().toISOString().replaceAll(':','-');
+  downloadJsonFile({inventory:backupSnapshot.val()},'starteam_before_reset_'+backupStamp+'.json');
+  const result=await runTransaction(root,d=>{
+   if(!d||!Array.isArray(d.items)||!Array.isArray(d.stores))return;
+   if(!Array.isArray(d.history))d.history=[];
+   if(choices.includes('transactions'))d.history=d.history.filter(h=>h&&(h.type==='audit'||h.type==='set'));
+   if(choices.includes('audits'))d.history=d.history.filter(h=>h&&h.type!=='audit'&&h.type!=='set');
+   if(choices.includes('people'))d.people=[];
+   if(choices.includes('stores')){
+    d.stores=[...initialStores];
+    for(const item of d.items){
+     const old=item.stores||{};
+     item.stores=Object.fromEntries(initialStores.map(name=>[name,old[name]??{expected:0,remaining:0,good:0,bad:0}]));
+    }
+    // 避免留下已移除門市的無效歷史紀錄
+    d.history=d.history.filter(h=>h&&initialStores.includes(h.store));
+   }
+   if(choices.includes('inventory')){
+    for(const item of d.items){
+     for(const name of d.stores){item.stores[name]={expected:0,remaining:0,good:0,bad:0}}
+    }
+   }
+   return d;
+  },{applyLocally:false});
+  if(!result.committed)throw Error('Firebase 未完成重置');
+  $('reset-dialog').close();
+  alert('重置完成：'+choices.map(k=>resetNames[k]).join('、')+'\n已自動觸發重置前 JSON 備份下載，請確認瀏覽器下載清單有保存檔案。');
+ }catch(e){alert('重置失敗：'+e.message)}finally{btn.disabled=false}
 });
