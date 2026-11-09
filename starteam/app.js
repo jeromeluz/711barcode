@@ -26,6 +26,17 @@ function outstandingFromHistory(d,store,itemName){
  }
  return Math.max(0,net);
 }
+// 依門市、夥伴、物品核算尚未歸還的數量。盤點紀錄不計入。
+function personOutstanding(d,store,person){
+ const counts=new Map();
+ for(const h of d.history||[]){
+  if(h.store!==store||h.person!==person||!['take','restock'].includes(h.type))continue;
+  const n=Number(h.quantity);
+  if(!Number.isSafeInteger(n)||n<=0)continue;
+  counts.set(h.item,(counts.get(h.item)||0)+(h.type==='take'?n:-n));
+ }
+ return counts;
+}
 function availableGood(stock,outstanding){
  const c=condition(stock);
  return Math.max(0,stock.remaining??0);
@@ -104,6 +115,15 @@ function mutate(d,path,p){
  if(!Array.isArray(p.items)||!p.items.length||p.items.length>d.items.length)throw Error('物品清單不正確');
  if(path==='/api/audit'&&p.items.length!==d.items.length)throw Error('盤點必須包含全部物品');
  if(path==='/api/transactions'&&!['take','restock'].includes(p.type))throw Error('操作類型錯誤');
+ // 全部歸還必須在 Firebase transaction 內重新核對，以免多人同時操作重複歸還。
+ if(path==='/api/transactions'&&p.bulkReturn){
+  if(p.type!=='restock')throw Error('全部歸還僅限歸還模式');
+  const outstanding=personOutstanding(d,p.store,p.person.trim());
+  const actual=[...outstanding].filter(([name,n])=>n>0&&d.items.some(i=>i.name===name));
+  if(!actual.length)throw Error('這位夥伴目前沒有未歸還物品');
+  if(actual.length!==p.items.length||actual.some(([name,n])=>!p.items.some(i=>i.name===name&&i.quantity===n)))throw Error('借用紀錄已更新，請重新確認歸還明細');
+ }
+
  const seen=new Set(),changes=[];
  for(const x of p.items){
   if(!x||seen.has(x.name)||!validNumber(x.quantity))throw Error('物品或數量不正確');
@@ -227,6 +247,32 @@ $('audit-form').addEventListener('submit',async e=>{e.preventDefault();
 });
 $('store').addEventListener('change',e=>{store=e.target.value;draw()});$('refresh').onclick=load;function setMode(value){mode=value;$('mode-take').classList.toggle('active',mode==='take');$('mode-return').classList.toggle('active',mode==='restock');$('mode-take').setAttribute('aria-pressed',String(mode==='take'));$('mode-return').setAttribute('aria-pressed',String(mode==='restock'));$('hint').textContent=mode==='take'?'取用後會扣除該門市庫存':'歸還後會增加該門市庫存'}$('mode-take').onclick=()=>setMode('take');$('mode-return').onclick=()=>setMode('restock');function updateSelected(){const cards=[...document.querySelectorAll('.item-choice')];let count=0;cards.forEach(el=>{const c=el.querySelector('[type=checkbox]'),q=el.querySelector('[type=number]');q.disabled=!c.checked;el.classList.toggle('selected',c.checked);if(c.checked)count++});$('selected-count').textContent=`已選 ${count} 項物品`;$('toggle-all').textContent=count===cards.length?'取消全選':'全選'}
 function renderChoices(selections={}){const list=$('item-list');list.replaceChildren();data.items.forEach(item=>{const stock=item.stores[store];const card=document.createElement('div');card.className='item-choice';card.dataset.name=item.name;const check=document.createElement('input');check.type='checkbox';check.checked=!!selections[item.name]?.checked;check.setAttribute('aria-label','選擇 '+item.name);const name=document.createElement('div');name.className='item-name';name.textContent=item.name;const small=document.createElement('small');small.textContent=`可借用 ${availableGood(stock,outstandingFromHistory(data,store,item.name))}`;name.append(small);const qty=document.createElement('input');qty.type='number';qty.min='1';qty.step='1';qty.placeholder='數量';qty.value=selections[item.name]?.quantity??'';qty.setAttribute('aria-label',item.name+'數量');check.onchange=updateSelected;qty.onfocus=()=>{if(!check.checked){check.checked=true;updateSelected()}};card.append(check,name,qty);list.append(card)});updateSelected()}
+$('return-mine').onclick=async()=>{
+ if(!data)return msg('資料尚未同步，請稍後再試',false);
+ const person=$('person').value.trim();
+ if(!person)return msg('請先選擇夥伴姓名',false);
+ const counts=personOutstanding(data,store,person);
+ const items=data.items.map(i=>({name:i.name,quantity:counts.get(i.name)||0})).filter(i=>i.quantity>0);
+ if(!items.length)return msg(`${person} 在 ${store} 目前沒有未歸還物品`,false);
+ const detail=items.map(i=>`${i.name}：${i.quantity} 件`).join('\n');
+ if(!confirm(`第一道確認：${person} 在 ${store} 尚未歸還的物品如下：\n\n${detail}\n\n確定要全部歸還嗎？`))return;
+ if(!confirm(`第二道確認：將一次歸還 ${items.length} 種、共 ${items.reduce((sum,i)=>sum+i.quantity,0)} 件物品。\n\n${detail}\n\n請確認實際物品都已歸還現場，確定執行嗎？`))return;
+ const excess=items.flatMap(i=>{const stock=data.items.find(x=>x.name===i.name)?.stores?.[store];if(!stock||!validNumber(stock.expected))return [];const after=stock.remaining+i.quantity;return after>stock.expected?[`${i.name}：歸還後 ${after} 件（應有 ${stock.expected}）`]:[]});
+ let confirmOverLimit=false;
+ if(excess.length){
+  if(!confirm('以下物品歸還後超過應有數量：\n'+excess.join('\n')+'\n\n仍要歸還嗎？'))return;
+  if(!confirm('再次確認超量歸還，完成後請盤點應有數量。確定繼續？'))return;
+  confirmOverLimit=true;
+ }
+ const btn=$('return-mine');btn.disabled=true;
+ try{
+  const r=await apiFetch('/api/transactions',{method:'POST',body:JSON.stringify({store,person,type:'restock',items,bulkReturn:true,confirmOverLimit})});
+  const result=await r.json();if(!r.ok)throw Error(result.error||'全部歸還失敗');
+  setMode('restock');msg(`已歸還 ${items.length} 種物品，共 ${items.reduce((sum,i)=>sum+i.quantity,0)} 件，紀錄已儲存`,true);
+  document.querySelectorAll('.item-choice').forEach(el=>{el.querySelector('[type=checkbox]').checked=false;el.querySelector('[type=number]').value=''});
+  await load();
+ }catch(err){msg(err.message,false);await load()}finally{btn.disabled=false}
+};
 $('toggle-all').onclick=()=>{const cards=[...document.querySelectorAll('.item-choice')];const all=cards.every(c=>c.querySelector('[type=checkbox]').checked);cards.forEach(c=>c.querySelector('[type=checkbox]').checked=!all);updateSelected()};
 $('form').addEventListener('submit',async e=>{e.preventDefault();const items=[...document.querySelectorAll('.item-choice')].filter(el=>el.querySelector('[type=checkbox]').checked).map(el=>({name:el.dataset.name,quantity:Number(el.querySelector('[type=number]').value),raw:el.querySelector('[type=number]').value}));const p={store,person:$('person').value.trim(),type:mode,items:items.map(({name,quantity})=>({name,quantity}))};if(!items.length){msg('請至少選擇一項物品',false);return}if(items.some(i=>i.raw===''||!Number.isSafeInteger(i.quantity)||i.quantity<0||(p.type!=='set'&&i.quantity===0))){msg('請為每個已選物品輸入正確的整數數量',false);return}if(!p.person){msg('請選擇夥伴姓名',false);return}
 if(p.type==='take'){
