@@ -557,41 +557,6 @@
     @media(max-width:768px){.product-embed{border-radius:12px}.product-frame{height:calc(100dvh - 225px);min-height:520px}}
 
     /* 電子書中心 */
-    .ebook-section{display:none;min-width:0}.ebook-section.active{display:block}
-    .ebook-layout{display:grid;grid-template-columns:minmax(235px,300px) minmax(0,1fr);gap:18px;align-items:start}
-    .ebook-library,.ebook-reader{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 8px 26px rgba(0,50,32,.04);min-width:0;overflow:hidden}
-    .ebook-library{padding:20px;position:sticky;top:22px}.ebook-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .ebook-topline h2{font-size:17px;margin:0;color:#172c24}.ebook-count{font-size:12px;font-weight:700;color:var(--green);background:#eaf5ef;border-radius:99px;padding:5px 10px}
-    .ebook-search{display:block;width:100%;border:1px solid #d8e5dd;border-radius:10px;padding:12px;font-size:14px;outline:none;margin-bottom:15px;background:#fbfcfb}
-    .ebook-search:focus{border-color:var(--green);box-shadow:0 0 0 3px #0081551a}
-    .ebook-list{display:grid;gap:9px;max-height:calc(100vh - 295px);overflow-y:auto}
-    .ebook-item{width:100%;display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6ece8;padding:13px 10px;border-radius:12px;text-align:left;cursor:pointer;color:#172c24}
-    .ebook-item:hover{border-color:#9acdb7;background:#f7fcf9}.ebook-item.selected{border-color:var(--green);background:#edf8f2}
-    .ebook-item-row{display:flex;align-items:stretch;gap:7px;min-width:0}
-    .ebook-item-row .ebook-item{flex:1;min-width:0;width:auto}
-    .ebook-download{display:inline-flex;align-items:center;justify-content:center;gap:5px;align-self:stretch;flex:0 0 auto;min-width:42px;padding:8px 10px;text-decoration:none;background:#fff4ec;border:1px solid #f6d5bf;border-radius:11px;color:#c75a25;font-size:12px;font-weight:800;white-space:nowrap}
-    .ebook-download[hidden]{display:none}
-    .ebook-download:hover{background:#EE6F2D;color:white;border-color:#EE6F2D}
-    .ebook-download svg{width:17px;height:17px;flex-shrink:0}
-    .ebook-reader-download{align-self:center;min-height:38px}
-
-    .ebook-item-icon{display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#fff1e9;color:#b9541e;font-weight:800;font-size:11px}
-    .ebook-item strong{display:block;font-size:14px;line-height:1.45;word-break:break-word}.ebook-item small{display:block;color:#76857c;font-size:12px;margin-top:4px}
-    .ebook-reader-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line)}
-    .ebook-reader-head h2{font-size:16px;margin:0;overflow-wrap:anywhere}.ebook-reader-head span{font-size:12px;color:#718379}
-    .ebook-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:9px;padding:12px;background:#f8fbf9;border-bottom:1px solid var(--line)}
-    .ebook-tool-btn{background:#fff;border:1px solid #d4e2d9;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;color:#20523b;cursor:pointer;min-height:38px}
-    .ebook-tool-btn:hover:not(:disabled){border-color:var(--green)}.ebook-tool-btn:disabled{opacity:.38;cursor:not-allowed}
-    .ebook-toolbar input{width:65px;max-width:25vw;border:1px solid #d4e2d9;border-radius:8px;padding:9px 6px;text-align:center;font-size:14px}
-    .ebook-toolbar .ebook-divider{width:1px;height:25px;background:#dce9df;margin:0 3px}
-    .ebook-pages{font-size:13px;color:#56645a;white-space:nowrap}
-    .ebook-stage{background:#edf1ee;min-height:530px;display:flex;justify-content:center;align-items:flex-start;padding:22px 14px;overflow:auto;position:relative}
-    #ebook-canvas{display:block;height:auto;background:white;box-shadow:0 6px 22px #001b101c}
-    .ebook-placeholder{align-self:center;text-align:center;color:#77857c;padding:35px 16px;line-height:1.8}.ebook-placeholder strong{display:block;color:#33473b;font-size:17px;margin-bottom:4px}
-    .ebook-status{padding:10px 18px;font-size:12px;color:#6a7a6e;min-height:39px;border-top:1px solid #e8eee9}
-    .ebook-empty{font-size:13px;line-height:1.75;color:#6a7a6e;padding:20px 8px}.ebook-empty code{font-size:12px;color:#008155}
-    @media(max-width:1050px){.ebook-layout{grid-template-columns:minmax(210px,265px) minmax(0,1fr)}}
-    @media(max-width:760px){.ebook-layout{display:block}.ebook-library{position:static;padding:15px;margin-bottom:13px}.ebook-list{display:flex;overflow-x:auto;max-height:none;padding:1px 1px 8px}.ebook-item-row{min-width:240px;max-width:315px;flex:0 0 auto}.ebook-item{min-width:0;max-width:none;flex:1}.ebook-reader-head{padding:14px}.ebook-toolbar{gap:6px;padding:10px 5px}.ebook-tool-btn{padding:8px 9px;font-size:12px}.ebook-stage{padding:12px 6px;min-height:380px}.ebook-divider{display:none}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
     /* 站內商品圖片預覽 */
@@ -605,8 +570,8 @@
     body.preview-open{overflow:hidden}
     @media(max-width:700px){.image-preview{padding:65px 12px 24px}.image-preview img{max-height:calc(100dvh - 120px)}}
     /* 這兩個完整功能頁直接貼齊主內容頂端，保留導覽列 */
-    @media(min-width:701px){.main-content:has(.product-embed.active),.main-content:has(.ebook-section.active),.main-content:has(.pop-embed.active){padding-top:22px}}
-    @media(max-width:700px){.main-content:has(.product-embed.active),.main-content:has(.ebook-section.active),.main-content:has(.pop-embed.active){padding-top:0}}
+    @media(min-width:701px){.main-content:has(.product-embed.active),.main-content:has(.star-section.active),.main-content:has(.pop-embed.active){padding-top:22px}}
+    @media(max-width:700px){.main-content:has(.product-embed.active),.main-content:has(.star-section.active),.main-content:has(.pop-embed.active){padding-top:0}}
     /* 防止行動裝置整頁 pinch zoom，仍允許正常滑動 */
     @media (pointer:coarse) {
       html,body{touch-action:pan-x pan-y;overscroll-behavior-x:none}
@@ -652,7 +617,7 @@
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
         <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
-        <button type="button" class="tab-btn" data-page="電子檔查看" onclick="switchPage('電子檔查看')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>電子檔查看</span></button>
+        <button type="button" class="tab-btn" data-page="造勢道具借用" onclick="switchPage('造勢道具借用')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>造勢道具借用</span></button>
       </nav>
       <div class="sidebar-bottom"><span class="online-dot"></span> 快速查詢 · 作業支援<div class="sidebar-credit">ST Resource Center</div></div>
     </aside>
@@ -668,12 +633,8 @@
         <button type="button" class="tab-btn" data-page="ST常用電話" onclick="switchPage('ST常用電話')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.8L7.1 10a16 16 0 0 0 6.9 6.9l1.5-1.9a2 2 0 0 1 1.8-.6l3 .5a2 2 0 0 1 1.7 2Z"/></svg><span>ST 常用電話</span></button>
         <button type="button" class="tab-btn" data-page="常用表單" onclick="switchPage('常用表單')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>常用表單</span></button>
         <button type="button" class="tab-btn link-tab" data-page="門市所有商品查詢" onclick="switchPage('門市所有商品查詢')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg><span>門市所有商品查詢</span></button>
-        <button type="button" class="tab-btn" data-page="電子檔查看" onclick="switchPage('電子檔查看')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>電子檔查看</span></button>
+        <button type="button" class="tab-btn" data-page="造勢道具借用" onclick="switchPage('造勢道具借用')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/><path d="M9 7h7M9 11h7"/></svg><span>造勢道具借用</span></button>
       </nav></div>
-      <div class="page-head">
-        <div><div class="page-eyebrow"><span class="eyebrow-dot"></span> ST RESOURCE CENTER <span class="eyebrow-sep">/</span> 資源快速查詢</div><h1 id="page-heading">長期 POP 與陳列盒</h1><p id="page-description">快速找到所需的陳列資源、品號與訂購資訊</p></div>
-        <div class="head-decoration"><span></span><span></span><span></span></div>
-      </div>
       <div class="header-panel">
     <!-- 導航分頁 -->
 
@@ -752,194 +713,15 @@
     <div class="product-frame-note">此商品查詢僅限統一超商內部人員使用，嚴禁外流，每檔期都會更新</div>
   </section>
 
-  <section id="ebook-section" class="ebook-section" aria-label="電子檔查看">
-    <div class="ebook-layout">
-      <aside class="ebook-library">
-        <div class="ebook-topline"><h2>電子檔案庫</h2><span id="ebook-count" class="ebook-count">0 份</span></div>
-        <input id="ebook-search" class="ebook-search" type="search" placeholder="搜尋電子檔名稱或分類" aria-label="搜尋電子檔">
-        <div id="ebook-list" class="ebook-list"><div class="ebook-empty">讀取清單中…</div></div>
-      </aside>
-      <div class="ebook-reader">
-        <div class="ebook-reader-head"><div><h2 id="ebook-title">選擇一本電子檔</h2><span id="ebook-subtitle">單頁 PDF 閱讀模式</span></div><a id="ebook-reader-download" class="ebook-download ebook-reader-download" hidden aria-label="下載目前電子檔">下載 PDF</a></div>
-        <div class="ebook-toolbar">
-          <button class="ebook-tool-btn" id="ebook-prev" type="button" disabled>‹ 上一頁</button>
-          <label class="ebook-pages" for="ebook-page-input">第</label><input type="number" id="ebook-page-input" min="1" value="1" disabled aria-label="跳轉頁碼">
-          <span class="ebook-pages">/ <span id="ebook-total-pages">0</span> 頁</span>
-          <button class="ebook-tool-btn" id="ebook-go" type="button" disabled>跳頁</button>
-          <button class="ebook-tool-btn" id="ebook-next" type="button" disabled>下一頁 ›</button>
-          <span class="ebook-divider"></span>
-          <button class="ebook-tool-btn" id="ebook-zoom-out" type="button" disabled aria-label="縮小">−</button>
-          <span id="ebook-zoom" class="ebook-pages">100%</span>
-          <button class="ebook-tool-btn" id="ebook-zoom-in" type="button" disabled aria-label="放大">＋</button>
-        </div>
-        <div id="ebook-stage" class="ebook-stage"><div class="ebook-placeholder" id="ebook-placeholder"><strong>電子書閱讀區</strong>從電子檔案庫選取 PDF<br>即可在這裡逐頁閱讀</div><canvas id="ebook-canvas" hidden aria-label="PDF 單頁畫面"></canvas></div>
-        <div class="ebook-status" id="ebook-status" aria-live="polite">尚未開啟電子檔</div>
-      </div>
-    </div>
-  </section>
+  <section id="star-section" class="pop-embed star-section" aria-label="造勢道具借用"><iframe id="star-frame" class="pop-frame" title="造勢道具借用" loading="lazy" data-src="https://jeromeluz.github.io/711barcode/starteam/index.html"></iframe></section>
   <div class="grid-container" id="grid-container"></div>
   <div id="loading-trigger" style="height: 20px;"></div>
   <footer class="app-footer">中二區 ST 資源整合平台 <span>·</span> Resource Center</footer>
     </main>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
 
-    /* 電子檔清單：可修改 pdf/index.json，並把 PDF 放在 pdf/ 資料夾。 */
-    let ebookListLoaded = false;
-    let ebookCatalog = [];
-    let ebookPdf = null;
-    let ebookCurrentPage = 1;
-    let ebookZoom = 1;
-    let ebookRenderSeq = 0;
-    const ebookCanvas = document.getElementById('ebook-canvas');
-    const ebookStatus = document.getElementById('ebook-status');
-    const ebookPageInput = document.getElementById('ebook-page-input');
-    if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    async function loadEbookCatalog() {
-      ebookListLoaded = true;
-      try {
-        const response = await fetch('pdf/index.json?t=' + Date.now(), {cache:'no-store'});
-        if (!response.ok) throw new Error('找不到 pdf/index.json');
-        const data = await response.json();
-        if (!Array.isArray(data)) throw new Error('電子檔清單格式不正確');
-        ebookCatalog = data.filter(item => item && typeof item.title === 'string' && typeof item.file === 'string' && item.file.trim());
-        renderEbookList();
-      } catch(err) {
-        ebookCatalog = [];
-        renderEbookList();
-        ebookStatus.textContent = '目前無法載入電子檔清單，請確認 pdf/index.json 已放在網站中';
-      }
-    }
-    function ebookDownloadUrl(file) {
-      try {
-        const url = new URL(file, document.baseURI);
-        if (!['http:', 'https:'].includes(url.protocol)) return null;
-        return url.href;
-      } catch { return null; }
-    }
-    function ebookDownloadName(item) {
-      const basename = (item.file.split(/[?#]/)[0].split('/').pop() || 'document.pdf');
-      try { return decodeURIComponent(basename); } catch { return basename; }
-    }
-    function buildEbookDownload(item, reader = false) {
-      const url = ebookDownloadUrl(item.file);
-      if (!url) return null;
-      const link = document.createElement('a');
-      link.className = 'ebook-download' + (reader ? ' ebook-reader-download' : '');
-      link.href = url;
-      link.download = ebookDownloadName(item);
-      link.title = '下載 ' + item.title;
-      link.setAttribute('aria-label', '下載 ' + item.title);
-      link.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg>' + (reader ? '<span>下載 PDF</span>' : '');
-      return link;
-    }
-    function renderEbookList() {
-      const keyword = document.getElementById('ebook-search').value.trim().toLowerCase();
-      const shown = ebookCatalog.filter(item => [item.title,item.category||'',item.description||''].join(' ').toLowerCase().includes(keyword));
-      document.getElementById('ebook-count').textContent = ebookCatalog.length + ' 份';
-      const list = document.getElementById('ebook-list');
-      list.replaceChildren();
-      if (!shown.length) {
-        const empty = document.createElement('div'); empty.className='ebook-empty';
-        empty.textContent = ebookCatalog.length ? '找不到符合的電子檔' : '目前尚無電子檔。請在 pdf/index.json 新增資料，並上傳對應的 PDF 檔案。';
-        list.appendChild(empty); return;
-      }
-      for (const item of shown) {
-        const button = document.createElement('button');
-        button.type='button';button.className='ebook-item' + (ebookCatalog.indexOf(item) === activeEbookIndex ? ' selected' : '');
-        const ico=document.createElement('span');ico.className='ebook-item-icon';ico.textContent='PDF';
-        const info=document.createElement('span'); const title=document.createElement('strong');title.textContent=item.title;
-        const subtitle=document.createElement('small');subtitle.textContent=item.category||'電子文件';
-        info.append(title,subtitle);button.append(ico,info);
-        button.addEventListener('click',()=>openEbook(ebookCatalog.indexOf(item)));
-        const row=document.createElement('div');row.className='ebook-item-row';row.appendChild(button);
-        const download=buildEbookDownload(item);if(download)row.appendChild(download);
-        list.appendChild(row);
-      }
-    }
-    let activeEbookIndex = -1;
-    async function openEbook(index) {
-      const item = ebookCatalog[index]; if (!item) return;
-      activeEbookIndex = index;renderEbookList();
-      document.getElementById('ebook-title').textContent = item.title;
-      document.getElementById('ebook-subtitle').textContent = item.category||'PDF 電子檔';
-      const readerDownload=document.getElementById('ebook-reader-download');
-      const downloadUrl=ebookDownloadUrl(item.file);
-      readerDownload.hidden=!downloadUrl;
-      if(downloadUrl){readerDownload.href=downloadUrl;readerDownload.download=ebookDownloadName(item);readerDownload.title='下載 '+item.title;}
-
-      ebookPdf = null;ebookCurrentPage=1;ebookZoom=1;ebookRenderSeq++;
-      ebookCanvas.hidden=true; ebookCanvas.style.display='none';
-      const placeholder=document.getElementById('ebook-placeholder'); placeholder.hidden=false;
-      placeholder.innerHTML='<strong>正在開啟 PDF</strong>請稍候…';
-      updateEbookControls();ebookStatus.textContent='正在載入 ' + item.title;
-      const requestId=ebookRenderSeq;
-      try {
-        if (!window.pdfjsLib) throw new Error('PDF 閱讀套件載入失敗，請檢查網路連線');
-        const task=pdfjsLib.getDocument({url:item.file,withCredentials:false});
-        const pdf=await task.promise;
-        if(requestId!==ebookRenderSeq) {await pdf.destroy();return;}
-        ebookPdf=pdf;
-        await renderEbookPage();
-      } catch(err) {
-        if(requestId!==ebookRenderSeq)return;
-        placeholder.innerHTML='';
-        const strong=document.createElement('strong');strong.textContent='無法開啟電子檔';
-        placeholder.append(strong, document.createTextNode('請檢查 PDF 檔案路徑、檔案是否存在及網站伺服器設定'));
-        ebookStatus.textContent='載入失敗：'+(err.message||'未知錯誤');updateEbookControls();
-      }
-    }
-    async function renderEbookPage() {
-      if(!ebookPdf)return;
-      const requestId=++ebookRenderSeq;
-      ebookStatus.textContent='正在顯示第 '+ebookCurrentPage+' 頁…';
-      updateEbookControls();
-      try {
-        const page=await ebookPdf.getPage(ebookCurrentPage);
-        if(requestId!==ebookRenderSeq)return;
-        const stage=document.getElementById('ebook-stage');
-        const natural=page.getViewport({scale:1});
-        const available=Math.max(150,stage.clientWidth-28);
-        const fit=Math.min(1.8,available/natural.width);
-        const pixelRatio=Math.min(window.devicePixelRatio||1,2);
-        const viewport=page.getViewport({scale:fit*ebookZoom});
-        const renderCanvas=document.createElement('canvas');
-        renderCanvas.width=Math.ceil(viewport.width*pixelRatio);
-        renderCanvas.height=Math.ceil(viewport.height*pixelRatio);
-        const ctx=renderCanvas.getContext('2d');
-        await page.render({canvasContext:ctx,viewport,transform:pixelRatio===1?null:[pixelRatio,0,0,pixelRatio,0,0]}).promise;
-        if(requestId!==ebookRenderSeq)return;
-        ebookCanvas.width=renderCanvas.width;ebookCanvas.height=renderCanvas.height;
-        ebookCanvas.style.width=viewport.width+'px'; ebookCanvas.style.height=viewport.height+'px';
-        ebookCanvas.getContext('2d').drawImage(renderCanvas,0,0);
-        ebookCanvas.hidden=false;ebookCanvas.style.display='block';
-        document.getElementById('ebook-placeholder').hidden=true;
-        ebookStatus.textContent='第 '+ebookCurrentPage+' 頁，共 '+ebookPdf.numPages+' 頁';
-        updateEbookControls();
-      }catch(err){if(requestId===ebookRenderSeq)ebookStatus.textContent='頁面讀取失敗：'+(err.message||'未知錯誤');}
-    }
-    function updateEbookControls(){
-      const ready=!!ebookPdf;
-      document.getElementById('ebook-prev').disabled=!ready||ebookCurrentPage<=1;
-      document.getElementById('ebook-next').disabled=!ready||ebookCurrentPage>=ebookPdf.numPages;
-      for(const id of ['ebook-go','ebook-zoom-out','ebook-zoom-in'])document.getElementById(id).disabled=!ready;
-      ebookPageInput.disabled=!ready;ebookPageInput.max=ready?ebookPdf.numPages:1;ebookPageInput.value=ebookCurrentPage;
-      document.getElementById('ebook-total-pages').textContent=ready?ebookPdf.numPages:0;
-      document.getElementById('ebook-zoom').textContent=Math.round(ebookZoom*100)+'%';
-    }
-    function ebookGoToPage(page){if(!ebookPdf)return;const target=Number(page);if(!Number.isInteger(target)||target<1||target>ebookPdf.numPages){ebookStatus.textContent='請輸入 1 到 '+ebookPdf.numPages+' 的頁碼';ebookPageInput.value=ebookCurrentPage;return;}ebookCurrentPage=target;renderEbookPage();}
-    document.getElementById('ebook-search').addEventListener('input',renderEbookList);
-    document.getElementById('ebook-prev').addEventListener('click',()=>ebookGoToPage(ebookCurrentPage-1));
-    document.getElementById('ebook-next').addEventListener('click',()=>ebookGoToPage(ebookCurrentPage+1));
-    document.getElementById('ebook-go').addEventListener('click',()=>ebookGoToPage(ebookPageInput.value));
-    ebookPageInput.addEventListener('keydown',e=>{if(e.key==='Enter')ebookGoToPage(ebookPageInput.value);});
-    document.getElementById('ebook-zoom-out').addEventListener('click',()=>{ebookZoom=Math.max(.5,Math.round((ebookZoom-.25)*100)/100);renderEbookPage();});
-    document.getElementById('ebook-zoom-in').addEventListener('click',()=>{ebookZoom=Math.min(3,Math.round((ebookZoom+.25)*100)/100);renderEbookPage();});
-    let ebookResizeTimeout;
-    window.addEventListener('resize',()=>{if(!ebookPdf||currentPage!=='電子檔查看')return;clearTimeout(ebookResizeTimeout);ebookResizeTimeout=setTimeout(renderEbookPage,180);});
 
     // XLSX 第一個工作表需以第一列為欄名，儲存格文字、數值及換行可讀取。
     const POP_XLSX_PATH = 'pop.xlsx';
@@ -1002,7 +784,7 @@
         allData = [];
         console.error('載入 pop.xlsx 失敗', err);
       }
-      if (!['ST常用電話','常用表單','門市所有商品查詢','電子檔查看'].includes(currentPage)) {
+      if (!['ST常用電話','常用表單','門市所有商品查詢','造勢道具借用'].includes(currentPage)) {
         updateCategoryTabs(); filterAndRender();
       }
     }
@@ -1056,7 +838,7 @@
       '5': 'ST常用電話',
       '6': '常用表單',
       '7': '門市所有商品查詢',
-      '8': '電子檔查看',
+      '8': '造勢道具借用',
       '9': 'POP快速製作'
     });
     const PAGE_HASHES = Object.fromEntries(Object.entries(PAGE_ROUTES).map(([id, page]) => [page, id]));
@@ -1083,10 +865,6 @@
 
       currentPage = pageName;
       currentCategory = 'ALL';
-      const displayNames = {'長期POP與陳列盒':'長期 POP 與陳列盒','門市自用品':'門市自用品','隔板與省力工具':'隔板與省力工具','隔板計算系統':'隔板計算系統','ST常用電話':'ST 常用電話','常用表單':'常用表單','門市所有商品查詢':'門市所有商品查詢','電子檔查看':'電子檔查看','POP快速製作':'POP 快速製作'};
-      const descriptions = {'長期POP與陳列盒':'快速找到所需的陳列資源、品號與訂購資訊','門市自用品':'門市日常用品與耗材資料，查詢更有效率','隔板與省力工具':'貨架隔板標準量與工具資料','隔板計算系統':'Layout 智慧辨識與隔板需求即時計算','ST常用電話':'快速找到工作常用聯絡窗口與電話','常用表單':'各類工作表單與作業連結集中管理','門市所有商品查詢':'直接在平台內查詢門市商品資訊','電子檔查看':'選擇電子檔，單頁閱讀並快速跳轉頁數','POP快速製作':'快速製作門市公告與咖啡寄取杯通知 POP'};
-      document.getElementById('page-heading').textContent = displayNames[pageName] || pageName;
-      document.getElementById('page-description').textContent = descriptions[pageName] || '快速查詢工作所需資源';
       searchInput.value = '';
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-page') === pageName);
@@ -1099,13 +877,12 @@
       document.getElementById('pop-embed').classList.toggle('active', isPopPage);
       if(isPopPage){const popFrame=document.getElementById('pop-frame');if(!popFrame.getAttribute('src'))popFrame.src=popFrame.dataset.src;}
       const isProductPage = pageName === '門市所有商品查詢';
-      const isPdfPage = pageName === '電子檔查看';
-      document.getElementById('ebook-section').classList.toggle('active', isPdfPage);
-      if (isPdfPage && !ebookListLoaded) loadEbookCatalog();
-      document.querySelector('.page-head').style.display = (isProductPage || isPdfPage || isCalculatorPage || isPopPage) ? 'none' : '';
-      document.querySelector('.header-panel').style.display = (isProductPage || isPdfPage || isCalculatorPage || isPopPage) ? 'none' : '';
-      document.getElementById('grid-container').style.display = (isProductPage || isPdfPage || isCalculatorPage || isPopPage) ? 'none' : '';
-      document.getElementById('loading-trigger').style.display = (isProductPage || isPdfPage || isCalculatorPage || isPopPage) ? 'none' : '';
+      const isStarPage = pageName === '造勢道具借用';
+      document.getElementById('star-section').classList.toggle('active', isStarPage);
+      if (isStarPage) { const frame = document.getElementById('star-frame'); if (!frame.getAttribute('src')) frame.src = frame.dataset.src; }
+      document.querySelector('.header-panel').style.display = (isProductPage || isStarPage || isCalculatorPage || isPopPage) ? 'none' : '';
+      document.getElementById('grid-container').style.display = (isProductPage || isStarPage || isCalculatorPage || isPopPage) ? 'none' : '';
+      document.getElementById('loading-trigger').style.display = (isProductPage || isStarPage || isCalculatorPage || isPopPage) ? 'none' : '';
       const productEmbed = document.getElementById('product-embed');
       productEmbed.classList.toggle('active', isProductPage);
       if (isCalculatorPage) {
@@ -1116,7 +893,7 @@
         boardStandardSection.style.display = 'none';
         return;
       }
-      if (isPdfPage) {
+      if (isStarPage) {
         boardStandardSection.style.display = 'none';
         return;
       }
